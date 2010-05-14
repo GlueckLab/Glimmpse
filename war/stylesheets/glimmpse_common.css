@@ -1,0 +1,116 @@
+/*
+ * GLIMMPSE (General Linear Multivariate Model Power and Sample size Estimator)
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+/** 
+* Styles for header, navbar shared across all GLIMMPSE pages
+* 
+* Author: Sarah Kreidler
+*
+*/
+
+/* basic page style */
+
+body {
+	background: #ccc; /*#A1AB61;*/
+	margin: 0px 0px;
+}
+
+/** header style **/
+
+div#header {
+  font-family: Blippo, Arial, Helvetica, sans-serif;
+  background: #F9FCFF;
+  width: 100%;
+  height: 100px;
+  position: relative;
+  border-bottom: 2px solid black;
+}
+
+/* absolute positioning of all elements in the header bar */
+div#header div {
+	position: absolute;
+}
+
+/* logo image */
+div#glimmpse-logo {
+	left: 15; top: 10;
+}
+
+div#glimmpse-logo img {
+	width: 70px;
+	height: 70px;
+	background: #F9FCFF;
+
+}
+
+div#glimmpse-name {
+	font-weight: bold;
+	font-size: 20pt;
+	left: 90; top: 30;
+	padding-right: 20px;
+	border-right: 1px solid #ccc;
+	color: #555;
+}
+
+/* Software name text */
+div#glimmpse-description {
+	left: 270; top: 30;
+	color: #333;
+	font-size: 12pt;
+}
+
+div#glimmpse-owner {
+	bottom: 0; left: 24;
+	width: 80%;
+	border-top: 1px dotted black;
+}
+
+div#glimmpse-owner a {
+	text-decoration: none;
+	color: #222;
+	font-size: 9pt;
+}
+
+div#glimmpse-owner a:hover {
+	text-decoration: none;
+	color: #005C84;
+}
+
+/** top navbar style **/
+
+div#horizontal-navbar {
+	width: 100%;
+	/*background-color: #204d89;*/
+	background-color: #005C84;
+	text-align: left;
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	color: #d9e8ef;
+	border-bottom: 1px solid black;
+	padding: 5px 0px;
+}
+
+div#horizontal-navbar a {
+	text-decoration: none;
+	color: #d9e8ef;
+	padding: 0px 24px;
+}
+
+div#horizontal-navbar a:hover {
+	color:#fff;
+}
