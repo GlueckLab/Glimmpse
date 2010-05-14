@@ -11,7 +11,14 @@
   <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
 
   <!-- Other module inherits                                      -->
-
+  <!-- Internationalization package for gwt -->
+  <inherits name="com.google.gwt.i18n.I18N"/>
+  <extend-property name="locale" values="en"/> 
+ <!--  set-property-fallback name="locale" value="en"/> -->
+ <!--  xml -->
+ <inherits name="com.google.gwt.xml.XML"/>
+ <!-- visualization api -->
+ <inherits name="com.google.gwt.visualization.Visualization"/>
   <!-- Specify the app entry point class.                         -->
   <entry-point class='edu.cudenver.bios.glimmpse.client.Glimmpse'/>
 
