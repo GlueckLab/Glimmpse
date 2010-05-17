@@ -44,23 +44,24 @@
 	font-size: 14px;
     line-height: 18px;
     width: 120px;
-    height: 24px;
+    height: 14px;
     background-color: #fff;
-    background-image: url(../images/stepBgDeselected.png);
+    /*background-image: url(../images/stepBgDeselected.png);
     background-repeat: no-repeat;
-    background-position: 0% 100%;
+    background-position: 0% 100%;*/
 }
 
 .stepsLeftLabel-selected {
 	color: black; /*#22A45E;*/
 	font-weight: bold;
-	background-image: url(../images/stepBgSelected.png);
+	/*background-image: url(../images/stepBgSelected.png);*/
 }
 
 .stepsLeftLabel-deselected {
 	color: gray;
 	font-weight: normal;
-	background-image: url(../images/stepBgDeselected.png);
+	background: #F9FCFF;
+	/* background-image: url(../images/stepBgDeselected.png);*/
 }
 
 /* container for user input (around forms, etc) */
