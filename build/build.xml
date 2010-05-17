@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="glimmpse" default="zip" basedir=".">
 	
-	<property name="module.name" value="edu.cudenver.bios.powercalculator.PowerCalculatorGUI" />
+	<property name="module.name" value="edu.cudenver.bios.glimmpse.Glimmpse" />
     <property name="source.dir" value="${basedir}/../src" />
-	<property name="explodedzip.dir" value="${basedir}/../glimmpse" />
+	<property name="explodedzip.dir" value="${basedir}/glimmpse" />
 	<property name="target.dir"  value="${explodedzip.dir}"/>
-	<property name="javadoc.dir" value="${basedir}/../javadoc" />
+	<property name="javadoc.dir" value="${basedir}/javadoc" />
 	<property name="thirdparty.dir" value="${basedir}/../../thirdparty" />
 	<property name="gwt.dir" value="${thirdparty.dir}/gwt/2.0.3" />
+	<property name="gwt.visualization.dir" value="${thirdparty.dir}/gwt-visualization/1.1/lib" />
 	<property name="zip.file" value="${ant.project.name}.zip" />
 	<property name="war.dir" value="${basedir}/../war"/>
 	
@@ -16,6 +17,9 @@
   		<fileset dir="${gwt.dir}">
   			<include name="gwt-user.jar"/>
   			<include name="gwt-dev.jar"/>
+  		</fileset>
+  		<fileset dir="${gwt.visualization.dir}">
+  			<include name="gwt-visualization.jar"/>
   		</fileset>
   	</path>
   
