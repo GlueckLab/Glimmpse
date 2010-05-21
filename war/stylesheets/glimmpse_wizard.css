@@ -41,7 +41,7 @@
 
 .stepsLeftPanel {
 	margin-right: 10px;
-	background: #E0ECF8;
+	border-right: 2px solid #E0ECF8;
 }
 
 .stepsLeftLabel {
@@ -60,13 +60,14 @@
 .stepsLeftLabel-selected {
 	color: black; /*#22A45E;*/
 	font-weight: bold;
+	background: #E0ECF8;
 	/*background-image: url(../images/stepBgSelected.png);*/
 }
 
 .stepsLeftLabel-deselected {
 	color: gray;
 	font-weight: normal;
-	background: #E0ECF8;
+	background: #fff;
 	/* background-image: url(../images/stepBgDeselected.png);*/
 }
 
@@ -79,6 +80,7 @@
 
 /* styles applied to steps in the input wizard */
 .wizardStepPanel {
+	margin-left: 10px;
 }
 
 .wizardStepPanel-subpanel {
