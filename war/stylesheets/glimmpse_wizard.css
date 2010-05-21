@@ -22,20 +22,26 @@
  */
 
 .body {
-	background: #ccc; /*#A1AB61;*/
+	background: #fff; /*#A1AB61;*/
 }
 
 /* style for main wizard input panel (GWT class) */
-.powerCalculatorPanel {
+.glimmpseWizardPanel {
 	margin: 5px 5px;
-	border: 1px solid black;
 	padding: 5px;
 	background: #fff;
+	height: 100%;
 }
+
+.wizardLayoutPanel {
+	height: 100%;	
+}
+
 /* Style for "steps left" banner above the input wizard. */
 
 .stepsLeftPanel {
-	margin: 0px 20px;
+	margin-right: 10px;
+	background: #E0ECF8;
 }
 
 .stepsLeftLabel {
@@ -60,7 +66,7 @@
 .stepsLeftLabel-deselected {
 	color: gray;
 	font-weight: normal;
-	background: #F9FCFF;
+	background: #E0ECF8;
 	/* background-image: url(../images/stepBgDeselected.png);*/
 }
 
@@ -292,6 +298,7 @@
 	border: 1px outset #14f;
 	background: #E0ECF8;
 	padding: 5px;
+	width: 100%;
 }
 
 .variableTableColumnHeader {
