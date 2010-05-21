@@ -15,7 +15,8 @@ import com.google.gwt.user.client.ui.Widget;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.listener.NavigationListener;
 
-public class StepsLeftPanel extends Composite implements NavigationListener
+public class StepsLeftPanel extends Composite 
+implements NavigationListener
 {
 	protected static final String STYLE = "stepsLeftLabel";
 	protected static final String PANEL_STYLE = "stepsLeftPanel";
@@ -28,8 +29,11 @@ public class StepsLeftPanel extends Composite implements NavigationListener
 
     private int currentStep = 0;
     
-    public StepsLeftPanel()
+    protected InputWizardPanel wizard;
+    
+    public StepsLeftPanel(InputWizardPanel wizard)
     {        
+        this.wizard = wizard;
         addStep("Outcomes");
         addStep("Predictors");
         addStep("Groups");
@@ -75,6 +79,7 @@ public class StepsLeftPanel extends Composite implements NavigationListener
                 if (newStep != null) 
                 {
                     updateStep(steps.get(currentStep), newStep);
+                    wizard.showWidget(stepIdx);
                     currentStep = stepIdx;
                 }
             }
@@ -137,4 +142,8 @@ public class StepsLeftPanel extends Composite implements NavigationListener
 
     }
     
+    public void setStepComplete(int step, boolean complete)
+    {
+        
+    }
 }
