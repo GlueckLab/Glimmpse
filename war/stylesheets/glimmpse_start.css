@@ -43,7 +43,7 @@ div#start-container p {
 }
 
 div.start-button {
-	margin: 20px auto;
+	margin: 20px 20px;
 	border: 2px solid #ccc;
 	background: #005C84;
 	padding: 4px;
@@ -58,4 +58,18 @@ div.start-button:hover {
 div#start-container a {
 	color:#fff;
 	text-decoration: none;
+}
+
+div#navigationLinks {
+	margin: 5px 20px;	
+	align: vertical;
+}
+
+div#navigationLinks a {
+	margin: 0px 30px;
+	color:#005C84;
+}
+
+div#navigationLinks h3 {
+	font-size: 12pt;
 }
