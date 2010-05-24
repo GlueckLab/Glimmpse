@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
+import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.NavigationListener;
 
 public class StepsLeftPanel extends Composite 
@@ -20,8 +21,6 @@ implements NavigationListener
 {
 	protected static final String STYLE = "stepsLeftLabel";
 	protected static final String PANEL_STYLE = "stepsLeftPanel";
-	protected static final String SELECTED_STYLE = "selected";
-    protected static final String DESELECTED_STYLE = "deselected";
     
     VerticalPanel panel = new VerticalPanel();
 
@@ -34,20 +33,20 @@ implements NavigationListener
     public StepsLeftPanel(InputWizardPanel wizard)
     {        
         this.wizard = wizard;
-        addStep("Outcomes");
-        addStep("Predictors");
-        addStep("Groups");
-        addStep("Hypotheses");
-        addStep("Effect Size");
-        addStep("Variability");
-        addStep("Type I Error");
-        addStep("Options");
-        addStep("Results");
+        addStep(Glimmpse.constants.stepsLeftOutcomes());
+        addStep(Glimmpse.constants.stepsLeftPredictors());
+        addStep(Glimmpse.constants.stepsLeftGroups());
+        addStep(Glimmpse.constants.stepsLeftHypotheses());
+        addStep(Glimmpse.constants.stepsLeftEffectSize());
+        addStep(Glimmpse.constants.stepsLeftVariability());
+        addStep(Glimmpse.constants.stepsLeftAlpha());
+        addStep(Glimmpse.constants.stepsLeftOptions());
+        addStep(Glimmpse.constants.stepsLeftResults());
         
         // select the first step
         Widget step = steps.get(0);
-        step.removeStyleDependentName(DESELECTED_STYLE);
-        step.addStyleDependentName(SELECTED_STYLE);
+        step.removeStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_DESELECTED);
+        step.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SELECTED);
         
         // add style
         panel.setStyleName(PANEL_STYLE);
@@ -59,7 +58,7 @@ implements NavigationListener
     {
         HTML stepHTML = new HTML(stepLabel);
         stepHTML.setStyleName(STYLE);
-        stepHTML.addStyleDependentName(DESELECTED_STYLE);
+        stepHTML.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_DESELECTED);
         stepHTML.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent e)
             {
@@ -101,12 +100,12 @@ implements NavigationListener
     {       
 
         // deselect the old widgets
-        oldStep.removeStyleDependentName(SELECTED_STYLE);
-        oldStep.addStyleDependentName(DESELECTED_STYLE);
+        oldStep.removeStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SELECTED);
+        oldStep.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_DESELECTED);
         
         // select the new widgets
-        newStep.removeStyleDependentName(DESELECTED_STYLE);
-        newStep.addStyleDependentName(SELECTED_STYLE);
+        newStep.removeStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_DESELECTED);
+        newStep.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SELECTED);
     }
     
     /**
@@ -117,6 +116,7 @@ implements NavigationListener
     {
         if (currentStep < steps.size()-1)
             updateStep(steps.get(currentStep), steps.get(++currentStep));
+        wizard.showWidget(currentStep);
     }
     
     /**
@@ -127,6 +127,7 @@ implements NavigationListener
     {
         if (currentStep > 0) 
             updateStep(steps.get(currentStep), steps.get(--currentStep));
+        wizard.showWidget(currentStep);
     }
     
     /**
@@ -138,6 +139,7 @@ implements NavigationListener
         {
             updateStep(steps.get(currentStep), steps.get(0));
             currentStep = 0;
+            wizard.showWidget(currentStep);
         }
 
     }
@@ -146,4 +148,5 @@ implements NavigationListener
     {
         
     }
+    
 }

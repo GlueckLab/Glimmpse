@@ -39,11 +39,6 @@ public class Glimmpse implements EntryPoint
         // Load the visualization api, passing the onLoadCallback to be called
         // when loading is done.
        VisualizationUtils.loadVisualizationApi(onLoadCallback, ColumnChart.PACKAGE, LineChart.PACKAGE);
-    	
-//        // add the gwt elements to the root panel
-//        RootPanel.get("glimmpseWizard").add(new InputWizardPanel());
-//        RootPanel.get("glimmpseWizard").setStyleName("glimmpseWizardPanel");
-//        // set root style so it recognizes standard css elements like "body"
-//        RootPanel.get().setStyleName("body");
+
 	}
 }
