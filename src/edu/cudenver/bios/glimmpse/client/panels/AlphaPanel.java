@@ -1,3 +1,24 @@
+/*
+ * User Interface for the GLIMMPSE Software System.  Allows
+ * users to perform power, sample size, and detectable difference
+ * calculations. 
+ * 
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package edu.cudenver.bios.glimmpse.client.panels;
 
 import com.google.gwt.user.client.ui.HTML;
@@ -8,6 +29,12 @@ import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.StepStatusListener;
 
+/**
+ * Panel for entering type I error values
+ * 
+ * @author Sarah Kreidler
+ *
+ */
 public class AlphaPanel extends WizardStepPanel
 implements DynamicListValidator
 {
@@ -15,6 +42,9 @@ implements DynamicListValidator
     protected DynamicListPanel alphaListPanel = 
     	new DynamicListPanel(Glimmpse.constants.alphaTableTitle(), this);
     
+    /**
+     * Create an empty type I error panel
+     */
     public AlphaPanel()
     {
     	super(Glimmpse.constants.stepsLeftAlpha());
@@ -47,6 +77,10 @@ implements DynamicListValidator
     	return alphaListPanel.toXML("alphaList");
     }
     
+    /**
+     * Validate new entries in the alpha list
+     * @see DynamicListValidator
+     */
     public void validate(String value) throws IllegalArgumentException
     {
     	try
@@ -59,6 +93,12 @@ implements DynamicListValidator
     	}
     }
     
+    /**
+     * Callback when the number of valid entries in the list of
+     * alpha values changes
+     * 
+     * @see DynamicListValidator
+     */
     public void onValidRowCount(int validRowCount)
     {
     	complete = (validRowCount > 0);
@@ -68,8 +108,12 @@ implements DynamicListValidator
     		for(StepStatusListener listener: stepStatusListeners) listener.onStepInProgress();
     }
     
+    /**
+     * Clear the list of alpha values.  Note, the onValidRowCount
+     * callback will fire when reset is called
+     */
     public void reset()
     {
-    	
+    	alphaListPanel.reset();
     }
 }
