@@ -1,14 +1,15 @@
-package edu.cudenver.bios.glimmpse.client.panels;
+package edu.cudenver.bios.glimmpse.client.panels.guided;
 
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
+import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
-public class ResultsPanel extends WizardStepPanel
+public class StudyGroupsPanel extends WizardStepPanel
 {
-    public ResultsPanel()
+    public StudyGroupsPanel()
     {
-    	super(Glimmpse.constants.stepsLeftResults());
+    	super(Glimmpse.constants.stepsLeftGroups());
         VerticalPanel panel = new VerticalPanel();
         
         initWidget(panel);

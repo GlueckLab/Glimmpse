@@ -1,21 +1,16 @@
 package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
-import java.util.ArrayList;
-
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-import edu.cudenver.bios.glimmpse.client.listener.StepStatusListener;
+import edu.cudenver.bios.glimmpse.client.Glimmpse;
+import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
-public class BetaPanel extends Composite
+public class BetaPanel extends WizardStepPanel
 {
-    protected ArrayList<StepStatusListener> stepStatusListeners = new ArrayList<StepStatusListener>();
-    protected String name;
-    
-	public BetaPanel(String name)
+	public BetaPanel()
 	{
-		this.name = name;
+		super(Glimmpse.constants.stepsLeftBeta());
 		VerticalPanel panel = new VerticalPanel();
 		
 		panel.add(new HTML("beta panel"));
@@ -23,10 +18,7 @@ public class BetaPanel extends Composite
 		initWidget(panel);
 	}
 	
-	
-	
-    public void addStepStatusListener(StepStatusListener listener)
+    public void reset()
     {
-    	stepStatusListeners.add(listener);
     }
 }

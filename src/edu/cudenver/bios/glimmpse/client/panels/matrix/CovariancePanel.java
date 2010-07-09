@@ -1,32 +1,24 @@
 package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
-import java.util.ArrayList;
-
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-import edu.cudenver.bios.glimmpse.client.listener.StepStatusListener;
+import edu.cudenver.bios.glimmpse.client.Glimmpse;
+import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
-public class CovariancePanel extends Composite
+public class CovariancePanel extends WizardStepPanel
 {
-    protected ArrayList<StepStatusListener> stepStatusListeners = new ArrayList<StepStatusListener>();
-    protected String name;
-    
-	public CovariancePanel(String name)
+	public CovariancePanel()
 	{
-		this.name = name;
+		super(Glimmpse.constants.stepsLeftSigma());
 		VerticalPanel panel = new VerticalPanel();
 		
 		panel.add(new HTML("covariance panel"));
 		
 		initWidget(panel);
 	}
-	
-	
-	
-    public void addStepStatusListener(StepStatusListener listener)
+
+    public void reset()
     {
-    	stepStatusListeners.add(listener);
     }
 }

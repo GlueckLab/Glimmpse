@@ -1,32 +1,25 @@
 package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
-import java.util.ArrayList;
-
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-import edu.cudenver.bios.glimmpse.client.listener.StepStatusListener;
+import edu.cudenver.bios.glimmpse.client.Glimmpse;
+import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
-public class ContrastPanel extends Composite
-{
-    protected ArrayList<StepStatusListener> stepStatusListeners = new ArrayList<StepStatusListener>();
-    protected String name;
-    
-	public ContrastPanel(String name)
+public class ContrastPanel extends WizardStepPanel
+{    
+	public ContrastPanel()
 	{
-		this.name = name;
+		super(Glimmpse.constants.stepsLeftContrast());
 		VerticalPanel panel = new VerticalPanel();
 		
 		panel.add(new HTML("contrast panel"));
 		
 		initWidget(panel);
 	}
-	
-	
-	
-    public void addStepStatusListener(StepStatusListener listener)
-    {
-    	stepStatusListeners.add(listener);
-    }
+
+	public void reset()
+	{
+		
+	}
 }

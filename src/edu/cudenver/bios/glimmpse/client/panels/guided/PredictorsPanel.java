@@ -1,4 +1,4 @@
-package edu.cudenver.bios.glimmpse.client.panels;
+package edu.cudenver.bios.glimmpse.client.panels.guided;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -13,7 +13,11 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-public class PredictorsPanel extends Composite
+import edu.cudenver.bios.glimmpse.client.Glimmpse;
+import edu.cudenver.bios.glimmpse.client.panels.SubpanelHeader;
+import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
+
+public class PredictorsPanel extends WizardStepPanel
 {
     // styles for the variable entry tables
     private static final String STYLE_TABLE_PANEL = "variableTablePanel";
@@ -32,6 +36,7 @@ public class PredictorsPanel extends Composite
     
     public PredictorsPanel()
     {
+    	super(Glimmpse.constants.stepsLeftPredictors());
         VerticalPanel panel = new VerticalPanel();
         
         // create the dynamic table for entering predictors
@@ -171,4 +176,6 @@ public class PredictorsPanel extends Composite
         categoryPopup.showRelativeTo(target);
         
     }
+    
+    public void reset() {}
 }

@@ -1,6 +1,7 @@
 package edu.cudenver.bios.glimmpse.client.panels;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -31,6 +32,21 @@ implements NavigationListener, StepStatusListener
     private int currentStep = 0;
     
     protected ArrayList<NavigationListener> navigationListeners = new ArrayList<NavigationListener>();
+    
+    public StepsLeftPanel(WizardStepPanel[] stepPanels)
+    {               
+        for(WizardStepPanel step: stepPanels) addStep(step.getName());
+        
+        // select the first step
+        Widget step = stepList.get(0);
+        step.removeStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_DESELECTED);
+        step.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SELECTED);
+        
+        // add style
+        panel.setStyleName(STYLE_PANEL);
+
+        initWidget(panel);
+    }
     
     public StepsLeftPanel(String[] stepNames)
     {               
@@ -142,35 +158,35 @@ implements NavigationListener, StepStatusListener
     	
     }
     
-    public void onStepComplete(String stepName)
+    public void onStepComplete()
     {
-    	if (stepName != null && !stepName.isEmpty())
-    	{
-    		for(HTML step: stepList)
-    		{
-    			if (stepName.equals(step.getHTML()))
-    			{
-    				// TODO
-//    				step.removeStyleDependentName(STYLE_IN_PROGRESS);
-//    				step.addStyleDependentName(STYLE_COMPLETE);
-    				break;
-    			}
-    		}
-    	}
+//    	if (stepName != null && !stepName.isEmpty())
+//    	{
+//    		for(HTML step: stepList)
+//    		{
+//    			if (stepName.equals(step.getHTML()))
+//    			{
+//    				// TODO
+////    				step.removeStyleDependentName(STYLE_IN_PROGRESS);
+////    				step.addStyleDependentName(STYLE_COMPLETE);
+//    				break;
+//    			}
+//    		}
+//    	}
     }
     
-    public void onStepInProgress(String stepName)
+    public void onStepInProgress()
     {
-    	if (stepName != null && !stepName.isEmpty())
-    	{
-    		for(HTML step: stepList)
-    		{
-    			if (stepName.equals(step.getHTML()))
-    			{
-    				
-    			}
-    		}
-    	}
+//    	if (stepName != null && !stepName.isEmpty())
+//    	{
+//    		for(HTML step: stepList)
+//    		{
+//    			if (stepName.equals(step.getHTML()))
+//    			{
+//    				
+//    			}
+//    		}
+//    	}
     }
     
     public void addNavigationListener(NavigationListener listener)

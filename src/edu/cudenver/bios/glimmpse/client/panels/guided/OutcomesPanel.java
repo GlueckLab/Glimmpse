@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package edu.cudenver.bios.glimmpse.client.panels;
+package edu.cudenver.bios.glimmpse.client.panels.guided;
 
 import java.util.ArrayList;
 
@@ -34,6 +34,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
+import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 /**
  * OutcomesPanel
@@ -41,8 +42,7 @@ import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
  * @author Sarah Kreidler
  *
  */
-public class OutcomesPanel extends Composite
-implements Clearable
+public class OutcomesPanel extends WizardStepPanel
 {
     protected static final int MAX_REPEATED_MEASURES = 10;
     
@@ -56,6 +56,7 @@ implements Clearable
 
     public OutcomesPanel()
     {
+    	super(Glimmpse.constants.stepsLeftOutcomes());
         VerticalPanel panel = new VerticalPanel();
                 
         // create header/instruction text
@@ -160,7 +161,7 @@ implements Clearable
     	for(OutcomesListener listener: listeners) listener.onOutcomes(outcomes);
     }
     
-    public void clear()
+    public void reset()
     {
     	
     }

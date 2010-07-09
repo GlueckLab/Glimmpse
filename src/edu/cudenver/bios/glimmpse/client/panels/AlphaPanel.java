@@ -1,8 +1,5 @@
 package edu.cudenver.bios.glimmpse.client.panels;
 
-import java.util.ArrayList;
-
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -11,19 +8,16 @@ import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.StepStatusListener;
 
-public class AlphaPanel extends Composite
+public class AlphaPanel extends WizardStepPanel
 implements DynamicListValidator
 {
     // dynamic table of alpha values
     protected DynamicListPanel alphaListPanel = 
     	new DynamicListPanel(Glimmpse.constants.alphaTableTitle(), this);
     
-    protected ArrayList<StepStatusListener> stepStatusListeners = new ArrayList<StepStatusListener>();
-    protected String name;
-    
-    public AlphaPanel(String name)
+    public AlphaPanel()
     {
-    	this.name = name;
+    	super(Glimmpse.constants.stepsLeftAlpha());
         VerticalPanel panel = new VerticalPanel();
         
         // create header/instruction text
@@ -53,11 +47,6 @@ implements DynamicListValidator
     	return alphaListPanel.toXML("alphaList");
     }
     
-    public void addStepStatusListener(StepStatusListener listener)
-    {
-    	stepStatusListeners.add(listener);
-    }
-    
     public void validate(String value) throws IllegalArgumentException
     {
     	try
@@ -72,9 +61,15 @@ implements DynamicListValidator
     
     public void onValidRowCount(int validRowCount)
     {
-    	if (validRowCount > 0)
-    		for(StepStatusListener listener: stepStatusListeners) listener.onStepComplete(name);
+    	complete = (validRowCount > 0);
+    	if (complete)
+    		for(StepStatusListener listener: stepStatusListeners) listener.onStepComplete();
     	else
-    		for(StepStatusListener listener: stepStatusListeners) listener.onStepInProgress(name);
+    		for(StepStatusListener listener: stepStatusListeners) listener.onStepInProgress();
+    }
+    
+    public void reset()
+    {
+    	
     }
 }

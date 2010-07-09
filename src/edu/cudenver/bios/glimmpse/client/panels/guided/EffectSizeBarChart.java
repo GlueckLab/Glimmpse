@@ -1,4 +1,4 @@
-package edu.cudenver.bios.glimmpse.client.panels;
+package edu.cudenver.bios.glimmpse.client.panels.guided;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ChangeEvent;
