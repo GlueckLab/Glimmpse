@@ -15,41 +15,34 @@ import com.google.gwt.user.client.ui.Widget;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.NavigationListener;
+import edu.cudenver.bios.glimmpse.client.listener.StepStatusListener;
 
 public class StepsLeftPanel extends Composite 
-implements NavigationListener
+implements NavigationListener, StepStatusListener
 {
 	protected static final String STYLE = "stepsLeftLabel";
-	protected static final String PANEL_STYLE = "stepsLeftPanel";
-    
+	protected static final String STYLE_PANEL = "stepsLeftPanel";
+    protected static final String STYLE_COMPLETE = "complete";
+    protected static final String STYLE_IN_PROGRESS = "inprogress";
     VerticalPanel panel = new VerticalPanel();
 
-    protected ArrayList<HTML> steps = new ArrayList<HTML>();
+    protected ArrayList<HTML> stepList = new ArrayList<HTML>();
 
     private int currentStep = 0;
     
-    protected InputWizardPanel wizard;
+    protected ArrayList<NavigationListener> navigationListeners = new ArrayList<NavigationListener>();
     
-    public StepsLeftPanel(InputWizardPanel wizard)
-    {        
-        this.wizard = wizard;
-        addStep(Glimmpse.constants.stepsLeftOutcomes());
-        addStep(Glimmpse.constants.stepsLeftPredictors());
-        addStep(Glimmpse.constants.stepsLeftGroups());
-        addStep(Glimmpse.constants.stepsLeftHypotheses());
-        addStep(Glimmpse.constants.stepsLeftEffectSize());
-        addStep(Glimmpse.constants.stepsLeftVariability());
-        addStep(Glimmpse.constants.stepsLeftAlpha());
-        addStep(Glimmpse.constants.stepsLeftOptions());
-        addStep(Glimmpse.constants.stepsLeftResults());
+    public StepsLeftPanel(String[] stepNames)
+    {               
+        for(String step: stepNames) addStep(step);
         
         // select the first step
-        Widget step = steps.get(0);
+        Widget step = stepList.get(0);
         step.removeStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_DESELECTED);
         step.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SELECTED);
         
         // add style
-        panel.setStyleName(PANEL_STYLE);
+        panel.setStyleName(STYLE_PANEL);
 
         initWidget(panel);
     }
@@ -65,7 +58,7 @@ implements NavigationListener
                 HTML source = (HTML) e.getSource();
                 HTML newStep = null;
                 int stepIdx = 0;
-                for(HTML step: steps)
+                for(HTML step: stepList)
                 {
                     if (step == source)
                     {
@@ -77,13 +70,13 @@ implements NavigationListener
                     
                 if (newStep != null) 
                 {
-                    updateStep(steps.get(currentStep), newStep);
-                    wizard.showWidget(stepIdx);
+                    updateStep(stepList.get(currentStep), newStep);
                     currentStep = stepIdx;
+                    for(NavigationListener listener: navigationListeners) listener.onStep(currentStep);
                 }
             }
         });
-        steps.add(stepHTML);
+        stepList.add(stepHTML);
         panel.add(stepHTML);
     }
     
@@ -114,9 +107,9 @@ implements NavigationListener
      */
     public void onNext()
     {
-        if (currentStep < steps.size()-1)
-            updateStep(steps.get(currentStep), steps.get(++currentStep));
-        wizard.showWidget(currentStep);
+        if (currentStep < stepList.size()-1)
+            updateStep(stepList.get(currentStep), stepList.get(++currentStep));
+        //wizard.showWidget(currentStep);
     }
     
     /**
@@ -126,8 +119,8 @@ implements NavigationListener
     public void onPrevious()
     {
         if (currentStep > 0) 
-            updateStep(steps.get(currentStep), steps.get(--currentStep));
-        wizard.showWidget(currentStep);
+            updateStep(stepList.get(currentStep), stepList.get(--currentStep));
+        //wizard.showWidget(currentStep);
     }
     
     /**
@@ -137,16 +130,52 @@ implements NavigationListener
     {
         if (currentStep > 0)
         {
-            updateStep(steps.get(currentStep), steps.get(0));
+            updateStep(stepList.get(currentStep), stepList.get(0));
             currentStep = 0;
-            wizard.showWidget(currentStep);
+            //wizard.showWidget(currentStep);
         }
 
     }
     
-    public void setStepComplete(int step, boolean complete)
+    public void onStep(int stepIndex)
     {
-        
+    	
+    }
+    
+    public void onStepComplete(String stepName)
+    {
+    	if (stepName != null && !stepName.isEmpty())
+    	{
+    		for(HTML step: stepList)
+    		{
+    			if (stepName.equals(step.getHTML()))
+    			{
+    				// TODO
+//    				step.removeStyleDependentName(STYLE_IN_PROGRESS);
+//    				step.addStyleDependentName(STYLE_COMPLETE);
+    				break;
+    			}
+    		}
+    	}
+    }
+    
+    public void onStepInProgress(String stepName)
+    {
+    	if (stepName != null && !stepName.isEmpty())
+    	{
+    		for(HTML step: stepList)
+    		{
+    			if (stepName.equals(step.getHTML()))
+    			{
+    				
+    			}
+    		}
+    	}
+    }
+    
+    public void addNavigationListener(NavigationListener listener)
+    {
+    	navigationListeners.add(listener);
     }
     
 }

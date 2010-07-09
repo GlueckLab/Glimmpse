@@ -5,6 +5,7 @@ import com.google.gwt.i18n.client.Constants;
 public interface GlimmpseConstants extends Constants
 {
     // shared style names for input wizard steps
+	public static final String STYLE_GLIMMPSE_PANEL = "glimmpsePanel";
     public static final String STYLE_WIZARD_STEP_PANEL = "wizardStepPanel";
     public static final String STYLE_WIZARD_STEP_INPUT_CONTAINER = "wizardStepInputContainer";
     public static final String STYLE_WIZARD_STEP_HEADER = "wizardStepHeader";
@@ -24,6 +25,12 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_MESSAGE_ERROR = "error";
     public static final String STYLE_MESSAGE_OKAY = "okay";
 
+    // mode names
+    public static final String MODE_MATRIX = "matrix";
+    public static final String MODE_GUIDED = "guided";
+
+
+    
     // toolbar buttons
     public String buttonSaveStudy();
     public String buttonCancel();
@@ -31,6 +38,17 @@ public interface GlimmpseConstants extends Constants
     // navigation buttons
     public String buttonNext();
     public String buttonPrevious();
+    
+    // start panel constants
+    public String startTitle();
+    public String startDescription();
+    public String startGoButton();
+    public String startMatrixTitle();
+    public String startMatrixDescription();
+    public String startGuidedTitle();
+    public String startGuidedDescription();
+    public String startUploadTitle();
+    public String startUploadDescription();
     
     // left navigation / steps left panel
     public String stepsLeftOutcomes();
@@ -42,10 +60,25 @@ public interface GlimmpseConstants extends Constants
     public String stepsLeftAlpha();
     public String stepsLeftOptions();
     public String stepsLeftResults();
+    public String stepsLeftDesign();
+    public String stepsLeftContrast();
+    public String stepsLeftBeta();
+    public String stepsLeftTheta();
+    public String stepsLeftSigma();
+    
+    // alpha panel constants
+    public String alphaTitle();
+    public String alphaDescription();
+    public String alphaTableTitle();
     
     // outcomes panel constants
     public String outcomesTitle();
     public String outcomesDescription();
     public String outcomesLabelRepeated();
+    
+    // error messages
+    public String errorUploadFailed();
+    public String errorUploadInvalidStudyFile();
+    public String errorInvalidAlpha();
     
 }

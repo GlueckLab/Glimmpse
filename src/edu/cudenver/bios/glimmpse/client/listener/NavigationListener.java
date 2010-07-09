@@ -7,4 +7,6 @@ public interface NavigationListener
     public void onPrevious();
     
     public void onCancel();
+    
+    public void onStep(int stepIndex);
 }
