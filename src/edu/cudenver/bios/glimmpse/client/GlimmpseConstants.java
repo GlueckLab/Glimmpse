@@ -89,22 +89,30 @@ public interface GlimmpseConstants extends Constants
     // alpha panel constants
     public String alphaTitle();
     public String alphaDescription();
-    public String alphaTableTitle();
+    public String alphaTableColumn();
     
     // outcomes panel constants
     public String outcomesTitle();
     public String outcomesDescription();
-    public String outcomesLabelRepeated();
-    public String outcomesTableTitle();
-
+    public String outcomesTableColumn();
+    public String repeatedMeasuresTitle();
+    public String repeatedMeasuresDescription();
+    public String repeatedOverTableColumn();
+    public String repetitionsTableColumn();
+    
+    // predictors panel constants
+    public String predictorsTitle();
+    public String predictorsDescription();
+    public String predictorsTableColumn();
+    public String categoriesTableColumn();
     
     // matrix constants
     public String matrixDimensionSeparator();
     
     // design matrix screen
-    public String perGroupSampleSizeTableTitle();
-    public String betaScaleTableTitle();
-    public String sigmaScaleTableTitle();
+    public String perGroupSampleSizeTableColumn();
+    public String betaScaleTableColumn();
+    public String sigmaScaleTableColumn();
     
     // error messages
     public String errorUploadFailed();
