@@ -7,5 +7,5 @@ public interface DesignChangeListener
 {
 	public void onResize(int rows, int columns);
 	
-	public void onRowRatio();
+	public void onCovariate(boolean hasCovariate);
 }

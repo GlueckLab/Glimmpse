@@ -29,7 +29,27 @@ public interface GlimmpseConstants extends Constants
     public static final String MODE_MATRIX = "matrix";
     public static final String MODE_GUIDED = "guided";
 
-
+    // matrix names
+    public static final String MATRIX_DESIGN_FIXED = "designFixed";
+    public static final String MATRIX_DESIGN_RANDOM = "designRandom";
+    public static final String MATRIX_BETA_FIXED = "betaFixed";
+    public static final String MATRIX_BETA_RANDOM = "betaRandom";
+    public static final String MATRIX_BETWEEN_CONTRAST_FIXED = "betweenSubjectContrastFixed";
+    public static final String MATRIX_BETWEEN_CONTRAST_RANDOM = "betweenSubjectContrastRandom";
+    public static final String MATRIX_WITHIN_CONTRAST = "withinSubjectContrast";
+    public static final String MATRIX_SIGMA_ERROR = "sigmaError";
+    public static final String MATRIX_SIGMA_OUTCOME = "sigmaOutcome";
+    public static final String MATRIX_SIGMA_OUTCOME_COVARIATE = "sigmaOutcomeGaussianRandom ";
+    public static final String MATRIX_SIGMA_COVARIATE = "sigmaGaussianRandom";
+    public static final String MATRIX_THETA = "thetaNull";
+    
+	// dimension names derived from linear model theory.
+	// ensures that default matrix dimensions conform properly
+    public static final int DEFAULT_N = 3;
+    public static final int DEFAULT_Q = 3;
+    public static final int DEFAULT_P = 2;
+    public static final int DEFAULT_A = 2;
+    public static final int DEFAULT_B = 1;
     
     // toolbar buttons
     public String buttonSaveStudy();
@@ -75,10 +95,23 @@ public interface GlimmpseConstants extends Constants
     public String outcomesTitle();
     public String outcomesDescription();
     public String outcomesLabelRepeated();
+    public String outcomesTableTitle();
+
+    
+    // matrix constants
+    public String matrixDimensionSeparator();
+    
+    // design matrix screen
+    public String perGroupSampleSizeTableTitle();
+    public String betaScaleTableTitle();
+    public String sigmaScaleTableTitle();
     
     // error messages
     public String errorUploadFailed();
     public String errorUploadInvalidStudyFile();
     public String errorInvalidAlpha();
+    public String errorInvalidMean();
+    public String errorInvalidVariance();
+
     
 }

@@ -27,6 +27,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
+import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
+import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.BetaPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.ContrastPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.CovariancePanel;
@@ -53,8 +55,8 @@ public class MatrixWizardPanel extends Composite
 	WizardStepPanel[] panelList = {
 			alphaPanel, 
 			designPanel, 
-			contrastPanel, 
 			betaPanel, 
+			contrastPanel, 
 			thetaPanel,
 			covariancePanel,
 			optionsPanel,
@@ -73,6 +75,15 @@ public class MatrixWizardPanel extends Composite
 		wizardPanel = new WizardPanel(panelList);
 		panel.add(wizardPanel);
 
+		// set up listener relationships between the matrix panels
+		// this maintains matrix conformance
+		designPanel.addMatrixResizeListener(betaPanel);
+		designPanel.addMatrixResizeListener(contrastPanel);
+		designPanel.addCovariateListener(betaPanel);
+		designPanel.addCovariateListener(contrastPanel);
+		designPanel.addCovariateListener(covariancePanel);
+		
+		betaPanel.addMatrixResizeListener(contrastPanel);
 		// initialize
 		initWidget(panel);
 	}

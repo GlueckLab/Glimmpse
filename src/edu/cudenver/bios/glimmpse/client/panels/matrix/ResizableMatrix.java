@@ -1,13 +1,34 @@
+/*
+ * User Interface for the GLIMMPSE Software System.  Allows
+ * users to perform power, sample size, and detectable difference
+ * calculations. 
+ * 
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
 import java.util.ArrayList;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -17,15 +38,19 @@ import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
+import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
 
+/**
+ * Resizable matrix widget
+ * @author Sarah Kreidler
+ *
+ */
 public class ResizableMatrix extends Composite 
 {
     protected static final String MATRIX_STYLE = "matrix";
 	protected static final String DIMENSION_STYLE = "matrixDimensions";
 	protected static final String MATRIX_DATA_STYLE = "matrixData";
 	protected static final String MATRIX_CELL_STYLE = "matrixCell";
-	protected static final String DEFAULT_VALUE = "0";
-	protected static final String DEFAULT_COVARIATE_VALUE = "*";
 	protected static final int MAX_ROWS = 50;
 	protected static final int MIN_ROW_COL = 1;
 	protected static final int MAX_COLS = 50;
@@ -34,16 +59,21 @@ public class ResizableMatrix extends Composite
 	protected TextBox columnTextBox;
 	protected boolean isSquare;
 	protected boolean isSymmetric;
-	protected String name;
-//	protected ArrayList<MatrixResizeListener> resizeListeners = new ArrayList<MatrixResizeListener>();
-//	protected ArrayList<MetaDataListener> metaDataListeners = new ArrayList<MetaDataListener>();
-//	
-	protected boolean hasCovariateColumn = false;
-	protected boolean hasCovariateRow = false;
-	
-	public ResizableMatrix(String name, int rows, int cols) 
-	{
-	    this.name = name;
+	protected HTML title = new HTML("");
+	protected String defaultValue = "0";
+	protected HTML errorHTML = new HTML();
+	protected ArrayList<MatrixResizeListener> resizeListeners = new ArrayList<MatrixResizeListener>();
+	protected String name = null;
+	public ResizableMatrix(String name, int rows, int cols, String defaultValue, String title) 
+	{	
+		this.name = name;
+	    if (title != null && !title.isEmpty()) 
+	    	this.title = new HTML(title);
+	    else
+	    	this.title = new HTML();
+	    
+	    if (defaultValue != null && !defaultValue.isEmpty()) this.defaultValue = defaultValue;
+	    
 		// overall layout panel    
 	    VerticalPanel matrixPanel = new VerticalPanel();
 
@@ -58,11 +88,12 @@ public class ResizableMatrix extends Composite
 					int newRows = edu.cudenver.bios.glimmpse.client.TextValidation.parseInteger(rowTextBox.getText(), MIN_ROW_COL, MAX_ROWS);
 					setRowDimension(newRows);
 					// notify listeners of row change
-					//for(MatrixResizeListener listener: resizeListeners) listener.onRows(newRows);
+					notifyOnRows(newRows);
+					TextValidation.displayOkay(errorHTML, "");
 				}
 				catch (NumberFormatException nfe)
 				{
-				    Window.alert("invalid value: " + rowTextBox.getText() + ", " + nfe.getMessage());
+					TextValidation.displayError(errorHTML, "Please enter an integer value");
 					rowTextBox.setText(Integer.toString(matrixData.getRowCount()));
 				}
 			}
@@ -77,11 +108,13 @@ public class ResizableMatrix extends Composite
 					int newCols = TextValidation.parseInteger(columnTextBox.getText(), MIN_ROW_COL, MAX_ROWS);
 					setColumnDimension(newCols);
 					// notify listeners of row change
-					//for(MatrixResizeListener listener: resizeListeners) listener.onColumns(newCols);
+					notifyOnColumns(newCols);
+					TextValidation.displayOkay(errorHTML, "");
 				}
 				catch (NumberFormatException nfe)
 				{
 					columnTextBox.setText(Integer.toString(matrixData.getCellCount(0)));
+					TextValidation.displayError(errorHTML, "Please enter an integer value");
 				}
 			}
 		});
@@ -89,7 +122,7 @@ public class ResizableMatrix extends Composite
 		// layout the matrix dimensions
 		HorizontalPanel matrixDimensions = new HorizontalPanel();
 		matrixDimensions.add(rowTextBox);
-		//matrixDimensions.add(new HTML(Glimmpse.constants.matrixDimensionSeparator()));
+		matrixDimensions.add(new HTML(Glimmpse.constants.matrixDimensionSeparator()));
 		matrixDimensions.add(columnTextBox);
 	    
 		// build matrix itself
@@ -97,8 +130,10 @@ public class ResizableMatrix extends Composite
 		initMatrixData();
 		
 		// add the widgets to the vertical panel
+		matrixPanel.add(this.title);
 		matrixPanel.add(matrixDimensions);
 		matrixPanel.add(matrixData);
+		matrixPanel.add(errorHTML);
 		
 		// set up styles
 		matrixPanel.setStyleName(MATRIX_STYLE);
@@ -143,15 +178,9 @@ public class ResizableMatrix extends Composite
 				if (newRows > oldRows)
 				{
 				    if (isSquare) 
-				        for(int c = oldRows; c < newRows; c++) fillColumn(c, DEFAULT_VALUE, true);
-					for(int r = oldRows; r < newRows; r++) fillRow(r, DEFAULT_VALUE, true);
-					if (hasCovariateRow)  fillRow(oldRows-1, DEFAULT_VALUE, true);
-
+				        for(int c = oldRows; c < newRows; c++) fillColumn(c, defaultValue, true);
+					for(int r = oldRows; r < newRows; r++) fillRow(r, defaultValue, true);
 				} 
-				if (hasCovariateRow) 
-				{
-					fillRow(newRows - 1, DEFAULT_COVARIATE_VALUE, false);
-				}
 			}
 		}
 		
@@ -175,14 +204,9 @@ public class ResizableMatrix extends Composite
 				if (newCols > oldCols)
 				{
                     if (isSquare) 
-                        for(int r = oldCols; r < oldCols; r++) fillRow(r, DEFAULT_VALUE, true);
-					for(int c = oldCols; c < newCols; c++) fillColumn(c, DEFAULT_VALUE, true);
-					if (hasCovariateColumn) fillColumn(oldCols-1, DEFAULT_VALUE, true);
+                        for(int r = oldCols; r < oldCols; r++) fillRow(r, defaultValue, true);
+					for(int c = oldCols; c < newCols; c++) fillColumn(c, defaultValue, true);
 				} 
-				if (hasCovariateColumn) 
-				{
-					fillColumn(newCols - 1, DEFAULT_COVARIATE_VALUE, false);
-				}
 			}
 			
 			columnTextBox.setText(Integer.toString(matrixData.getColumnCount()));
@@ -205,7 +229,7 @@ public class ResizableMatrix extends Composite
 	{
 		for(int r = 0; r < matrixData.getRowCount(); r++)
 		{
-			fillRow(r, DEFAULT_VALUE, true);
+			fillRow(r, defaultValue, true);
 		}
 	}
 		
@@ -220,28 +244,18 @@ public class ResizableMatrix extends Composite
 	
 	private void fillRow(int row, String value, boolean enabled)
 	{
-		int cols = matrixData.getColumnCount();
-		int c = 0;
-		for (; c < cols-1; c++)
+		for (int c = 0; c < matrixData.getColumnCount(); c++)
 		{
 			setData(row, c, value, enabled);
 		}
-		if (hasCovariateColumn)
-			setData(row, c, DEFAULT_COVARIATE_VALUE, false);
-		else
-			setData(row, c, value, enabled);
 	}
 	
 	private void fillColumn(int col, String value, boolean enabled)
 	{
-		int rows = matrixData.getRowCount();
-		int row= 0;
-		for (; row < rows-1; row++) 
+		for (int row= 0; row < matrixData.getRowCount(); row++) 
+		{
 			setData(row, col, value, enabled);
-		if (hasCovariateRow) 
-			setData(row, col, DEFAULT_COVARIATE_VALUE, false);
-		else
-			setData(row, col, value, enabled);
+		}
 	}
 		
 	public String toXML()
@@ -261,8 +275,6 @@ public class ResizableMatrix extends Composite
 			for(int c = start; c < cols; c++)
 			{
 				TextBox txt = (TextBox) matrixData.getWidget(r, c);
-				String val = txt.getValue();
-				if (val.equals(DEFAULT_COVARIATE_VALUE)) val = "1";
 				buffer.append("<c>" + txt.getValue() + "</c>");
 			}
 			buffer.append("</r>");
@@ -272,10 +284,10 @@ public class ResizableMatrix extends Composite
 		return buffer.toString();
 	}
 		
-//	public void addMatrixResizeListener(MatrixResizeListener listener)
-//	{
-//		resizeListeners.add(listener);
-//	}
+	public void addMatrixResizeListener(MatrixResizeListener listener)
+	{
+		resizeListeners.add(listener);
+	}
         
     public void loadFromDomNode(Node matrixNode)
     {
@@ -304,52 +316,8 @@ public class ResizableMatrix extends Composite
                 }
             }
         }
-    }
-    
-    public void setCovariateColumn(boolean hasCovariateColumn)
-    {
-    	if (hasCovariateColumn)
-    	{
-    		if (!this.hasCovariateColumn)
-    		{
-    			int newCols = matrixData.getColumnCount()+1;
-    			matrixData.resizeColumns(newCols);
-    			fillColumn(newCols-1,DEFAULT_COVARIATE_VALUE, false);
-    		}
-    	}
-    	else 
-    	{
-    		if (this.hasCovariateColumn)
-    		{
-    			matrixData.resizeColumns(matrixData.getColumnCount()-1);
-    		}
-    	}
-    	this.hasCovariateColumn = hasCovariateColumn;
-		columnTextBox.setText(Integer.toString(matrixData.getCellCount(0)));
-    }
-    
-    public void setCovariateRow(boolean hasCovariateRow)
-    {
-    	if (hasCovariateRow)
-    	{
-    		if (!this.hasCovariateRow)
-    		{
-    			int newRows = matrixData.getRowCount()+1;
-    			matrixData.resizeRows(newRows);
-    			fillRow(newRows-1,DEFAULT_COVARIATE_VALUE, false);
-    		}
-    	}
-    	else 
-    	{
-    		if (this.hasCovariateRow)
-    		{
-    			matrixData.removeRow(matrixData.getRowCount()-1);
-    		}
-    	}
-    	this.hasCovariateRow = hasCovariateRow;
-		rowTextBox.setText(Integer.toString(matrixData.getRowCount()));
-    }
-    
+    }   
+
     public void reset(int newRows, int newColumns)
     {
         matrixData.resize(newRows, newColumns);
@@ -357,7 +325,19 @@ public class ResizableMatrix extends Composite
         columnTextBox.setText(Integer.toString(newColumns));
         for(int r = 0; r < matrixData.getRowCount(); r++)
         {
-            fillRow(r, DEFAULT_VALUE, true);
+            fillRow(r, defaultValue, true);
         }
+    }
+    
+    public void notifyOnColumns(int newCols)
+    {
+		for(MatrixResizeListener listener: resizeListeners) 
+			listener.onColumns(name, newCols);
+    }
+    
+    public void notifyOnRows(int newRows)
+    {
+		for(MatrixResizeListener listener: resizeListeners) 
+			listener.onRows(name, newRows);
     }
 }

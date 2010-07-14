@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -14,7 +15,9 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
+import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
+import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 
 public class CovariatePanel extends com.google.gwt.user.client.ui.Composite
 {
@@ -24,7 +27,7 @@ public class CovariatePanel extends com.google.gwt.user.client.ui.Composite
     protected TextBox varianceTextBox = new TextBox();
     protected HTML meanErrorHTML = new HTML();
     protected HTML varianceErrorHTML = new HTML();
- //   protected ArrayList<CovariateListener> listeners = new ArrayList<CovariateListener>();
+    protected ArrayList<CovariateListener> listeners = new ArrayList<CovariateListener>();
     
     public CovariatePanel()
     {
@@ -39,8 +42,8 @@ public class CovariatePanel extends com.google.gwt.user.client.ui.Composite
                 meanVarPanel.setVisible(covariateCheckBox.getValue());
                 meanTextBox.setText("");
                 varianceTextBox.setText("");
-                
-             //   for(CovariateListener listener : listeners) listener.onHasCovariate(covariateCheckBox.getValue());
+                // notify listeners
+                for(CovariateListener listener : listeners) listener.onHasCovariate(covariateCheckBox.getValue());
             }
         });
         covariatePanel.add(includeCovariatePanel);
@@ -52,12 +55,12 @@ public class CovariatePanel extends com.google.gwt.user.client.ui.Composite
                 try
                 {
                     double mean = Double.parseDouble(meanTextBox.getText());
-                    //for(CovariateListener listener : listeners) listener.onMean(mean);
-                    //TextValidation.displayOkay(meanErrorHTML, Glimmpse.constants.okay());
+                    for(CovariateListener listener : listeners) listener.onMean(mean);
+                    TextValidation.displayOkay(meanErrorHTML, "");
                 }
                 catch (NumberFormatException nfe)
                 {
-                    //TextValidation.displayError(meanErrorHTML, PowerCalculatorGUI.constants.errorMeanInvalid());
+                    TextValidation.displayError(meanErrorHTML, Glimmpse.constants.errorInvalidMean());
                     meanTextBox.setText("");
                 }
             }
@@ -68,12 +71,12 @@ public class CovariatePanel extends com.google.gwt.user.client.ui.Composite
                 try
                 {
                     double mean = TextValidation.parseDouble(varianceTextBox.getText(), 0, true);
-                    //for(CovariateListener listener : listeners) listener.onMean(mean);
-                    //TextValidation.displayOkay(varianceErrorHTML, PowerCalculatorGUI.constants.okay());
+                    for(CovariateListener listener : listeners) listener.onMean(mean);
+                    TextValidation.displayOkay(varianceErrorHTML, "");
                 }
                 catch (NumberFormatException nfe)
                 {
-                    //TextValidation.displayError(varianceErrorHTML, PowerCalculatorGUI.constants.errorVarianceInvalid());
+                    TextValidation.displayError(varianceErrorHTML, Glimmpse.constants.errorInvalidVariance());
                     varianceTextBox.setText("");
                 }
             }
@@ -90,18 +93,18 @@ public class CovariatePanel extends com.google.gwt.user.client.ui.Composite
         covariatePanel.add(meanVarPanel);
         
         // add style
-       // meanErrorHTML.setStyleName(PowerCalculatorConstants.MESSAGE_STYLE);
-        //meanErrorHTML.addStyleDependentName(PowerCalculatorConstants.OKAY_STYLE);
-       // varianceErrorHTML.setStyleName(PowerCalculatorConstants.MESSAGE_STYLE);
-        //varianceErrorHTML.addStyleDependentName(PowerCalculatorConstants.OKAY_STYLE);
+        meanErrorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
+        meanErrorHTML.addStyleDependentName(GlimmpseConstants.STYLE_MESSAGE_OKAY);
+        varianceErrorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
+        varianceErrorHTML.addStyleDependentName(GlimmpseConstants.STYLE_MESSAGE_OKAY);
   
         initWidget(covariatePanel);
     }
     
-//    public void addCovariateListener(CovariateListener listener)
-//    {
-//        listeners.add(listener);
-//    }
+    public void addCovariateListener(CovariateListener listener)
+    {
+        listeners.add(listener);
+    }
     
     public String getMean()
     {
