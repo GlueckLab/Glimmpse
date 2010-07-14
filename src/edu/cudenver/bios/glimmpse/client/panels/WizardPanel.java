@@ -154,4 +154,11 @@ implements NavigationListener, StepStatusListener
     	navPanel.setNext(complete.isComplete());
     }
 
+    /**
+     * Add a listener for entering a specific step
+     */
+//    public void addStepEntryListener(StepEntryListener listener)
+//    {
+//    	
+//    }
 }

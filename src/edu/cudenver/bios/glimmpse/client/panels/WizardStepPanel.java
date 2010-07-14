@@ -32,5 +32,17 @@ public abstract class WizardStepPanel extends Composite
     	stepStatusListeners.add(listener);
     }
     
+    public void notifyComplete()
+    {
+    	complete = true;
+		for(StepStatusListener listener: stepStatusListeners) listener.onStepComplete();
+    }
+    
+    public void notifyInProgress()
+    {
+    	complete = false;
+		for(StepStatusListener listener: stepStatusListeners) listener.onStepInProgress();
+    }
+    
     public abstract void reset();
 }
