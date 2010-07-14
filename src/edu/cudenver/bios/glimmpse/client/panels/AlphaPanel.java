@@ -21,11 +21,8 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -41,7 +38,7 @@ public class AlphaPanel extends WizardStepPanel
 implements DynamicListValidator
 {
     // dynamic table of alpha values
-	String[] columnNames = { Glimmpse.constants.alphaTableTitle() };
+	String[] columnNames = { Glimmpse.constants.alphaTableColumn() };
     protected DynamicListPanel alphaListPanel = 
     	new DynamicListPanel(columnNames, this);
     
@@ -66,7 +63,6 @@ implements DynamicListValidator
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        
         // initialize the panel
         initWidget(panel);
     }
