@@ -25,6 +25,35 @@
 	background: #fff; /*#A1AB61;*/
 }
 
+.startPanelContainer {
+	border: 1px outset #14f;
+	padding: 5px;
+	background-color: #E0ECF8;
+	
+	width: 80%;
+	height: 100px;
+	margin: 10px 20px;
+}
+
+.startPanelContainerTitle {
+	font-weight: bold
+}
+
+.startPanelGoButton {
+	font-weight: bold;
+	color: #000;
+	border: 1px solid #fff;
+	background: #fff url(../images/forward.png) no-repeat 36px 1px;
+	text-align: left;
+	width: 75px;
+	height: 36px;
+}
+
+.startPanelGoButton:hover {
+	border: 1px solid #000;
+}
+
+
 /* style for main wizard input panel (GWT class) */
 .glimmpseWizardPanel {
 	margin: 5px 5px;
@@ -109,7 +138,7 @@
 
 .wizardStepInputContainer {
 	padding: 10px;
-	margin: 0px 20px;	
+	margin: 0px 10px;	
 	spacing: 20px;
 	background: #F9FCFF;
 	border: 3px solid #ccc;
@@ -117,14 +146,16 @@
 }
 
 .wizardStepHeader {
-	margin: 10px 0px;
+	margin: 5px 5px;
 	font-weight: bold;
 	font-size: 12pt;
+	width: 80%;
 }
 
 .wizardStepDescription {
-	margin: 10px 0px;
+	margin: 5px 5px;
 	font-size: 10pt;
+	width: 80%;
 }
 
 .wizardStepHeader-subpanel {
@@ -275,8 +306,8 @@
 
 .message-error {
 	color: maroon;
-	font-weight: bold;
-	background: #fcc;
+	/* font-weight: bold; */
+	/* background: #fcc; */
 }
 
 .message-okay {
@@ -295,7 +326,6 @@
 .wizardStepTablePanel {
 	border: 1px outset #14f;
 	background: #E0ECF8;
-	padding: 5px;
 	width: 80%;
 }
 
