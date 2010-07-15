@@ -128,34 +128,13 @@ implements NavigationListener, StepStatusListener
         //wizard.showWidget(currentStep);
     }
     
-    /**
-     * Call back when "previous" navigation button is clicked
-     * Does nothing if already at beginning of step list
-     */
-    public void onPrevious()
-    {
-        if (currentStep > 0) 
-            updateStep(stepList.get(currentStep), stepList.get(--currentStep));
-        //wizard.showWidget(currentStep);
-    }
-    
-    /**
-     * Return to first step
-     */
-    public void onCancel()
-    {
-        if (currentStep > 0)
-        {
-            updateStep(stepList.get(currentStep), stepList.get(0));
-            currentStep = 0;
-            //wizard.showWidget(currentStep);
-        }
-
-    }
-    
     public void onStep(int stepIndex)
     {
-    	
+    	if (stepIndex >= 0 && stepIndex < stepList.size())
+    	{
+    		updateStep(stepList.get(currentStep), stepList.get(stepIndex));
+    		currentStep = stepIndex;
+    	}
     }
     
     public void onStepComplete()
@@ -194,4 +173,12 @@ implements NavigationListener, StepStatusListener
     	navigationListeners.add(listener);
     }
     
+    public void reset()
+    {
+        if (currentStep > 0)
+        {
+            updateStep(stepList.get(currentStep), stepList.get(0));
+            currentStep = 0;
+        }
+    }
 }

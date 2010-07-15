@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
 
+import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.panels.guided.EffectSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.OutcomesPanel;
@@ -68,5 +69,10 @@ public class GuidedWizardPanel extends Composite
     public void reset()
     {
     	wizardPanel.reset();
+    }
+    
+    public void addCancelListener(CancelListener listener)
+    {
+    	wizardPanel.addCancelListener(listener);
     }
 }

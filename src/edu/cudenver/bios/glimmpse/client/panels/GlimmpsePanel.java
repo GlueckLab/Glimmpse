@@ -32,13 +32,14 @@ import com.google.gwt.xml.client.XMLParser;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
+import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.StartListener;
 
 /**
  * Main application panel for Glimmpse. 
  */
 public class GlimmpsePanel extends Composite
-implements StartListener
+implements StartListener, CancelListener
 {
 	private static final int START_INDEX = 0;
 	private static final int GUIDED_INDEX = 1;
@@ -62,7 +63,8 @@ implements StartListener
 		
 		// set up listener relationships
 		startPanel.addStartListener(this);
-		
+		guidedWizardPanel.addCancelListener(this);
+		matrixWizardPanel.addCancelListener(this);
 		// initialize
 		initWidget(deckPanel);
 		
@@ -112,4 +114,13 @@ implements StartListener
         	Window.alert(Glimmpse.constants.errorUploadFailed());
         }
     }
+
+
+	@Override
+	public void onCancel()
+	{
+		matrixWizardPanel.reset();
+		guidedWizardPanel.reset();
+		deckPanel.showWidget(START_INDEX);
+	}
 }

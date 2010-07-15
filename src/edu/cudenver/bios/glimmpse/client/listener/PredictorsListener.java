@@ -5,7 +5,5 @@ import java.util.HashMap;
 
 public interface PredictorsListener
 {
-	public void onPredictors(HashMap predictorMap);
-	
-	public void onCategories(String predictor, ArrayList<String> categories);
+	public void onPredictors(HashMap<String,ArrayList<String>> predictorMap);
 }

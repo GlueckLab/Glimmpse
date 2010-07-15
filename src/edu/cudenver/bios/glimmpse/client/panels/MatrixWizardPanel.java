@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
+import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.BetaPanel;
@@ -99,5 +100,10 @@ public class MatrixWizardPanel extends Composite
     public void reset()
     {
     	wizardPanel.reset();
+    }
+    
+    public void addCancelListener(CancelListener listener)
+    {
+    	wizardPanel.addCancelListener(listener);
     }
 }

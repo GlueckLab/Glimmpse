@@ -106,6 +106,11 @@ public interface GlimmpseConstants extends Constants
     public String predictorsTableColumn();
     public String categoriesTableColumn();
     
+    // study groups panel constants
+    public String studyGroupsTitle();
+    public String studyGroupsDescription();
+    public String equalGroupsLabel();
+    
     // matrix constants
     public String matrixDimensionSeparator();
     
