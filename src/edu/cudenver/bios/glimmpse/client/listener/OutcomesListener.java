@@ -20,10 +20,11 @@
 package edu.cudenver.bios.glimmpse.client.listener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface OutcomesListener
 {
-	public void onOutcomes(ArrayList<String> outcomes);
+	public void onOutcomes(List<String> outcomes);
 	
-	public void onRepetitions(int reps);
+	public void onRepeatedMeasures(List<String> repeatedMeasures);
 }

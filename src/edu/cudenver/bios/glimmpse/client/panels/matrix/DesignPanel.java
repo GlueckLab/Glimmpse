@@ -24,7 +24,7 @@ implements MatrixResizeListener, CovariateListener, DynamicListValidator
    	protected Grid rowMDGrid;
    	
    	// list of per group sample sizes
-	String[] columnNames = { Glimmpse.constants.perGroupSampleSizeTableTitle() };
+	String[] columnNames = { Glimmpse.constants.perGroupSampleSizeTableColumn() };
     protected DynamicListPanel perGroupNListPanel =
     	new DynamicListPanel(columnNames, this);
    	

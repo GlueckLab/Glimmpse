@@ -39,12 +39,11 @@ implements NavigationListener, StepStatusListener
 			wizardDeck.add(stepPanel);
 			stepPanel.addStepStatusListener(this);
 		}
-		wizardDeck.showWidget(0);
 		
 		// add navigation callbacks
 		navPanel.addNavigationListener(this);
 		navPanel.addNavigationListener(stepsLeftPanel);
-		setNavigationEnabled();
+		enterStep();
 		
 		// layout the wizard panel
 		contentPanel.add(new ToolBar());
@@ -72,9 +71,9 @@ implements NavigationListener, StepStatusListener
     {
     	if (currentStep < wizardDeck.getWidgetCount()-1)
     	{
+    		exitStep();
     		currentStep++;
-    		wizardDeck.showWidget(currentStep);
-    		setNavigationEnabled();
+    		enterStep();
     	}
     }
     
@@ -86,9 +85,9 @@ implements NavigationListener, StepStatusListener
     {
     	if (currentStep > 0)
     	{
+    		exitStep();
     		currentStep--;
-    		wizardDeck.showWidget(currentStep);
-    		setNavigationEnabled();
+    		enterStep();
     	}
     }
     
@@ -98,10 +97,10 @@ implements NavigationListener, StepStatusListener
     public void onCancel()
     {
     	// TODO: clear everything
+    	exitStep();
     	stepsLeftPanel.onCancel();
     	currentStep = 0;
-    	wizardDeck.showWidget(currentStep);
-		setNavigationEnabled();
+    	enterStep();
     }
 	
     /**
@@ -111,9 +110,9 @@ implements NavigationListener, StepStatusListener
     {
     	if (stepIndex >= 0 && stepIndex < wizardDeck.getWidgetCount())
     	{
+    		exitStep();
     		currentStep = stepIndex;
-    		wizardDeck.showWidget(currentStep);
-    		setNavigationEnabled();
+    		enterStep();
     	}
     }
     
@@ -144,21 +143,24 @@ implements NavigationListener, StepStatusListener
     		step.reset();
     	}
     }
-    
+
     /**
-     * Determine if navigation should be allowed for the currently visible widget
+     * Call any exit functions as we leave the current step
      */
-    private void setNavigationEnabled()
+    private void exitStep()
     {
-    	WizardStepPanel complete = (WizardStepPanel) wizardDeck.getWidget(wizardDeck.getVisibleWidget());
-    	navPanel.setNext(complete.isComplete());
+    	WizardStepPanel w = (WizardStepPanel) wizardDeck.getWidget(currentStep);
+    	w.onExit();
     }
 
     /**
-     * Add a listener for entering a specific step
+     *  Enter the new step, calling any setup routines
      */
-//    public void addStepEntryListener(StepEntryListener listener)
-//    {
-//    	
-//    }
+    private void enterStep()
+    {
+    	WizardStepPanel w = (WizardStepPanel) wizardDeck.getWidget(currentStep);
+    	w.onEnter();
+    	wizardDeck.showWidget(currentStep);
+    	navPanel.setNext(w.isComplete());
+    }
 }

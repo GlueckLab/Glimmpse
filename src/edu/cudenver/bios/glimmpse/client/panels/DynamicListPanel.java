@@ -1,7 +1,11 @@
 package edu.cudenver.bios.glimmpse.client.panels;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -15,32 +19,16 @@ import edu.cudenver.bios.glimmpse.client.TextValidation;
 public class DynamicListPanel extends Composite
 implements ChangeHandler
 {
-	public class DefaultWidgetManager implements DynamicListManager {
-
-		@Override
-		public Widget createListWidget(ChangeHandler handler, int column)
+	public class RowTextBox extends TextBox
+	{
+		public int row = -1;
+		
+		public RowTextBox(int row)
 		{
-	        TextBox tb = new TextBox();
-	        tb.addChangeHandler(handler);
-	        tb.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_TEXTBOX);
-	        if (column == 0) tb.setFocus(true);
-	        return tb;
+			super();
+			this.row = row;
 		}
-
-		@Override
-		public String getValue(Widget w, int column)
-		{
-			TextBox tb = (TextBox) w;
-			return tb.getText();
-		}
-
-		@Override
-		public void clear(Widget w, int column)
-		{
-			TextBox tb = (TextBox) w;
-			tb.setText("");
-		}
-	};
+	}
 	
     // dynamic table of alpha values
     protected FlexTable flexTable = new FlexTable();
@@ -48,19 +36,12 @@ implements ChangeHandler
     protected HTML errorHTML = new HTML();
     // object for validating new entries
     protected DynamicListValidator validator;
-    // object which creates / accesses widgets in each column
-    protected DynamicListManager manager;
     // counter of the number of valid rows in the table
     protected int validRowCount = 0;
     
-	public DynamicListPanel(String[] columnNames, DynamicListValidator validator,
-			DynamicListManager manager)
+	public DynamicListPanel(String[] columnNames, DynamicListValidator validator)
 	{
 		this.validator = validator;
-		if (manager != null)
-			this.manager = manager;
-		else
-			this.manager = new DefaultWidgetManager();
 		
         // create the dynamic table for entering predictors
         VerticalPanel tablePanel = new VerticalPanel();
@@ -89,11 +70,6 @@ implements ChangeHandler
         initWidget(tablePanel);
 	}
 	
-	public DynamicListPanel(String[] columnNames, DynamicListValidator validator)
-	{
-		this(columnNames, validator, null);
-	}
-	
 	private void addRow()
 	{
         int row = flexTable.getRowCount();
@@ -101,7 +77,11 @@ implements ChangeHandler
         
         for(int col = 0; col < cols; col++)
         {
-        	flexTable.setWidget(row, col, manager.createListWidget(this, col));
+        	RowTextBox rtb = new RowTextBox(row);
+        	rtb.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_TEXTBOX);
+        	rtb.addChangeHandler(this);
+        	flexTable.setWidget(row, col, rtb);
+        	if (col == 0) rtb.setFocus(true);
         }
         flexTable.getRowFormatter().setStylePrimaryName(row, 
         		GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_ROW);
@@ -126,52 +106,62 @@ implements ChangeHandler
     {
 		int columns = flexTable.getCellCount(0);
     	// get current row index
-        Widget source = (Widget) e.getSource();
-    	int focusRow = 1;
-    	for(; focusRow < flexTable.getRowCount(); focusRow++)
-    	{
-    		if (source == flexTable.getWidget(focusRow, 0)) break;
-    	}
-    	
-        try
-        {
-        	String value = manager.getValue(source, 0);
-        	// use the first widget in the row to determine if we delete the row
-        	if (value.isEmpty() && flexTable.getRowCount() > 2)
-        	{
-        		flexTable.removeRow(focusRow);
-        		validRowCount--;
-        	}
-        	else
-        	{
-        		// validate over entire row
-        		for(int c = 0; c < columns; c++)
-        		{
-        			Widget w = flexTable.getWidget(focusRow, c);
-            		validator.validate(manager.getValue(w, c), c);
-        		}
-        		validRowCount++;
-        		if (focusRow == flexTable.getRowCount()-1) addRow();
-        	}
-        	// remove any previously displayed error messages
-        	TextValidation.displayError(errorHTML, "");
-        }
-        catch (IllegalArgumentException iae)
-        {
-        	// display an error message
-        	TextValidation.displayError(errorHTML, iae.getMessage());
-        	for(int c = 0; c < columns; c++) 
-        		manager.clear(flexTable.getWidget(focusRow, c), c);
-        	
-        }
+		RowTextBox source = (RowTextBox) e.getSource();
+		int row = source.row;
+		
+		// validate the row
+		boolean rowEmpty = true;
+		boolean rowValid = true;
+		for(int c = 0; c < columns; c++)
+		{
+			RowTextBox rtb = (RowTextBox) flexTable.getWidget(row, c);	
+			if (!rtb.getText().isEmpty()) rowEmpty = false;		
+			try 
+			{
+				validator.validate(rtb.getText(), c);
+			}
+			catch (IllegalArgumentException iae)
+			{
+				rtb.setText("");
+				rowValid = false;
+				if (rtb == source) TextValidation.displayError(errorHTML, iae.getMessage());
+			}
+		}
+
+		// if the row is completely empty, remove it
+		if (rowEmpty && flexTable.getRowCount() > 2)
+		{
+			flexTable.removeRow(row);
+			validRowCount--;
+        	TextValidation.displayOkay(errorHTML, "");
+		}
+		else if (rowValid)
+		{
+			if (row == flexTable.getRowCount()-1)
+			{
+				addRow();
+				validRowCount++;
+			}
+        	TextValidation.displayOkay(errorHTML, "");
+		}
+
         // let the validator know that the number of valid rows has changed
         validator.onValidRowCount(validRowCount);
     }
     
-    public int getFilledRowCount()
+    public List<String> getColumnValues(int column)
     {
-    	// minus 
-    	return flexTable.getRowCount() - 1;
+    	if (column < 0 || column > flexTable.getCellCount(0))
+    		return null;
+    	
+    	ArrayList<String> list = new ArrayList<String>();
+    	for(int i = 1; i < flexTable.getRowCount(); i++)
+    	{
+    		RowTextBox rtb = (RowTextBox)  flexTable.getWidget(i, column);	
+    		String value = rtb.getText();
+    		if (value != null && !value.isEmpty()) list.add(value);
+    	}
+    	return list;
     }
     
     public void reset()

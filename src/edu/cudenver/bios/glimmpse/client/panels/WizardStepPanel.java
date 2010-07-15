@@ -45,4 +45,8 @@ public abstract class WizardStepPanel extends Composite
     }
     
     public abstract void reset();
+    
+    public void onEnter() {}
+    
+    public void onExit() {}
 }

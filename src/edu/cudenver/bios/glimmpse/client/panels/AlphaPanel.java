@@ -41,7 +41,7 @@ implements DynamicListValidator
 	String[] columnNames = { Glimmpse.constants.alphaTableColumn() };
     protected DynamicListPanel alphaListPanel = 
     	new DynamicListPanel(columnNames, this);
-    
+
     /**
      * Create an empty type I error panel
      */

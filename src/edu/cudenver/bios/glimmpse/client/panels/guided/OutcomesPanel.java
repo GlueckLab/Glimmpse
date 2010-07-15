@@ -20,6 +20,7 @@
 package edu.cudenver.bios.glimmpse.client.panels.guided;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.HTML;
@@ -30,8 +31,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
+import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
-import edu.cudenver.bios.glimmpse.client.panels.DynamicListManager;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
@@ -47,7 +48,7 @@ public class OutcomesPanel extends WizardStepPanel
     protected static final int MAX_REPEATED_MEASURES = 10;
     
     // dynamic table of outcomes
-    protected String[] outcomesColumnNames = {Glimmpse.constants.outcomesTableTitle()};
+    protected String[] outcomesColumnNames = {Glimmpse.constants.outcomesTableColumn()};
     protected DynamicListPanel outcomesListPanel = 
     	new DynamicListPanel(outcomesColumnNames, 
     			new DynamicListValidator() {
@@ -63,76 +64,26 @@ public class OutcomesPanel extends WizardStepPanel
     	});
     
     // dynamic table of repeated measures
-    protected String[] repeatedColumnNames = {"Repeated Over", "#repetitions"};
+    protected String[] repeatedColumnNames = {
+    		Glimmpse.constants.repeatedOverTableColumn(),
+    		Glimmpse.constants.repetitionsTableColumn()
+    		};
     protected DynamicListPanel repeatedMeasuresListPanel = 
     	new DynamicListPanel(repeatedColumnNames, 
     			new DynamicListValidator() {
-    		public void validate(String value, int column) throws IllegalArgumentException {}
+    		public void validate(String value, int column) throws IllegalArgumentException 
+    		{	
+    			if (value == null || value.isEmpty()) 
+    				throw new IllegalArgumentException("No value entered");
+    			if (column == 1)
+    			{
+    				TextValidation.parseInteger(value, 1, true);
+    			}
+    		}
 
     		public void onValidRowCount(int validRowCount)
     		{
-    			if (validRowCount > 0)
-    				notifyComplete();
-    			else
-    				notifyInProgress();
     		}
-    	},
-    	new DynamicListManager() {
-
-			@Override
-			public Widget createListWidget(ChangeHandler handler, int column)
-			{
-				if (column ==  0)
-				{
-			        TextBox tb = new TextBox();
-			        tb.addChangeHandler(handler);
-			        tb.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_TEXTBOX);
-			        tb.setFocus(true);
-			        return tb;
-				}
-				else
-				{
-					ListBox lb = new ListBox();
-					for(int i = 1; i <= MAX_REPEATED_MEASURES; i++)
-						lb.addItem(Integer.toString(i));
-					return lb;
-				}
-			}
-
-			@Override
-			public String getValue(Widget w, int column)
-			{
-				String value = null;
-				if (column ==  0)
-				{
-					TextBox tb = (TextBox) w;
-					value = tb.getText();
-				}
-				else if (column == 1)
-				{
-					ListBox lb = (ListBox) w;
-					value = lb.getItemText(lb.getSelectedIndex());
-				}
-				return value;
-			}
-
-			@Override
-			public void clear(Widget w, int column)
-			{
-				if (column == 0)
-				{
-					TextBox tb = (TextBox) w;
-					tb.setText("");
-				}
-				else if (column == 1)
-				{
-					ListBox lb = (ListBox) w;
-					lb.setSelectedIndex(0);
-				}
-				
-			}
-    		
-			
     	});
 
     // listeners for outcome events
@@ -146,23 +97,24 @@ public class OutcomesPanel extends WizardStepPanel
         // create header/instruction text
         HTML header = new HTML(Glimmpse.constants.outcomesTitle());
         HTML description = new HTML(Glimmpse.constants.outcomesDescription());
-        
-        // create the dynamic table for entering predictors
-        VerticalPanel outcomesTablePanel = new VerticalPanel();
-        outcomesTablePanel.add(outcomesListPanel);
-        outcomesTablePanel.add(repeatedMeasuresListPanel);
+        // create the repeated measures header/instruction text
+        HTML repeatedHeader = new HTML(Glimmpse.constants.repeatedMeasuresTitle());
+        HTML repeatedDescription = new HTML(Glimmpse.constants.repeatedMeasuresDescription());
         
         // layout the overall panel
         panel.add(header);
         panel.add(description);
-        panel.add(outcomesTablePanel);
+        panel.add(outcomesListPanel);
+        panel.add(repeatedHeader);
+        panel.add(repeatedDescription);
+        panel.add(repeatedMeasuresListPanel);
         
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        outcomesTablePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_PANEL);
-
+        repeatedHeader.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        repeatedDescription.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
         initWidget(panel);
     }
     
@@ -184,13 +136,7 @@ public class OutcomesPanel extends WizardStepPanel
      */
     private void notifyOutcomes()
     {
-    	ArrayList<String> outcomes = new ArrayList<String>();
-//    	for(int r = 1; r < outcomesTable.getRowCount()-1; r++)
-//    	{
-//    		TextBox tb = (TextBox) outcomesTable.getWidget(r, 0);
-//    		String text = tb.getText();
-//    		if (!text.isEmpty()) outcomes.add(tb.getText());
-//    	}
+    	List<String> outcomes = outcomesListPanel.getColumnValues(0);
     	for(OutcomesListener listener: listeners) listener.onOutcomes(outcomes);
     }
     
@@ -207,5 +153,11 @@ public class OutcomesPanel extends WizardStepPanel
     public void onValidRowCount(int validRowCount)
     {
 
+    }
+    
+    @Override
+    public void onExit()
+    {
+    	notifyOutcomes();
     }
 }

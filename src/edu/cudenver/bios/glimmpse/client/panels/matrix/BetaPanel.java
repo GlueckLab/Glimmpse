@@ -25,7 +25,7 @@ implements MatrixResizeListener, CovariateListener, DynamicListValidator
     			"0", "&beta; Random"); 
     
    	// list of per group sample sizes
-	String[] columnNames = { Glimmpse.constants.betaScaleTableTitle() };
+	String[] columnNames = { Glimmpse.constants.betaScaleTableColumn() };
     protected DynamicListPanel betaScaleListPanel =
     	new DynamicListPanel(columnNames, this);
    	
