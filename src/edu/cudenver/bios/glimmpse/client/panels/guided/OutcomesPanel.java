@@ -77,7 +77,14 @@ public class OutcomesPanel extends WizardStepPanel
     				throw new IllegalArgumentException("No value entered");
     			if (column == 1)
     			{
-    				TextValidation.parseInteger(value, 1, true);
+    				try 
+    				{
+    					TextValidation.parseInteger(value, 1, true);
+    				}
+    				catch (NumberFormatException nfe)
+    				{
+    					throw new IllegalArgumentException("The number of repetitions must be an integer greater than 2");
+    				}
     			}
     		}
 
