@@ -102,22 +102,20 @@
 
 /* top toolbar */
 .wizardToolBar {
-	float: right;
-	
+	margin-left: 64%;
 }
 
 .wizardToolBarButtonSave {
-	width: 32px;
+	/*
 	height: 32px;
 	background: #fff url(../images/save.png) no-repeat;
-	border: none;
+	border: none;*/
 }
 
 .wizardToolBarButtonCancel {
-   	width: 32px;
-	height: 32px;
+	/*height: 32px;
 	border: none;
-	background: #fff url(../images/cancel.png) no-repeat;
+	background: #fff url(../images/cancel.png) no-repeat;*/
 }
 
 /* container for user input (around forms, etc) */
@@ -192,7 +190,9 @@
 
 /* style for subpanels in a wizard step */
 .wizardNavigationPanel {
-	float: right;
+	/*float: right;*/
+	margin-top: 20px;
+	margin-left: 60%;
 }
 
 /* wizard navigation buttons */
