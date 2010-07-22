@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
 
+import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.panels.guided.EffectSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisPanel;
@@ -14,6 +15,7 @@ import edu.cudenver.bios.glimmpse.client.panels.guided.StudyGroupsPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityPanel;
 
 public class GuidedWizardPanel extends Composite
+implements StudyDesignManager
 {
 	// content panels 
 	AlphaPanel alphaPanel = new AlphaPanel();
@@ -24,7 +26,7 @@ public class GuidedWizardPanel extends Composite
 	EffectSizePanel effectSizePanel = new EffectSizePanel();
 	VariabilityPanel variabilityPanel = new VariabilityPanel();
 	OptionsPanel optionsPanel = new OptionsPanel();
-	ResultsPanel resultsPanel = new ResultsPanel();
+	ResultsPanel resultsPanel = new ResultsPanel(this);
 	
     // list of panels for the wizard
 	WizardStepPanel[] panelList = {
@@ -53,7 +55,8 @@ public class GuidedWizardPanel extends Composite
 
 		// set up listener relationships
 		outcomesPanel.addOutcomesListener(studyGroupsPanel);
-		
+		predictorsPanel.addPredictorsListener(studyGroupsPanel);
+		predictorsPanel.addCovariateListener(optionsPanel);
 		// initialize
 		initWidget(panel);
 	}
@@ -75,4 +78,24 @@ public class GuidedWizardPanel extends Composite
     {
     	wizardPanel.addCancelListener(listener);
     }
+
+	@Override
+	public String getPowerRequestXML()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getStudyDesignXML()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Solution getSolvingFor()
+	{
+		return Solution.POWER;
+	}
 }

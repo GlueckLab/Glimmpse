@@ -27,6 +27,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
+import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
+import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
@@ -41,6 +43,7 @@ import edu.cudenver.bios.glimmpse.client.panels.matrix.ThetaPanel;
  * for each type of matrix required for power calculations on the GLMM
  */
 public class MatrixWizardPanel extends Composite
+implements StudyDesignManager
 {
 	// content panels 
     protected AlphaPanel alphaPanel = new AlphaPanel();
@@ -50,7 +53,7 @@ public class MatrixWizardPanel extends Composite
     protected ThetaPanel thetaPanel = new ThetaPanel();
     protected CovariancePanel covariancePanel = new CovariancePanel();
     protected OptionsPanel optionsPanel = new OptionsPanel();
-    protected ResultsPanel resultsPanel = new ResultsPanel();
+    protected ResultsPanel resultsPanel = new ResultsPanel(this);
 	
     // list of panels for the wizard
 	WizardStepPanel[] panelList = {
@@ -106,4 +109,36 @@ public class MatrixWizardPanel extends Composite
     {
     	wizardPanel.addCancelListener(listener);
     }
+
+	@Override
+	public String getPowerRequestXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		
+		buffer.append("<" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
+		buffer.append(alphaPanel.toXML());
+		buffer.append(designPanel.toXML());
+		buffer.append(betaPanel.toXML());
+		buffer.append(contrastPanel.toXML());
+		buffer.append(thetaPanel.toXML());
+		buffer.append(covariancePanel.toXML());
+		buffer.append(optionsPanel.toXML());
+		buffer.append("</" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
+		
+		return buffer.toString();
+	}
+
+	@Override
+	public String getStudyDesignXML()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Solution getSolvingFor()
+	{
+		// TODO Auto-generated method stub
+			return Solution.POWER;
+	}
 }

@@ -119,4 +119,16 @@ implements CovariateListener, MatrixResizeListener
 	{
 		withinSubject.addMatrixResizeListener(listener);
 	}
+	
+	public String toXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(betweenSubjectFixed.toXML());
+		if (betweenSubjectRandom.isVisible())
+		{
+			buffer.append(betweenSubjectRandom.toXML());
+		}
+		buffer.append(withinSubject.toXML());
+		return buffer.toString();
+	}
 }

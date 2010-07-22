@@ -59,4 +59,12 @@ implements MatrixResizeListener
 		}
 		
 	}
+	
+	
+	public String toXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(theta.toXML());
+		return buffer.toString();
+	}
 }

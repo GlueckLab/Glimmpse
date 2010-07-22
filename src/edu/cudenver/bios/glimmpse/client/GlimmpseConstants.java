@@ -25,24 +25,36 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_MESSAGE_ERROR = "error";
     public static final String STYLE_MESSAGE_OKAY = "okay";
 
+    // REST API tag names
+    public static final String TAG_POWER_PARAMETERS = "glmmPowerParameters";
+    
     // mode names
     public static final String MODE_MATRIX = "matrix";
     public static final String MODE_GUIDED = "guided";
 
     // matrix names
-    public static final String MATRIX_DESIGN_FIXED = "designFixed";
+    public static final String MATRIX_DESIGN_FIXED = "design";
     public static final String MATRIX_DESIGN_RANDOM = "designRandom";
-    public static final String MATRIX_BETA_FIXED = "betaFixed";
+    public static final String MATRIX_BETA_FIXED = "beta";
     public static final String MATRIX_BETA_RANDOM = "betaRandom";
-    public static final String MATRIX_BETWEEN_CONTRAST_FIXED = "betweenSubjectContrastFixed";
+    public static final String MATRIX_BETWEEN_CONTRAST_FIXED = "betweenSubjectContrast";
     public static final String MATRIX_BETWEEN_CONTRAST_RANDOM = "betweenSubjectContrastRandom";
     public static final String MATRIX_WITHIN_CONTRAST = "withinSubjectContrast";
     public static final String MATRIX_SIGMA_ERROR = "sigmaError";
     public static final String MATRIX_SIGMA_OUTCOME = "sigmaOutcome";
     public static final String MATRIX_SIGMA_OUTCOME_COVARIATE = "sigmaOutcomeGaussianRandom ";
     public static final String MATRIX_SIGMA_COVARIATE = "sigmaGaussianRandom";
-    public static final String MATRIX_THETA = "thetaNull";
+    public static final String MATRIX_THETA = "theta";
     
+    // test names
+    public static final String TEST_UNIREP = "unirep";
+    public static final String TEST_UNIREP_GEISSER_GRENNHOUSE = "unirepGG";
+    public static final String TEST_UNIREP_HUYNH_FELDT = "unirepHF";
+    public static final String TEST_UNIREP_BOX = "unirepBox";
+    public static final String TEST_WILKS_LAMBDA = "wl";
+    public static final String TEST_PILLAI_BARTLETT_TRACE= "pbt";
+    public static final String TEST_HOTELLING_LAWLEY_TRACE = "hlt";
+
 	// dimension names derived from linear model theory.
 	// ensures that default matrix dimensions conform properly
     public static final int DEFAULT_N = 3;
@@ -110,6 +122,32 @@ public interface GlimmpseConstants extends Constants
     public String studyGroupsTitle();
     public String studyGroupsDescription();
     public String equalGroupsLabel();
+    public String perGroupSampleSizeTitle();
+    public String perGroupSampleSizeDescription();
+
+    // hypotheses panel constants
+    public String hypothesisTitle();
+    public String hypothesisDescription();
+
+    // options panel constants
+    public String optionsTitle();
+    public String optionsDescription();
+    public String testTitle();
+    public String testDescription();
+    public String testUnirepLabel();
+    public String testUnirepGeisserGreenhouseLabel();
+    public String testUnirepHuynhFeldtLabel();
+    public String testUnirepBoxLabel();
+    public String testWilksLambdaLabel();
+    public String testPillaiBartlettTraceLabel();
+    public String testHotellingLawleyTraceLabel();
+    // power method constants
+    public String powerMethodTitle();
+    public String powerMethodDescription();
+    public String powerMethodConditionalLabel();
+    public String powerMethodQuantileLabel();
+    public String powerMethodUnconditionalLabel();
+    public String quantilesTableColumn();
     
     // matrix constants
     public String matrixDimensionSeparator();
@@ -125,6 +163,7 @@ public interface GlimmpseConstants extends Constants
     public String errorInvalidAlpha();
     public String errorInvalidMean();
     public String errorInvalidVariance();
+    public String errorInvalidQuantile();
 
     
 }

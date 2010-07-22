@@ -127,4 +127,16 @@ implements MatrixResizeListener, CovariateListener, DynamicListValidator
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public String toXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(betaScaleListPanel.toXML("betaScaleList"));
+		buffer.append(betaFixed.toXML());
+		if (betaRandom.isVisible())
+		{
+			buffer.append(betaRandom.toXML());
+		}
+		return buffer.toString();
+	}
 }

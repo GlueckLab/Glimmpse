@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
+import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.CovariatePanel;
@@ -27,7 +28,7 @@ public class PredictorsPanel extends WizardStepPanel
     protected CovariatePanel covariatePanel = new CovariatePanel();
     // listeners for outcome events
     protected ArrayList<PredictorsListener> listeners = new ArrayList<PredictorsListener>();
-    
+
     // list box displaying predictors
     protected ListBox predictorList = new ListBox();
     protected ListBox categoryList = new ListBox();
@@ -178,8 +179,14 @@ public class PredictorsPanel extends WizardStepPanel
     	grid.setWidget(1, 1, categoryList);
     	grid.setWidget(2, 0, predictorDeleteButton);
     	grid.setWidget(2, 1, categoryDeleteButton);
-
     	panel.add(grid);
+    	
+    	// set style
+    	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_PANEL);
+    	grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE);
+        grid.getRowFormatter().setStylePrimaryName(0, 
+        		GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_COLUMN_HEADER);
+    	
     	
     	return panel;
     }
@@ -242,6 +249,16 @@ public class PredictorsPanel extends WizardStepPanel
     public void onExit()
     {
     	for(PredictorsListener listener: listeners) listener.onPredictors(predictorCategoryMap);
+    }
+    
+    public void addPredictorsListener(PredictorsListener listener)
+    {
+    	listeners.add(listener);
+    }
+    
+    public void addCovariateListener(CovariateListener listener)
+    {
+    	covariatePanel.addCovariateListener(listener);
     }
     
     public void checkComplete()

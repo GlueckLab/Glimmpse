@@ -2,8 +2,10 @@ package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.HasVerticalAlignment.VerticalAlignmentConstant;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -43,11 +45,11 @@ implements MatrixResizeListener, CovariateListener, DynamicListValidator
 				GlimmpseConstants.DEFAULT_Q, "0", "Fixed Effects");
 		essenceCovariate = 
 			new ResizableMatrix(GlimmpseConstants.MATRIX_DESIGN_RANDOM,
-					GlimmpseConstants.DEFAULT_N,1,"*", "Random Effects");
+					GlimmpseConstants.DEFAULT_N,1,"1", "Random Effects");
 
       // build the row meta data panel
       VerticalPanel rowMDPanel = new VerticalPanel();
-      rowMDPanel.add(new HTML("Ratio of group sizes"));
+      rowMDPanel.add(new HTML("Relative<br>Group<br>Size"));
       rowMDGrid = new Grid(GlimmpseConstants.DEFAULT_N, 1);
       for(int r = 0; r < GlimmpseConstants.DEFAULT_N; r++)
       {
@@ -59,7 +61,7 @@ implements MatrixResizeListener, CovariateListener, DynamicListValidator
       layoutGrid.setWidget(0, 0, rowMDPanel);
       layoutGrid.setWidget(0, 1, essenceFixed);
       layoutGrid.setWidget(0, 2, essenceCovariate);
-
+      layoutGrid.getRowFormatter().setVerticalAlign(0, HasVerticalAlignment.ALIGN_BOTTOM);
       // add listeners
       covariatePanel.addCovariateListener(this);
       essenceFixed.addMatrixResizeListener(this);
@@ -67,8 +69,8 @@ implements MatrixResizeListener, CovariateListener, DynamicListValidator
       // layout the overall panel
       panel.add(header);
       panel.add(description);
-      panel.add(layoutGrid);
       panel.add(covariatePanel);
+      panel.add(layoutGrid);
       panel.add(perGroupNListPanel);
       essenceCovariate.setVisible(false);
       
@@ -148,5 +150,36 @@ implements MatrixResizeListener, CovariateListener, DynamicListValidator
 	public void addCovariateListener(CovariateListener listener)
 	{
 		covariatePanel.addCovariateListener(listener);
+	}
+	
+	public String toXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("<essenceMatrix>");
+		// list row meta data
+		buffer.append("<rowMetaData>");
+		for(int r = 0; r < rowMDGrid.getRowCount(); r++)
+		{
+			ListBox lb = (ListBox) rowMDGrid.getWidget(r, 0);
+			buffer.append("<r ratio='" + lb.getItemText(lb.getSelectedIndex()) + "' />");
+		}
+		buffer.append("</rowMetaData>");
+		// add fixed effects matrix
+		buffer.append(essenceFixed.toXML());
+		// if the user is controlling for a baseline covariate, add the random meta data
+		// and random effects matrix to the output
+		if (covariatePanel.hasCovariate())
+		{
+			// list random column meta data
+			buffer.append("<randomColumnMetaData>");
+			buffer.append("<c mean='");
+			buffer.append(covariatePanel.getMean());
+			buffer.append("' variance='");
+			buffer.append(covariatePanel.getVariance());
+			buffer.append("'></c></randomColumnMetaData>");
+			buffer.append(essenceCovariate.toXML());
+		}
+		buffer.append("</essenceMatrix>");
+		return buffer.toString();
 	}
 }
