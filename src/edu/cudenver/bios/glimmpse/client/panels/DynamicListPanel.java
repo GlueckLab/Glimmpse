@@ -91,12 +91,15 @@ implements ChangeHandler
 	{
     	StringBuffer buffer = new StringBuffer();
     	buffer.append("<" + tagName + ">");
-    	for(int i = 0; i < flexTable.getRowCount(); i++)
+    	for(int i = 1; i < flexTable.getRowCount(); i++)
     	{
-    		buffer.append("<v>");
-    		TextBox tb = (TextBox) flexTable.getWidget(i, 0);
-    		if (tb != null) buffer.append(tb.getText());
-    		buffer.append("</v>");
+    		RowTextBox tb = (RowTextBox) flexTable.getWidget(i, 0);
+    		if (tb != null && !tb.getText().isEmpty())
+    		{
+        		buffer.append("<v>");
+        		buffer.append(tb.getText());
+        		buffer.append("</v>");	
+    		}
     	}
     	buffer.append("</" + tagName + ">");
     	return buffer.toString();
