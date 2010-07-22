@@ -248,8 +248,8 @@
 }
 
 .matrix {
-	margin-bottom: 10px;
-	padding: 10px;
+	/*margin-bottom: 10px;*/
+	/*padding: 10px;*/
 }
 
 .gwt-PopupPanel {
@@ -266,12 +266,13 @@
 	background: white;
 	border: 1px solid #000000;
 	border-spacing: 0px;
+	height: 24px;
 }
 
 .matrixCell {
 	background: white;
 	border: 0;
-	width: 75px;
+	width: 50px;
 }
 
 .matrixHeader {
