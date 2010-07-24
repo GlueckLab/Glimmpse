@@ -7,6 +7,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
@@ -19,6 +20,7 @@ import edu.cudenver.bios.glimmpse.client.listener.OptionsListener.XAxisType;
 public class OptionsPanel extends WizardStepPanel
 implements CovariateListener, ClickHandler
 {
+	protected static final String XAXIS_RADIO_GROUP = "xAxis";
 	protected ArrayList<OptionsListener> listeners = new ArrayList<OptionsListener>();
 
 	protected VerticalPanel testSubpanel = new VerticalPanel();
@@ -69,8 +71,12 @@ implements CovariateListener, ClickHandler
     // options for results display
     protected CheckBox showTableCheckBox = new CheckBox();
     protected CheckBox showCurveCheckBox = new CheckBox();
+    protected RadioButton xaxisTotalNRadioButton = new RadioButton(XAXIS_RADIO_GROUP, "Sample Size");
+    protected RadioButton xaxisVarianceRadioButton = new RadioButton(XAXIS_RADIO_GROUP, "Variance");
+    protected RadioButton xaxisEffectSizeRadioButton = new RadioButton(XAXIS_RADIO_GROUP, "Effect Size");
 
-	public OptionsPanel()
+    
+    public OptionsPanel()
 	{
 		super(Glimmpse.constants.stepsLeftOptions());
 		VerticalPanel panel = new VerticalPanel();
@@ -185,24 +191,28 @@ implements CovariateListener, ClickHandler
 		HTML header = new HTML("select results display options");
 		HTML description = new HTML("want a table or a curve?");
 
-		Grid grid = new Grid(4,2);
+		Grid grid = new Grid(5,2);
 		grid.setWidget(0, 0, showTableCheckBox);
 		grid.setWidget(0, 1, new HTML("Display table of results"));
 		grid.setWidget(1, 0, showCurveCheckBox);
 		grid.setWidget(1, 1, new HTML("Display power curve"));
+		grid.setWidget(2, 1, xaxisTotalNRadioButton);
+		grid.setWidget(3, 1, xaxisEffectSizeRadioButton);
+		grid.setWidget(4, 1, xaxisVarianceRadioButton);
+		xaxisTotalNRadioButton.setValue(true);
 		
 		// set conditional power on by default
 		showTableCheckBox.setValue(true);
 		
 		// layout the subpanel
-		powerMethodSubpanel.add(header);
-		powerMethodSubpanel.add(description);
-		powerMethodSubpanel.add(grid);
+		displaySubpanel.add(header);
+		displaySubpanel.add(description);
+		displaySubpanel.add(grid);
 		
 		// set style
 		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
 		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		powerMethodSubpanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+		displaySubpanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 	}
 
 	public void reset()
@@ -359,10 +369,25 @@ implements CovariateListener, ClickHandler
 	@Override
 	public void onExit()
 	{
+		XAxisType xaxisType;
+		if (xaxisTotalNRadioButton.getValue())
+		{
+			xaxisType = XAxisType.TOTAL_N;
+		}
+		else if (xaxisVarianceRadioButton.getValue())
+		{
+			xaxisType = XAxisType.VARIANCE;
+		}
+		else
+		{
+			xaxisType = XAxisType.EFFECT_SIZE;
+		}
+		
+		
 		for(OptionsListener listener: listeners)
 		{
 			listener.onShowTable(showTableCheckBox.getValue());
-			listener.onShowCurve(showCurveCheckBox.getValue(), XAxisType.TOTAL_N, null);
+			listener.onShowCurve(showCurveCheckBox.getValue(), xaxisType, null);
 		}
 	}
 	

@@ -10,11 +10,10 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.visualization.client.DataView;
+import com.google.gwt.visualization.client.LegendPosition;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
-import com.google.gwt.visualization.client.visualizations.LineChart;
+import com.google.gwt.visualization.client.visualizations.ScatterChart;
 import com.google.gwt.visualization.client.visualizations.Table;
-import com.google.gwt.visualization.client.visualizations.ColumnChart.Options;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
@@ -40,6 +39,9 @@ implements OptionsListener
 	
 	// google visualization api data table to hold results
 	protected DataTable resultsData; 
+	// we build a second data table with a column for each combination of 
+	// beta/sigma/n/etc. for use with the curve
+	protected DataTable resultsCurveData;
 	
 	// tabular display of results
 	protected VerticalPanel resultsTablePanel = new VerticalPanel();
@@ -47,6 +49,7 @@ implements OptionsListener
 	
 	// curve display
 	protected VerticalPanel resultsCurvePanel = new VerticalPanel();
+	protected Table resultsCurveTable; 
 	protected Grid curveGrid = new Grid(1,1);
 	
 	// options for display of data
@@ -63,15 +66,15 @@ implements OptionsListener
     	// create the data table 
     	buildDataTable();
     	resultsTable = new Table(resultsData, null);
-    	
+    	resultsCurveTable = new Table(resultsCurveData, null);
+
         VerticalPanel panel = new VerticalPanel();
         
         buildTablePanel();
         buildCurvePanel();
         
-        panel.add(resultsTablePanel);
         panel.add(resultsCurvePanel);
-
+        panel.add(resultsTablePanel);
         
         initWidget(panel);
     }
@@ -89,6 +92,8 @@ implements OptionsListener
     	resultsData.addColumn(ColumnType.NUMBER, "Total Sample Size", "sampleSize");
     	resultsData.addColumn(ColumnType.NUMBER, "Nominal Power", "nominalPower");
     	resultsData.addColumn(ColumnType.NUMBER, "Actual Power", "actualPower");
+    	
+    	resultsCurveData = DataTable.create();
     }
     
     private void buildTablePanel()
@@ -101,12 +106,14 @@ implements OptionsListener
     {
     	resultsCurvePanel.add(new HTML("Curves"));
     	resultsCurvePanel.add(curveGrid);
-
+    	resultsCurvePanel.add(resultsCurveTable);
     }
     
     public void reset()
     {
-    	
+    	resultsData.removeRows(0, resultsData.getNumberOfRows());
+		resultsCurveData.removeRows(0, resultsCurveData.getNumberOfRows());
+
     }
 
     @Override
@@ -157,7 +164,8 @@ implements OptionsListener
 
             	// add a blank row to the data table
             	int row = resultsData.addRow();
-
+            	StringBuffer curveColumnId = new StringBuffer();
+            	
             	// fill in the columns
             	int col = 0;
             	Node alphaNode = attrs.getNamedItem("alpha");
@@ -165,6 +173,8 @@ implements OptionsListener
             	{
             		resultsData.setCell(row, col, Double.parseDouble(alphaNode.getNodeValue()), 
             				alphaNode.getNodeValue(), null);
+            		curveColumnId.append("Alpha=");
+            		curveColumnId.append(alphaNode.getNodeValue());
             	}
             	col++;
             	
@@ -173,6 +183,8 @@ implements OptionsListener
             	{
             		resultsData.setCell(row, col, testNode.getNodeValue(), 
             				formatTestName(testNode.getNodeValue()), null);
+            		curveColumnId.append(",Test=");
+            		curveColumnId.append(formatTestName(testNode.getNodeValue()));
             	}
             	col++;
             	
@@ -181,6 +193,8 @@ implements OptionsListener
             	{
             		resultsData.setCell(row, col, powerMethodNode.getNodeValue(), 
             				formatPowerMethodName(powerMethodNode.getNodeValue()), null);
+            		curveColumnId.append(",Power Method=");
+            		curveColumnId.append(formatPowerMethodName(powerMethodNode.getNodeValue()));
             	}
             	col++;
             	
@@ -189,6 +203,8 @@ implements OptionsListener
             	{
             		resultsData.setCell(row, col, Double.parseDouble(quantileNode.getNodeValue()), 
             				quantileNode.getNodeValue(), null);
+            		curveColumnId.append(",Quantile=");
+            		curveColumnId.append(quantileNode.getNodeValue());
             	}
             	col++;
             	
@@ -197,6 +213,11 @@ implements OptionsListener
             	{
             		resultsData.setCell(row, col, Double.parseDouble(sigmaScaleNode.getNodeValue()), 
             				sigmaScaleNode.getNodeValue(), null);
+            		if (xaxisType != XAxisType.VARIANCE)
+            		{
+            			curveColumnId.append(",Variance Scale=");
+            			curveColumnId.append(sigmaScaleNode.getNodeValue());
+            		}
             	}
             	col++;
             	
@@ -205,6 +226,11 @@ implements OptionsListener
             	{
             		resultsData.setCell(row, col, Double.parseDouble(betaScaleNode.getNodeValue()), 
             				betaScaleNode.getNodeValue(), null);
+            		if (xaxisType != XAxisType.EFFECT_SIZE)
+            		{
+            			curveColumnId.append(",Effect Size Scale=");
+            			curveColumnId.append(betaScaleNode.getNodeValue());
+            		}
             	}
             	col++;
 
@@ -213,6 +239,11 @@ implements OptionsListener
             	{
             		resultsData.setCell(row, col, Integer.parseInt(sampleSizeNode.getNodeValue()), 
             				sampleSizeNode.getNodeValue(), null);
+            		if (xaxisType != XAxisType.TOTAL_N)
+            		{
+            			curveColumnId.append("\nSample Size=");
+            			curveColumnId.append(sampleSizeNode.getNodeValue());
+            		}
             	}
             	col++;
             	
@@ -221,6 +252,8 @@ implements OptionsListener
             	{
             		resultsData.setCell(row, col, Double.parseDouble(nominalPowerNode.getNodeValue()), 
             				formatDouble(nominalPowerNode.getNodeValue()), null);
+            		curveColumnId.append(",Nominal Power=");
+            		curveColumnId.append(testNode.getNodeValue());
             	}
             	col++;
             	
@@ -230,6 +263,31 @@ implements OptionsListener
             		resultsData.setCell(row, col, Double.parseDouble(actualPowerNode.getNodeValue()), 
             				formatDouble(actualPowerNode.getNodeValue()), null);
             	}
+            	
+            	
+            	// now add the data as a new column to the curve display
+            	if (showCurve)
+            	{
+            		switch(xaxisType)
+            		{
+            		case TOTAL_N:
+                		fillCurveData(Double.parseDouble(sampleSizeNode.getNodeValue()), 
+            					Double.parseDouble(actualPowerNode.getNodeValue()), 
+            					curveColumnId.toString());
+            			break;
+            		case EFFECT_SIZE:
+                		fillCurveData(Double.parseDouble(betaScaleNode.getNodeValue()), 
+            					Double.parseDouble(actualPowerNode.getNodeValue()), 
+            					curveColumnId.toString());
+            			break;
+            		case VARIANCE:
+                		fillCurveData(Double.parseDouble(sigmaScaleNode.getNodeValue()), 
+            					Double.parseDouble(actualPowerNode.getNodeValue()), 
+            					curveColumnId.toString());
+            			break;
+            		}
+
+            	}            	
             }
             
         	if (showTable)
@@ -249,25 +307,72 @@ implements OptionsListener
         }
     }
     
-    private void showCurveResults()
+    
+    private void fillCurveData(double xValue, double power, String columnId)
     {
-    	DataView view = DataView.create(resultsData);
-    	view.setRows(0, 9);
-    	view.setColumns(new int[] {1, 8});
-    	LineChart chart = new LineChart(view, createCurveOptions());
-    	//curveGrid.resize(1, 1);
-    	curveGrid.setWidget(0, 0, chart);
-    	//chart.draw(view, createCurveOptions());
+    	int row = insertCurveData(0, xValue);
+    	insertCurveColumn(row, columnId, power);
     }
     
-	private LineChart.Options createCurveOptions() {
-	    LineChart.Options options = LineChart.Options.create();
-	    options.setWidth(400);
-	    options.setHeight(240);
-	    //options.set3D(true);
+    private void insertCurveColumn(int curveResultsRow, String columnId, double power)
+    {
+    	boolean found = false;
+    	int col = 1;
+    	for(; col < resultsCurveData.getNumberOfColumns(); col++)
+    	{
+    		String currentColumnId = resultsCurveData.getColumnId(col);
+    		if (currentColumnId.equals(columnId))
+    		{
+    			resultsCurveData.setCell(curveResultsRow, col, power, Double.toString(power), null);
+    			found = true;
+    			break;
+    		}
+    	}
+    	if (!found)
+    	{
+    		int column = resultsCurveData.addColumn(ColumnType.NUMBER, columnId, columnId);
+    		resultsCurveData.setCell(curveResultsRow, column, power, Double.toString(power), null);
+    	}
+    }
+    
+    private int insertCurveData(int column, double newValue)
+    {
+    	int row = 0;
+    	for(; row < resultsCurveData.getNumberOfRows(); row++)
+    	{
+    		double currentValue = resultsCurveData.getValueDouble(row, column);
+    		if (currentValue > newValue)
+    		{
+    			resultsCurveData.insertRows(row, 1);
+    	    	resultsCurveData.setCell(row, column, newValue, Double.toString(newValue), null);
+    	    	return row;
+    		}
+    		else if (currentValue == newValue)
+    		{
+    			return row;
+    		}
+    	}
+    	row = resultsCurveData.addRow();
+    	resultsCurveData.setCell(row, column, newValue, Double.toString(newValue), null);
+    	return row;
+    }
+    
+    private void showCurveResults()
+    {
+    	resultsCurveTable.draw(resultsCurveData);
+    	ScatterChart chart = new ScatterChart(resultsCurveData, createCurveOptions());
+    	curveGrid.setWidget(0, 0, chart);
+    }
+    
+	private ScatterChart.Options createCurveOptions() {
+	    ScatterChart.Options options = ScatterChart.Options.create();
+	    options.setWidth(800);
+	    options.setHeight(800);
 	    options.setTitle("Power Curve");
 	    options.setShowCategories(true);
-	    options.setSmoothLine(true);
+	    options.setLegend(LegendPosition.RIGHT);
+	    options.setLegendFontSize(12);
+	    options.setLineSize(1);
 	    return options;
 	  }
     
@@ -355,6 +460,20 @@ implements OptionsListener
 		this.xaxisType = axis;
 		this.curveSubsets = curveSubsets;
 		resultsCurvePanel.setVisible(showCurve);
+		
+		resultsCurveData.removeColumns(0, resultsCurveData.getNumberOfColumns());
+    	switch(xaxisType)
+    	{
+    	case TOTAL_N:
+    		resultsCurveData.addColumn(ColumnType.NUMBER, "Total Sample Size", "totalN");
+    		break;
+    	case EFFECT_SIZE:
+    		resultsCurveData.addColumn(ColumnType.NUMBER, "Beta Scale", "betaScale");
+    		break;
+    	case VARIANCE:
+    		resultsCurveData.addColumn(ColumnType.NUMBER, "Sigma Scale", "sigmaScale");
+    		break;    		
+    	}
 	}
 
 	@Override
