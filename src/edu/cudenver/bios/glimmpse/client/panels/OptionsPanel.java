@@ -1,5 +1,7 @@
 package edu.cudenver.bios.glimmpse.client.panels;
 
+import java.util.ArrayList;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -11,10 +13,13 @@ import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
+import edu.cudenver.bios.glimmpse.client.listener.OptionsListener;
+import edu.cudenver.bios.glimmpse.client.listener.OptionsListener.XAxisType;
 
 public class OptionsPanel extends WizardStepPanel
 implements CovariateListener, ClickHandler
 {
+	protected ArrayList<OptionsListener> listeners = new ArrayList<OptionsListener>();
 
 	protected VerticalPanel testSubpanel = new VerticalPanel();
 	protected VerticalPanel powerMethodSubpanel = new VerticalPanel();
@@ -34,7 +39,7 @@ implements CovariateListener, ClickHandler
 	protected CheckBox unconditionalPowerCheckBox = new CheckBox();
 	protected CheckBox quantilePowerCheckBox = new CheckBox();
 	protected int numQuantiles = 0;
-	
+	// dynamic list of quantile values
 	String[] columnNames = { Glimmpse.constants.quantilesTableColumn()};
     protected DynamicListPanel quantileListPanel = 
     	new DynamicListPanel(columnNames, new DynamicListValidator() {
@@ -61,6 +66,10 @@ implements CovariateListener, ClickHandler
 			}
     	});
     
+    // options for results display
+    protected CheckBox showTableCheckBox = new CheckBox();
+    protected CheckBox showCurveCheckBox = new CheckBox();
+
 	public OptionsPanel()
 	{
 		super(Glimmpse.constants.stepsLeftOptions());
@@ -173,7 +182,27 @@ implements CovariateListener, ClickHandler
 
 	private void buildDisplaySubpanel()
 	{
+		HTML header = new HTML("select results display options");
+		HTML description = new HTML("want a table or a curve?");
 
+		Grid grid = new Grid(4,2);
+		grid.setWidget(0, 0, showTableCheckBox);
+		grid.setWidget(0, 1, new HTML("Display table of results"));
+		grid.setWidget(1, 0, showCurveCheckBox);
+		grid.setWidget(1, 1, new HTML("Display power curve"));
+		
+		// set conditional power on by default
+		showTableCheckBox.setValue(true);
+		
+		// layout the subpanel
+		powerMethodSubpanel.add(header);
+		powerMethodSubpanel.add(description);
+		powerMethodSubpanel.add(grid);
+		
+		// set style
+		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+		powerMethodSubpanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 	}
 
 	public void reset()
@@ -327,5 +356,18 @@ implements CovariateListener, ClickHandler
 		}
 	}
 	
+	@Override
+	public void onExit()
+	{
+		for(OptionsListener listener: listeners)
+		{
+			listener.onShowTable(showTableCheckBox.getValue());
+			listener.onShowCurve(showCurveCheckBox.getValue(), XAxisType.TOTAL_N, null);
+		}
+	}
 	
+	public void addOptionsListener(OptionsListener listener)
+	{
+		listeners.add(listener);
+	}
 }

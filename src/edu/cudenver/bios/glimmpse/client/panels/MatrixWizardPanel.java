@@ -86,7 +86,7 @@ implements StudyDesignManager
 		designPanel.addCovariateListener(betaPanel);
 		designPanel.addCovariateListener(contrastPanel);
 		designPanel.addCovariateListener(covariancePanel);
-		
+		optionsPanel.addOptionsListener(resultsPanel);
 		betaPanel.addMatrixResizeListener(contrastPanel);
 		// initialize
 		initWidget(panel);

@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.ColumnChart;
 import com.google.gwt.visualization.client.visualizations.LineChart;
+import com.google.gwt.visualization.client.visualizations.Table;
 import com.google.gwt.xml.client.DOMException;
 
 import edu.cudenver.bios.glimmpse.client.panels.GlimmpsePanel;
@@ -62,6 +63,9 @@ public class Glimmpse implements EntryPoint
     {        
         // Load the visualization api, passing the onLoadCallback to be called
         // when loading is done.
-       VisualizationUtils.loadVisualizationApi(onLoadCallback, ColumnChart.PACKAGE, LineChart.PACKAGE);
+       VisualizationUtils.loadVisualizationApi(onLoadCallback, 
+    		   ColumnChart.PACKAGE, 
+    		   LineChart.PACKAGE, 
+    		   Table.PACKAGE);
 	}
 }
