@@ -53,6 +53,12 @@ implements CovariateListener, MatrixResizeListener
 				betweenSubjectRandom.setColumnDimension(newRows);	
 			}
         });
+        // only allow resize of the row dimension of the fixed matrix since this depends on beta
+        betweenSubjectFixed.setEnabledColumnDimension(false);
+        betweenSubjectRandom.setEnabledColumnDimension(false);
+        betweenSubjectRandom.setEnabledRowDimension(false);
+        withinSubject.setEnabledRowDimension(false);
+        
 		notifyComplete();
 		initWidget(panel);
 	}
@@ -90,10 +96,12 @@ implements CovariateListener, MatrixResizeListener
 		if (GlimmpseConstants.MATRIX_DESIGN_FIXED.equals(name))
 		{
 			betweenSubjectFixed.setColumnDimension(newCols);
+			betweenSubjectFixed.notifyOnColumns(newCols);
 		}
 		else if (GlimmpseConstants.MATRIX_BETA_FIXED.equals(name))
 		{
 			withinSubject.setRowDimension(newCols);
+			withinSubject.notifyOnRows(newCols);
 		}		
 	}
 
@@ -106,6 +114,7 @@ implements CovariateListener, MatrixResizeListener
 			if (betweenSubjectFixed.getRowDimension() > newRows - 1)
 			{
 				betweenSubjectFixed.setRowDimension(newRows - 1);
+				betweenSubjectFixed.notifyOnRows(newRows-1);
 			}
 		}		
 	}

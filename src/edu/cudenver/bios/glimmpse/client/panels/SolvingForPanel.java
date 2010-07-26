@@ -1,0 +1,230 @@
+/*
+ * User Interface for the GLIMMPSE Software System.  Allows
+ * users to perform power, sample size, and detectable difference
+ * calculations. 
+ * 
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package edu.cudenver.bios.glimmpse.client.panels;
+
+import java.util.ArrayList;
+
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.VerticalPanel;
+
+import edu.cudenver.bios.glimmpse.client.Glimmpse;
+import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
+import edu.cudenver.bios.glimmpse.client.TextValidation;
+import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
+
+/**
+ * WizardStepPanel which allows the user to select whether they are solving for
+ * power, sample size, or effect size (i.e. beta matrix scale factor)
+ * 
+ * @author Sarah Kreidler
+ *
+ */
+public class SolvingForPanel extends WizardStepPanel
+implements ClickHandler, DynamicListValidator
+{
+	protected static final String SOLVE_FOR_RADIO_GROUP = "solvingFor";
+	
+	// "solving for" check boxes
+	// TODO: constants
+	protected RadioButton solvingForPowerRadioButton = 
+		new RadioButton(SOLVE_FOR_RADIO_GROUP, "Power");
+	protected RadioButton solvingForSampleSizeRadioButton = 
+		new RadioButton(SOLVE_FOR_RADIO_GROUP, "Sample Size");
+	protected RadioButton solvingForEffectSizeRadioButton = 
+		new RadioButton(SOLVE_FOR_RADIO_GROUP, "Effect Size");
+	
+	protected VerticalPanel nominalPowerPanel = new VerticalPanel();
+    // dynamic table of alpha values
+	String[] columnNames = { Glimmpse.constants.solvingForNominalPowerTableColumn()};
+    protected DynamicListPanel nominalPowerListPanel = 
+    	new DynamicListPanel(columnNames, this);
+    
+	// listeners for changes to the solution type
+	protected ArrayList<SolvingForListener> listeners = new ArrayList<SolvingForListener>();
+	
+	/**
+	 * Constructor
+	 */
+	public SolvingForPanel()
+	{
+		super(Glimmpse.constants.stepsLeftSolvingFor());
+		// since one of the radio buttons will always be checked, this wizardsteppanel
+		// is always considered complete (complete member var is from superclass WizardStepPanel)
+		complete = true;
+		
+		VerticalPanel panel = new VerticalPanel();
+		
+    	// TODO: constants
+		HTML header = new HTML(Glimmpse.constants.solvingForTitle());
+		HTML description = new HTML(Glimmpse.constants.solvingForDescription());
+
+		// build the nominal power subpanel
+		buildNominalPowerPanel();
+		
+		// layout the radio buttons
+		Grid grid = new Grid(3,1);
+		grid.setWidget(0, 0, solvingForPowerRadioButton);
+		grid.setWidget(1, 0, solvingForSampleSizeRadioButton);
+		grid.setWidget(2, 0, solvingForEffectSizeRadioButton);
+		// select power by default
+		solvingForPowerRadioButton.setValue(true);
+		nominalPowerPanel.setVisible(false);
+		
+		// notify the listeners when a radio button is selected
+		solvingForPowerRadioButton.addClickHandler(this);
+		solvingForSampleSizeRadioButton.addClickHandler(this);
+		solvingForEffectSizeRadioButton.addClickHandler(this);
+		
+		// layout the panel
+		panel.add(header);
+		panel.add(description);
+		panel.add(grid);
+		panel.add(nominalPowerPanel);
+		
+		// set style
+		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+		
+		// initialize - required by gwt
+		initWidget(panel);
+	}
+	
+	/**
+	 * Build the panel for entering nominal power values.  This panel is 
+	 * only used when solving for effect size or sample size
+	 */
+	public void buildNominalPowerPanel()
+	{
+    	// TODO: constants
+		HTML header = new HTML(Glimmpse.constants.solvingForNominalPowerTitle());
+		HTML description = new HTML(Glimmpse.constants.solvingForNominalPowerDescription());
+		
+		nominalPowerPanel.add(header);
+		nominalPowerPanel.add(description);
+		nominalPowerPanel.add(nominalPowerListPanel);
+		
+		// set style
+		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+		nominalPowerPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+	}
+	/**
+	 * Reset the panel to the default, which is "solving for power"
+	 */
+	public void reset()
+	{
+		solvingForPowerRadioButton.setValue(true);
+		nominalPowerListPanel.reset();
+		nominalPowerPanel.setVisible(false);
+		notifyComplete();
+	}
+	
+	/**
+	 * Add a listener for the solution type (power, sample size, effect size)
+	 * 
+	 * @param listener
+	 */
+	public void addSolvingForListener(SolvingForListener listener)
+	{
+		listeners.add(listener);
+	}
+
+	/**
+	 * Notify solving for listeners when one of the solution type radio buttons
+	 * is clicked.
+	 * 
+	 * @param event the click event
+	 */
+	@Override
+	public void onClick(ClickEvent event)
+	{
+		nominalPowerPanel.setVisible(!solvingForPowerRadioButton.getValue());
+		
+		SolvingForListener.SolutionType type = null;
+		if (solvingForPowerRadioButton.getValue())
+		{
+			type = SolvingForListener.SolutionType.POWER;
+			notifyComplete();
+		}
+		else if (solvingForSampleSizeRadioButton.getValue())
+		{
+			type = SolvingForListener.SolutionType.TOTAL_N;
+			onValidRowCount(nominalPowerListPanel.getValidRowCount());
+		}
+		else if (solvingForEffectSizeRadioButton.getValue())
+		{
+			type = SolvingForListener.SolutionType.EFFECT_SIZE;
+			onValidRowCount(nominalPowerListPanel.getValidRowCount());
+		}
+		if (type != null)
+		{
+			for(SolvingForListener listener: listeners) listener.onSolvingFor(type);
+		}
+	}
+	
+	   /**
+     * Validate new entries in the alpha list
+     * @see DynamicListValidator
+     */
+    public void validate(String value, int column) throws IllegalArgumentException
+    {
+    	try
+    	{
+    		TextValidation.parseDouble(value, 0, 1);
+    	}
+    	catch (NumberFormatException nfe)
+    	{
+    		throw new IllegalArgumentException(Glimmpse.constants.errorInvalidPower());
+    	}
+    }
+    
+    /**
+     * Callback when the number of valid entries in the list of
+     * alpha values changes
+     * 
+     * @see DynamicListValidator
+     */
+    public void onValidRowCount(int validRowCount)
+    {
+    	if (validRowCount > 0)
+    		notifyComplete();
+    	else
+    		notifyInProgress();
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public String toXML()
+    {
+    	if (!solvingForPowerRadioButton.getValue())
+    		return nominalPowerListPanel.toXML("powerList");
+    	else
+    		return "";
+    }
+}

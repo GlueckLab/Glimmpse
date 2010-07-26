@@ -20,12 +20,13 @@ import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
+import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class StudyGroupsPanel extends WizardStepPanel
-implements PredictorsListener, OutcomesListener, DynamicListValidator
+implements SolvingForListener, PredictorsListener, OutcomesListener, DynamicListValidator
 {
 	
    	// list of per group sample sizes
@@ -37,6 +38,8 @@ implements PredictorsListener, OutcomesListener, DynamicListValidator
     
     protected VerticalPanel groupSizesPanel = new VerticalPanel();
     
+    protected VerticalPanel perGroupSampleSizePanel = new VerticalPanel();
+    
     protected Grid groupSizesTable = new Grid(1,1);
     
     public StudyGroupsPanel()
@@ -47,16 +50,12 @@ implements PredictorsListener, OutcomesListener, DynamicListValidator
         // create header/instruction text
         HTML header = new HTML(Glimmpse.constants.studyGroupsTitle());
         HTML description = new HTML(Glimmpse.constants.studyGroupsDescription());
-        HTML perGroupSampleSizeHeader = new HTML(Glimmpse.constants.perGroupSampleSizeTitle());
-        HTML perGroupSampleSizeDescription = new HTML(Glimmpse.constants.perGroupSampleSizeDescription());
-        
+
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        perGroupSampleSizeHeader.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        perGroupSampleSizeDescription.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        
+
         groupSizesPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_PANEL);
         groupSizesTable.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE);
         groupSizesTable.getRowFormatter().setStylePrimaryName(0, 
@@ -66,15 +65,28 @@ implements PredictorsListener, OutcomesListener, DynamicListValidator
         panel.add(header);
         panel.add(description);
         panel.add(groupSizesPanel);
-        panel.add(perGroupSampleSizeHeader);
-        panel.add(perGroupSampleSizeDescription);
-        panel.add(perGroupNListPanel);
+        panel.add(perGroupSampleSizePanel);
+
         initWidget(panel);
     }
     
     private void buildRatioPanel()
     {
     	
+    }
+    
+    private void buildPerGroupSampleSizePanel()
+    {
+        HTML header = new HTML(Glimmpse.constants.perGroupSampleSizeTitle());
+        HTML description = new HTML(Glimmpse.constants.perGroupSampleSizeDescription());
+        
+    	perGroupSampleSizePanel.add(header);
+    	perGroupSampleSizePanel.add(description);
+    	perGroupSampleSizePanel.add(perGroupNListPanel);
+    	
+    	perGroupSampleSizePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
     }
     
     public void reset()
@@ -172,5 +184,11 @@ implements PredictorsListener, OutcomesListener, DynamicListValidator
     	{
     		throw new IllegalArgumentException(Glimmpse.constants.errorInvalidAlpha());
     	}
+	}
+
+	@Override
+	public void onSolvingFor(SolutionType solutionType)
+	{
+		perGroupSampleSizePanel.setVisible(solutionType != SolutionType.TOTAL_N);
 	}
 }

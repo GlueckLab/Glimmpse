@@ -46,6 +46,7 @@ public class MatrixWizardPanel extends Composite
 implements StudyDesignManager
 {
 	// content panels 
+	protected SolvingForPanel solvingForPanel = new SolvingForPanel();
     protected AlphaPanel alphaPanel = new AlphaPanel();
     protected DesignPanel designPanel = new DesignPanel();
     protected ContrastPanel contrastPanel = new ContrastPanel();
@@ -57,6 +58,7 @@ implements StudyDesignManager
 	
     // list of panels for the wizard
 	WizardStepPanel[] panelList = {
+			solvingForPanel,
 			alphaPanel, 
 			designPanel, 
 			betaPanel, 
@@ -81,13 +83,19 @@ implements StudyDesignManager
 
 		// set up listener relationships between the matrix panels
 		// this maintains matrix conformance
+		solvingForPanel.addSolvingForListener(designPanel);
+		solvingForPanel.addSolvingForListener(betaPanel);
+		solvingForPanel.addSolvingForListener(resultsPanel);
 		designPanel.addMatrixResizeListener(betaPanel);
 		designPanel.addMatrixResizeListener(contrastPanel);
 		designPanel.addCovariateListener(betaPanel);
 		designPanel.addCovariateListener(contrastPanel);
 		designPanel.addCovariateListener(covariancePanel);
+		contrastPanel.addBetweenSubjectMatrixResizeListener(thetaPanel);
+		contrastPanel.addWithinSubjectMatrixResizeListener(thetaPanel);
 		optionsPanel.addOptionsListener(resultsPanel);
 		betaPanel.addMatrixResizeListener(contrastPanel);
+		betaPanel.addMatrixResizeListener(covariancePanel);
 		// initialize
 		initWidget(panel);
 	}
@@ -116,6 +124,7 @@ implements StudyDesignManager
 		StringBuffer buffer = new StringBuffer();
 		
 		buffer.append("<" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
+		buffer.append(solvingForPanel.toXML());
 		buffer.append(alphaPanel.toXML());
 		buffer.append(designPanel.toXML());
 		buffer.append(betaPanel.toXML());
@@ -133,12 +142,5 @@ implements StudyDesignManager
 	{
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public Solution getSolvingFor()
-	{
-		// TODO Auto-generated method stub
-			return Solution.POWER;
 	}
 }

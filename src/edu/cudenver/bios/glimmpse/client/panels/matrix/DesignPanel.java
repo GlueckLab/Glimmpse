@@ -12,12 +12,13 @@ import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
+import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class DesignPanel extends WizardStepPanel
-implements MatrixResizeListener, CovariateListener, DynamicListValidator
+implements SolvingForListener, MatrixResizeListener, CovariateListener, DynamicListValidator
 {    	
 	private static final int MAX_RATIO = 10;
     protected ResizableMatrix essenceFixed;
@@ -164,8 +165,19 @@ implements MatrixResizeListener, CovariateListener, DynamicListValidator
 			buffer.append("<r ratio='" + lb.getItemText(lb.getSelectedIndex()) + "' />");
 		}
 		buffer.append("</rowMetaData>");
+		// TODO: might be getting rid of the column meta data
+		buffer.append("<columnMetaData>");
+		for(int c = 0; c < essenceFixed.getColumnDimension(); c++)
+		{
+			buffer.append("<c type='fixed' />");
+		}
+		buffer.append("</columnMetaData>");
 		// add fixed effects matrix
 		buffer.append(essenceFixed.toXML());
+		// TODO: decide what we are doing here
+		
+		
+		
 		// if the user is controlling for a baseline covariate, add the random meta data
 		// and random effects matrix to the output
 		if (covariatePanel.hasCovariate())
@@ -181,5 +193,11 @@ implements MatrixResizeListener, CovariateListener, DynamicListValidator
 		}
 		buffer.append("</essenceMatrix>");
 		return buffer.toString();
+	}
+
+	@Override
+	public void onSolvingFor(SolutionType solutionType)
+	{
+		perGroupNListPanel.setVisible(solutionType != SolutionType.TOTAL_N);
 	}
 }

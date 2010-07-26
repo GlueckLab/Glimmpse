@@ -21,11 +21,13 @@ import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
+import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.OptionsListener;
+import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
 
 public class ResultsPanel extends WizardStepPanel
-implements OptionsListener
+implements OptionsListener, SolvingForListener
 {
 	protected StudyDesignManager manager;
 	
@@ -57,6 +59,8 @@ implements OptionsListener
 	protected boolean showCurve = true;
 	protected XAxisType xaxisType = null;
 	protected CurveSubset[] curveSubsets = null;
+	// indicates whether we are solving for power, sample size, or effect size
+	protected SolutionType solutionType = GlimmpseConstants.DEFAULT_SOLUTION;
 	
     public ResultsPanel(StudyDesignManager manager)
     {
@@ -405,12 +409,12 @@ implements OptionsListener
     	String requestEntityBody = manager.getPowerRequestXML();
     	Window.alert(requestEntityBody);
     	RequestBuilder builder = null;
-    	switch(manager.getSolvingFor())
+    	switch(solutionType)
     	{
     	case POWER:
     		builder = new RequestBuilder(RequestBuilder.POST, POWER_URL);
     		break;
-    	case SAMPLE_SIZE:
+    	case TOTAL_N:
     		builder = new RequestBuilder(RequestBuilder.POST, SAMPLE_SIZE_URL);
     		break;
     	case EFFECT_SIZE:
@@ -482,6 +486,12 @@ implements OptionsListener
 		this.showTable = showTable;
 		resultsTablePanel.setVisible(showTable);
 		
+	}
+
+	@Override
+	public void onSolvingFor(SolutionType solutionType)
+	{
+		this.solutionType = solutionType;
 	}    
     
 }

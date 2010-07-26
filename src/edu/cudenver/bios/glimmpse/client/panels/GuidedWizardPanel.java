@@ -18,18 +18,20 @@ public class GuidedWizardPanel extends Composite
 implements StudyDesignManager
 {
 	// content panels 
-	AlphaPanel alphaPanel = new AlphaPanel();
-	OutcomesPanel outcomesPanel = new OutcomesPanel();
-	PredictorsPanel predictorsPanel = new PredictorsPanel();
-	StudyGroupsPanel studyGroupsPanel = new StudyGroupsPanel();
-	HypothesisPanel hypothesisPanel = new HypothesisPanel();
-	EffectSizePanel effectSizePanel = new EffectSizePanel();
-	VariabilityPanel variabilityPanel = new VariabilityPanel();
-	OptionsPanel optionsPanel = new OptionsPanel();
-	ResultsPanel resultsPanel = new ResultsPanel(this);
+	protected SolvingForPanel solvingForPanel = new SolvingForPanel();
+	protected AlphaPanel alphaPanel = new AlphaPanel();
+	protected OutcomesPanel outcomesPanel = new OutcomesPanel();
+	protected PredictorsPanel predictorsPanel = new PredictorsPanel();
+	protected StudyGroupsPanel studyGroupsPanel = new StudyGroupsPanel();
+	protected HypothesisPanel hypothesisPanel = new HypothesisPanel();
+	protected EffectSizePanel effectSizePanel = new EffectSizePanel();
+	protected VariabilityPanel variabilityPanel = new VariabilityPanel();
+	protected OptionsPanel optionsPanel = new OptionsPanel();
+	protected ResultsPanel resultsPanel = new ResultsPanel(this);
 	
     // list of panels for the wizard
 	WizardStepPanel[] panelList = {
+			solvingForPanel,
 			alphaPanel, 
 			outcomesPanel, 
 			predictorsPanel, 
@@ -54,6 +56,8 @@ implements StudyDesignManager
 		panel.add(wizardPanel);
 
 		// set up listener relationships
+		solvingForPanel.addSolvingForListener(studyGroupsPanel);
+		solvingForPanel.addSolvingForListener(resultsPanel);
 		outcomesPanel.addOutcomesListener(studyGroupsPanel);
 		predictorsPanel.addPredictorsListener(studyGroupsPanel);
 		predictorsPanel.addCovariateListener(optionsPanel);
@@ -90,12 +94,9 @@ implements StudyDesignManager
 	public String getStudyDesignXML()
 	{
 		// TODO Auto-generated method stub
+		//buffer.append(solvingForPanel.toXML());
+
 		return null;
 	}
 
-	@Override
-	public Solution getSolvingFor()
-	{
-		return Solution.POWER;
-	}
 }

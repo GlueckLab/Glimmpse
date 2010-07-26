@@ -340,4 +340,14 @@ public class ResizableMatrix extends Composite
 		for(MatrixResizeListener listener: resizeListeners) 
 			listener.onRows(name, newRows);
     }
+    
+    public void setEnabledRowDimension(boolean enabled)
+    {
+    	rowTextBox.setEnabled(enabled);
+    }
+    
+    public void setEnabledColumnDimension(boolean enabled)
+    {
+    	columnTextBox.setEnabled(enabled);
+    }
 }

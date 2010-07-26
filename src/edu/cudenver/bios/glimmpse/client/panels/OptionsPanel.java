@@ -26,7 +26,7 @@ implements CovariateListener, ClickHandler
 	protected VerticalPanel testSubpanel = new VerticalPanel();
 	protected VerticalPanel powerMethodSubpanel = new VerticalPanel();
 	protected VerticalPanel displaySubpanel = new VerticalPanel();
-
+	
 	// check boxes for statistical tests
 	protected CheckBox hotellingLawleyCheckBox = new CheckBox();
 	protected CheckBox pillaiBartlettCheckBox = new CheckBox();
@@ -102,27 +102,27 @@ implements CovariateListener, ClickHandler
 
 		initWidget(panel);
 	}
-
+    
 	private void buildTestSubpanel()
 	{
 		HTML header = new HTML(Glimmpse.constants.testTitle());
 		HTML description = new HTML(Glimmpse.constants.testDescription());
 
 		Grid grid = new Grid(7,2);
-		grid.setWidget(0, 1, new HTML(Glimmpse.constants.testUnirepLabel()));
 		grid.setWidget(0, 0, unirepCheckBox);
-		grid.setWidget(1, 1, new HTML(Glimmpse.constants.testUnirepGeisserGreenhouseLabel()));
+		grid.setWidget(0, 1, new HTML(Glimmpse.constants.testUnirepLabel()));
 		grid.setWidget(1, 0, unirepGGCheckBox);
-		grid.setWidget(2, 1, new HTML(Glimmpse.constants.testUnirepHuynhFeldtLabel()));
+		grid.setWidget(1, 1, new HTML(Glimmpse.constants.testUnirepGeisserGreenhouseLabel()));
 		grid.setWidget(2, 0, unirepHFCheckBox);
-		grid.setWidget(3, 1, new HTML(Glimmpse.constants.testUnirepBoxLabel()));
+		grid.setWidget(2, 1, new HTML(Glimmpse.constants.testUnirepHuynhFeldtLabel()));
 		grid.setWidget(3, 0, unirepBoxCheckBox);
-		grid.setWidget(4, 1, new HTML(Glimmpse.constants.testHotellingLawleyTraceLabel()));
+		grid.setWidget(3, 1, new HTML(Glimmpse.constants.testUnirepBoxLabel()));
 		grid.setWidget(4, 0, hotellingLawleyCheckBox);
-		grid.setWidget(5, 1, new HTML(Glimmpse.constants.testPillaiBartlettTraceLabel()));
+		grid.setWidget(4, 1, new HTML(Glimmpse.constants.testHotellingLawleyTraceLabel()));
 		grid.setWidget(5, 0, pillaiBartlettCheckBox);
-		grid.setWidget(6, 1, new HTML(Glimmpse.constants.testWilksLambdaLabel()));
+		grid.setWidget(5, 1, new HTML(Glimmpse.constants.testPillaiBartlettTraceLabel()));
 		grid.setWidget(6, 0, wilksCheckBox);
+		grid.setWidget(6, 1, new HTML(Glimmpse.constants.testWilksLambdaLabel()));
 		
 		// add callback to check if screen is complete
 		unirepCheckBox.addClickHandler(this);

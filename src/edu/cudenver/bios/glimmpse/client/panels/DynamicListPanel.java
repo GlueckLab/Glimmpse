@@ -135,6 +135,10 @@ implements ChangeHandler
 		if (rowEmpty && flexTable.getRowCount() > 2)
 		{
 			flexTable.removeRow(row);
+			// since the widgets know which row they are in, we need to decrement the
+			// row values in all widgets after the deleted row
+			// TODO: rethink this - seems very inefficient
+			updateWidgetRows(row);
 			validRowCount--;
         	TextValidation.displayOkay(errorHTML, "");
 		}
@@ -152,6 +156,18 @@ implements ChangeHandler
         validator.onValidRowCount(validRowCount);
     }
     
+    private void updateWidgetRows(int startRow)
+    {
+		for(int r = startRow; r < flexTable.getRowCount(); r++)
+		{
+			for(int c = 0; c < flexTable.getCellCount(r); c++)
+			{
+				RowTextBox rtb = (RowTextBox) flexTable.getWidget(r, c);
+				rtb.row--;
+			}
+		}
+    }
+    
     public List<String> getColumnValues(int column)
     {
     	if (column < 0 || column > flexTable.getCellCount(0))
@@ -165,6 +181,11 @@ implements ChangeHandler
     		if (value != null && !value.isEmpty()) list.add(value);
     	}
     	return list;
+    }
+    
+    public int getValidRowCount()
+    {
+    	return validRowCount;
     }
     
     public void reset()

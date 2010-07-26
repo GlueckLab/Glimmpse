@@ -38,6 +38,9 @@ implements CovariateListener, MatrixResizeListener
 	public CovariancePanel()
 	{
 		super(Glimmpse.constants.stepsLeftSigma());
+		// regardless of input, forward navigation is allowed from this panel
+		complete = true;
+		
 		VerticalPanel panel = new VerticalPanel();
 		
         HTML header = new HTML("Variability");
@@ -50,7 +53,22 @@ implements CovariateListener, MatrixResizeListener
         panel.add(deckPanel);
         deckPanel.showWidget(FIXED_INDEX);
         
-        
+        // set all matrices as square / symmetric
+        sigmaError.setIsSquare(true, true);
+        sigmaY.setIsSquare(true, true);
+        sigmaYG.setIsSquare(true, true);
+        sigmaG.setIsSquare(true, true);
+
+        // disable resizing of these matrices since this is dependent on beta
+        sigmaError.setEnabledColumnDimension(false);
+        sigmaError.setEnabledRowDimension(false);
+        sigmaY.setEnabledColumnDimension(false);
+        sigmaY.setEnabledRowDimension(false);
+        sigmaYG.setEnabledColumnDimension(false);
+        sigmaYG.setEnabledRowDimension(false);
+        sigmaG.setEnabledColumnDimension(false);
+        sigmaG.setEnabledRowDimension(false);
+
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
@@ -105,8 +123,10 @@ implements CovariateListener, MatrixResizeListener
 	@Override
 	public void onColumns(String name, int newCols)
 	{
-		// TODO Auto-generated method stub
-		
+		if (GlimmpseConstants.MATRIX_BETA_FIXED.equals(name))
+		{
+			sigmaError.setRowDimension(newCols);
+		}		
 	}
 
 	@Override

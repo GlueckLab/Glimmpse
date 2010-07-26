@@ -2,6 +2,8 @@ package edu.cudenver.bios.glimmpse.client;
 
 import com.google.gwt.i18n.client.Constants;
 
+import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener.SolutionType;
+
 public interface GlimmpseConstants extends Constants
 {
     // shared style names for input wizard steps
@@ -63,6 +65,9 @@ public interface GlimmpseConstants extends Constants
     public static final int DEFAULT_A = 2;
     public static final int DEFAULT_B = 1;
     
+    // default solving for value
+    public static final SolutionType DEFAULT_SOLUTION = SolutionType.POWER;
+    
     // toolbar buttons
     public String buttonSaveStudy();
     public String buttonCancel();
@@ -97,6 +102,16 @@ public interface GlimmpseConstants extends Constants
     public String stepsLeftBeta();
     public String stepsLeftTheta();
     public String stepsLeftSigma();
+    public String stepsLeftSolvingFor();
+    
+    // "solving for" panel constants
+    public String solvingForTitle();
+    public String solvingForDescription();
+    public String solvingForPowerLabel();
+    public String solvingForSampleSizeLabel();
+    public String solvingForNominalPowerTitle();
+    public String solvingForNominalPowerDescription();
+    public String solvingForNominalPowerTableColumn();
     
     // alpha panel constants
     public String alphaTitle();
@@ -164,6 +179,6 @@ public interface GlimmpseConstants extends Constants
     public String errorInvalidMean();
     public String errorInvalidVariance();
     public String errorInvalidQuantile();
-
+    public String errorInvalidPower();
     
 }
