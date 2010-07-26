@@ -1,19 +1,13 @@
 package edu.cudenver.bios.glimmpse.client.panels;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.NavigationListener;
 import edu.cudenver.bios.glimmpse.client.listener.StepStatusListener;
@@ -28,13 +22,14 @@ implements NavigationListener, StepStatusListener
     VerticalPanel panel = new VerticalPanel();
 
     protected ArrayList<HTML> stepList = new ArrayList<HTML>();
-
+    protected WizardStepPanel[] stepPanels;
     private int currentStep = 0;
     
     protected ArrayList<NavigationListener> navigationListeners = new ArrayList<NavigationListener>();
     
     public StepsLeftPanel(WizardStepPanel[] stepPanels)
     {               
+    	this.stepPanels = stepPanels;
         for(WizardStepPanel step: stepPanels) addStep(step.getName());
         
         // select the first step
@@ -74,12 +69,18 @@ implements NavigationListener, StepStatusListener
                 HTML source = (HTML) e.getSource();
                 HTML newStep = null;
                 int stepIdx = 0;
+                boolean allEarlierStepsComplete = true;
                 for(HTML step: stepList)
                 {
                     if (step == source)
                     {
-                        newStep = step;
+                    	// you can only navigate to this step if all previous steps are valid
+                        if (allEarlierStepsComplete) newStep = step;
                         break;
+                    }
+                    else
+                    {
+                    	if (!stepPanels[stepIdx].complete) allEarlierStepsComplete = false;
                     }
                     stepIdx++;
                 }
