@@ -6,6 +6,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -39,6 +40,9 @@ implements OptionsListener, SolvingForListener
 	
 	private NumberFormat doubleFormatter = NumberFormat.getFormat("0.0000");
 	
+	// wait dialog
+	protected DialogBox waitDialog;
+	
 	// google visualization api data table to hold results
 	protected DataTable resultsData; 
 	// we build a second data table with a column for each combination of 
@@ -67,8 +71,12 @@ implements OptionsListener, SolvingForListener
     	super(Glimmpse.constants.stepsLeftResults());
     	this.manager = manager;
     	
+    	// build the wait dialog
+    	buildWaitDialog();
+    	
     	// create the data table 
     	buildDataTable();
+    	
     	resultsTable = new Table(resultsData, null);
     	resultsCurveTable = new Table(resultsCurveData, null);
 
@@ -127,19 +135,28 @@ implements OptionsListener, SolvingForListener
     	sendPowerRequest();
     }
     
+    private void buildWaitDialog()
+    {
+        waitDialog = new DialogBox();
+        HTML text = new HTML("Processing, Please Wait...");
+        text.setStyleName("waitDialogText");
+        waitDialog.setStyleName("waitDialog");
+        waitDialog.setWidget(text);
+    }
+    
     private void showWorkingDialog()
     {
-    	
+        waitDialog.center();
     }
     
     private void hideWorkingDialog()
     {
-    	
+		waitDialog.hide();
     }
     
     private void showError(String message)
     {
-    	
+    	Window.alert("ERROR: " + message);
     }
     
     private void showResults(String resultXML)

@@ -8,10 +8,12 @@ import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
+import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
+import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class CovariancePanel extends WizardStepPanel
-implements CovariateListener, MatrixResizeListener
+implements CovariateListener, MatrixResizeListener, DynamicListValidator
 {
 	private static final int FIXED_INDEX = 0;
 	private static final int RANDOM_INDEX = 0;
@@ -33,6 +35,11 @@ implements CovariateListener, MatrixResizeListener
     	new ResizableMatrix(GlimmpseConstants.MATRIX_SIGMA_OUTCOME,
     			1, 1, "0", "&Sigma; G (Covariate)"); 
     
+    // list of sigma scale factors
+	String[] columnNames = { Glimmpse.constants.sigmaScaleTableColumn() };
+    protected DynamicListPanel sigmaScaleListPanel = 
+    	new DynamicListPanel(columnNames, this);
+    
 	protected DeckPanel deckPanel = new DeckPanel(); 
 	
 	public CovariancePanel()
@@ -51,6 +58,7 @@ implements CovariateListener, MatrixResizeListener
         panel.add(header);
         panel.add(description);
         panel.add(deckPanel);
+        panel.add(sigmaScaleListPanel);
         deckPanel.showWidget(FIXED_INDEX);
         
         // set all matrices as square / symmetric
@@ -150,6 +158,30 @@ implements CovariateListener, MatrixResizeListener
 			buffer.append(sigmaYG.toXML());
 			buffer.append(sigmaY.toXML());
 		}
+		buffer.append(sigmaScaleListPanel.toXML("sigmaScaleList"));
 		return buffer.toString();
+	}
+
+	@Override
+	public void onValidRowCount(int validRowCount)
+	{
+		if (validRowCount > 0)
+			notifyComplete();
+		else
+			notifyInProgress();
+	}
+
+	@Override
+	public void validate(String value, int column)
+			throws IllegalArgumentException
+	{
+		try
+		{
+			Double.parseDouble(value);
+		}
+		catch (Exception e)
+		{
+    		throw new IllegalArgumentException(Glimmpse.constants.errorInvalidNumber());
+		}
 	}
 }

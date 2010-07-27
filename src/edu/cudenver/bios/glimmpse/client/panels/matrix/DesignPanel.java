@@ -156,6 +156,12 @@ implements SolvingForListener, MatrixResizeListener, CovariateListener, DynamicL
 	public String toXML()
 	{
 		StringBuffer buffer = new StringBuffer();
+		
+		if (perGroupNListPanel.isVisible())
+		{
+			buffer.append(perGroupNListPanel.toXML("sampleSizeList"));
+		}
+		
 		buffer.append("<essenceMatrix>");
 		// list row meta data
 		buffer.append("<rowMetaData>");
@@ -199,5 +205,9 @@ implements SolvingForListener, MatrixResizeListener, CovariateListener, DynamicL
 	public void onSolvingFor(SolutionType solutionType)
 	{
 		perGroupNListPanel.setVisible(solutionType != SolutionType.TOTAL_N);
+		if (solutionType != SolutionType.TOTAL_N)
+		{
+			notifyComplete();
+		}
 	}
 }

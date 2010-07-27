@@ -257,21 +257,26 @@ implements CovariateListener, ClickHandler
 	{
 		StringBuffer buffer = new StringBuffer();
 
-		buffer.append("<testList>");
-		if (hotellingLawleyCheckBox.getValue())
+		buffer.append("<powerMethodList>");
+		if (conditionalPowerCheckBox.getValue())
 		{
-
+			buffer.append("<v>");
+			buffer.append(GlimmpseConstants.POWER_METHOD_CONDITIONAL);
+			buffer.append("</v>");
 		}
-		buffer.append("<v>");
-		if (pillaiBartlettCheckBox.getValue())
+		if (unconditionalPowerCheckBox.getValue())
 		{
-
+			buffer.append("<v>");
+			buffer.append(GlimmpseConstants.POWER_METHOD_UNCONDITIONAL);
+			buffer.append("</v>");
 		}
-		if (wilksCheckBox.getValue())
+		if (quantilePowerCheckBox.getValue())
 		{
-
+			buffer.append("<v>");
+			buffer.append(GlimmpseConstants.POWER_METHOD_QUANTILE);
+			buffer.append("</v>");
 		}
-		buffer.append("</testList>");
+		buffer.append("</powerMethodList>");
 		return buffer.toString();
 	}
 
@@ -286,7 +291,6 @@ implements CovariateListener, ClickHandler
 			buffer.append(GlimmpseConstants.TEST_HOTELLING_LAWLEY_TRACE);
 			buffer.append("</v>");
 		}
-		buffer.append("<v>");
 		if (pillaiBartlettCheckBox.getValue())
 		{
 			buffer.append("<v>");

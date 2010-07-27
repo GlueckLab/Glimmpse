@@ -63,7 +63,7 @@ implements MatrixResizeListener
 	{
 		if (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST_FIXED.equals(name))
 		{
-			theta.setColumnDimension(newRows);
+			theta.setRowDimension(newRows);
 		}
 		
 	}

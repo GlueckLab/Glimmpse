@@ -65,6 +65,11 @@ public interface GlimmpseConstants extends Constants
     public static final int DEFAULT_A = 2;
     public static final int DEFAULT_B = 1;
     
+    // power method names for the REST api
+    public static final String POWER_METHOD_CONDITIONAL = "conditional";
+    public static final String POWER_METHOD_UNCONDITIONAL = "unconditional";
+    public static final String POWER_METHOD_QUANTILE = "quantile";
+
     // default solving for value
     public static final SolutionType DEFAULT_SOLUTION = SolutionType.POWER;
     
@@ -180,5 +185,6 @@ public interface GlimmpseConstants extends Constants
     public String errorInvalidVariance();
     public String errorInvalidQuantile();
     public String errorInvalidPower();
+    public String errorInvalidNumber();
     
 }
