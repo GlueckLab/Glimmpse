@@ -65,8 +65,8 @@ implements OptionsListener, SolvingForListener
 	// I tried to build the curves with Google Chart Api, but the scatter chart
 	// didn't have enough control over line types, etc.  Thus, I rolled my own
 	// restlet on top of JFreeChart
-	protected NamedFrame imageFrame = new NamedFrame(CURVE_TARGET);
-	protected FormPanel curveForm = new FormPanel(CURVE_TARGET);
+	protected ImageFramePanel imageFrame = new ImageFramePanel(CURVE_TARGET);
+	protected FormPanel curveForm = new FormPanel(imageFrame.getFrame()); 
 	protected Hidden curveEntityBodyHidden = new Hidden(CHART_INPUT_NAME);
 	
 	// options for display of data
@@ -133,7 +133,7 @@ implements OptionsListener, SolvingForListener
         curveForm.add(formContainer);
     	curveForm.setAction(CURVE_URL);
         curveForm.setMethod(FormPanel.METHOD_POST);
-
+        
         resultsCurvePanel.add(new HTML("Curves"));
     	resultsCurvePanel.add(curveForm);
     	resultsCurvePanel.add(imageFrame);
