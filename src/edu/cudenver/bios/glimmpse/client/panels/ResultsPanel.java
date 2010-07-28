@@ -7,12 +7,13 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Hidden;
+import com.google.gwt.user.client.ui.NamedFrame;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
-import com.google.gwt.visualization.client.visualizations.ScatterChart;
 import com.google.gwt.visualization.client.visualizations.Table;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.NamedNodeMap;
@@ -36,6 +37,10 @@ implements OptionsListener, SolvingForListener
 	private static final String POWER_URL = "/webapps/power/power";
     private static final String SAMPLE_SIZE_URL = "/webapps/power/samplesize";
 	private static final String EFFECT_SIZE_URL = "/webapps/power/difference";
+	private static final String CURVE_URL = "http://localhost:10080/chart/scatter";
+	// private static final String CURVE_URL = "/webapps/chart/scatter";
+	private static final String CURVE_TARGET = "powerCurveFrame";
+	private static final String CHART_INPUT_NAME = "chart";
 	
 	private NumberFormat doubleFormatter = NumberFormat.getFormat("0.0000");
 	
@@ -50,15 +55,21 @@ implements OptionsListener, SolvingForListener
 	
 	// tabular display of results
 	protected VerticalPanel resultsTablePanel = new VerticalPanel();
-	protected Table resultsTable; 
+	protected Table resultsTable = new Table(resultsData, null);
 	
 	// curve display
 	protected VerticalPanel resultsCurvePanel = new VerticalPanel();
-	protected Table resultsCurveTable; 
-	protected Grid curveGrid = new Grid(1,1);
+//	protected Table resultsCurveTable; 
+
+	// we have to use a form submission to display image data
+	// I tried to build the curves with Google Chart Api, but the scatter chart
+	// didn't have enough control over line types, etc.  Thus, I rolled my own
+	// restlet on top of JFreeChart
+	protected NamedFrame imageFrame = new NamedFrame(CURVE_TARGET);
+	protected FormPanel curveForm = new FormPanel(CURVE_TARGET);
+	protected Hidden curveEntityBodyHidden = new Hidden(CHART_INPUT_NAME);
 	
 	// options for display of data
-	protected ScatterChart.Options scatterChartOptions = createCurveOptions();
 	protected boolean showTable = true;
 	protected boolean showCurve = true;
 	protected XAxisType xaxisType = null;
@@ -74,17 +85,18 @@ implements OptionsListener, SolvingForListener
     	// build the wait dialog
     	buildWaitDialog();
     	
-    	// create the data table 
+    	// build the data table 
     	buildDataTable();
     	
-    	resultsTable = new Table(resultsData, null);
-    	resultsCurveTable = new Table(resultsCurveData, null);
+    	// build the display panels
+        buildTablePanel();
+        buildCurvePanel();
+    	
+    	//resultsCurveTable = new Table(resultsCurveData, null);
 
         VerticalPanel panel = new VerticalPanel();
         
-        buildTablePanel();
-        buildCurvePanel();
-        
+        panel.add(curveForm);
         panel.add(resultsCurvePanel);
         panel.add(resultsTablePanel);
         
@@ -98,7 +110,7 @@ implements OptionsListener, SolvingForListener
     	resultsData.addColumn(ColumnType.STRING, "Test", "test");
     	resultsData.addColumn(ColumnType.NUMBER, "Actual Power", "actualPower");
     	resultsData.addColumn(ColumnType.NUMBER, "Total Sample Size", "sampleSize");
-    	resultsData.addColumn(ColumnType.STRING, "&beta; Scale", "betaScale");
+    	resultsData.addColumn(ColumnType.NUMBER, "&beta; Scale", "betaScale");
     	resultsData.addColumn(ColumnType.NUMBER, "&Sigma; Scale", "sigmaScale");
     	resultsData.addColumn(ColumnType.NUMBER, "Alpha", "alpha");
     	resultsData.addColumn(ColumnType.NUMBER, "Nominal Power", "nominalPower");
@@ -116,9 +128,21 @@ implements OptionsListener, SolvingForListener
     
     private void buildCurvePanel()
     {
-    	resultsCurvePanel.add(new HTML("Curves"));
-    	resultsCurvePanel.add(curveGrid);
-    	resultsCurvePanel.add(resultsCurveTable);
+        VerticalPanel formContainer = new VerticalPanel();
+        formContainer.add(curveEntityBodyHidden);
+        curveForm.add(formContainer);
+    	curveForm.setAction(CURVE_URL);
+        curveForm.setMethod(FormPanel.METHOD_POST);
+
+        resultsCurvePanel.add(new HTML("Curves"));
+    	resultsCurvePanel.add(curveForm);
+    	resultsCurvePanel.add(imageFrame);
+
+    	// set style 
+    	imageFrame.setStyleName("powerCurveFrame");
+    	
+//    	resultsCurvePanel.add(curveGrid);
+//    	resultsCurvePanel.add(resultsCurveTable);
     }
     
     public void reset()
@@ -225,7 +249,7 @@ implements OptionsListener, SolvingForListener
             	Node betaScaleNode = attrs.getNamedItem("betaScale");
             	if (betaScaleNode != null) 
             	{
-            		resultsData.setCell(row, col, betaScaleNode.getNodeValue(), 
+            		resultsData.setCell(row, col, Double.parseDouble(betaScaleNode.getNodeValue()), 
             				betaScaleNode.getNodeValue(), null);
             		if (xaxisType != XAxisType.EFFECT_SIZE && solutionType != SolutionType.EFFECT_SIZE)
             		{
@@ -381,42 +405,68 @@ implements OptionsListener, SolvingForListener
     	resultsCurveData.setCell(row, column, newValue, Double.toString(newValue), null);
     	return row;
     }
-    
+        
     private void showCurveResults()
     {
-    	resultsCurveTable.draw(resultsCurveData);
-    	switch(xaxisType)
-    	{
-    	case TOTAL_N:
-    		scatterChartOptions.setTitleX("Total Sample Size");
-    		break;
-    	case EFFECT_SIZE:
-    		scatterChartOptions.setTitleX("Effect Size (scale factor)");
-    		break;
-    	case VARIANCE:
-    		scatterChartOptions.setTitleX("Variance (scale factor)");
-    		break;
-    	}
-    	ScatterChart chart = new ScatterChart(resultsCurveData, scatterChartOptions);
-    	curveGrid.setWidget(0, 0, chart);
+        curveEntityBodyHidden.setValue(curveDataToXML());
+        curveForm.submit();
+        
+//    	resultsCurveTable.draw(resultsCurveData);
+//    	switch(xaxisType)
+//    	{
+//    	case TOTAL_N:
+//    		scatterChartOptions.setTitleX("Total Sample Size");
+//    		break;
+//    	case EFFECT_SIZE:
+//    		scatterChartOptions.setTitleX("Effect Size (scale factor)");
+//    		break;
+//    	case VARIANCE:
+//    		scatterChartOptions.setTitleX("Variance (scale factor)");
+//    		break;
+//    	}
+//    	ScatterChart chart = new ScatterChart(resultsCurveData, scatterChartOptions);
+//    	curveGrid.setWidget(0, 0, chart);
     }
     
-	private ScatterChart.Options createCurveOptions() {
-	    ScatterChart.Options options = ScatterChart.Options.create();
-	    options.setAxisFontSize(12);
-	    options.setWidth(800);
-	    options.setHeight(800);
-	    options.setTitle("Power Curve");
-	    options.setTitleFontSize(16);
-	    options.setShowCategories(true);
-	    options.setLegendFontSize(12);
-	    options.setLineSize(1);
-	    options.setAxisFontSize(14);
-	    options.setTitleY("Power");
-	   // options.setSmoothLine(true);
-	    
-	    return options;
-	  }
+    private String curveDataToXML()
+    {
+        StringBuffer buffer = new StringBuffer();
+        
+        buffer.append("<chart title='Power Curve' legend='true' >");
+        buffer.append("<yaxis label='Power' />");
+        buffer.append("<xaxis label='"); 
+        switch(xaxisType)
+        {
+        case TOTAL_N:
+            buffer.append("Total Sample Size");
+            break;
+        case EFFECT_SIZE:
+            buffer.append("Effect Size Scale Factor");
+            break;
+        case VARIANCE:
+            buffer.append("Variance Scale Factor");
+            break;
+        }
+        buffer.append("' />");
+        for(int c = 0; c < resultsCurveData.getNumberOfColumns(); c++)
+        {
+            buffer.append("<series label='");
+            buffer.append(resultsCurveData.getColumnLabel(c));
+            buffer.append("'>");
+            for(int r = 0; r < resultsCurveData.getNumberOfRows(); r++)
+            {
+                buffer.append("<d>");
+                buffer.append(resultsCurveData.getValueDouble(r, c));
+                buffer.append("</d>");
+            }
+            buffer.append("</series>");
+
+        }
+        
+        buffer.append("</chart>");
+
+        return buffer.toString();
+    }
     
     private String formatPowerMethodName(String name)
     {
