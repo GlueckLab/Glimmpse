@@ -11,7 +11,6 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.visualization.client.LegendPosition;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.visualizations.ScatterChart;
 import com.google.gwt.visualization.client.visualizations.Table;
@@ -59,6 +58,7 @@ implements OptionsListener, SolvingForListener
 	protected Grid curveGrid = new Grid(1,1);
 	
 	// options for display of data
+	protected ScatterChart.Options scatterChartOptions = createCurveOptions();
 	protected boolean showTable = true;
 	protected boolean showCurve = true;
 	protected XAxisType xaxisType = null;
@@ -95,15 +95,15 @@ implements OptionsListener, SolvingForListener
     {
     	// set up the columns in the data table
     	resultsData = DataTable.create();
-    	resultsData.addColumn(ColumnType.NUMBER, "Alpha", "alpha");
     	resultsData.addColumn(ColumnType.STRING, "Test", "test");
+    	resultsData.addColumn(ColumnType.NUMBER, "Actual Power", "actualPower");
+    	resultsData.addColumn(ColumnType.NUMBER, "Total Sample Size", "sampleSize");
+    	resultsData.addColumn(ColumnType.STRING, "&beta; Scale", "betaScale");
+    	resultsData.addColumn(ColumnType.NUMBER, "&Sigma; Scale", "sigmaScale");
+    	resultsData.addColumn(ColumnType.NUMBER, "Alpha", "alpha");
+    	resultsData.addColumn(ColumnType.NUMBER, "Nominal Power", "nominalPower");
     	resultsData.addColumn(ColumnType.STRING, "Power Method", "powerMethod");
     	resultsData.addColumn(ColumnType.NUMBER, "Quantile", "quantile");
-    	resultsData.addColumn(ColumnType.NUMBER, "&Sigma; Scale", "sigmaScale");
-    	resultsData.addColumn(ColumnType.NUMBER, "&beta; Scale", "betaScale");
-    	resultsData.addColumn(ColumnType.NUMBER, "Total Sample Size", "sampleSize");
-    	resultsData.addColumn(ColumnType.NUMBER, "Nominal Power", "nominalPower");
-    	resultsData.addColumn(ColumnType.NUMBER, "Actual Power", "actualPower");
     	
     	resultsCurveData = DataTable.create();
     }
@@ -125,7 +125,6 @@ implements OptionsListener, SolvingForListener
     {
     	resultsData.removeRows(0, resultsData.getNumberOfRows());
 		resultsCurveData.removeRows(0, resultsCurveData.getNumberOfRows());
-
     }
 
     @Override
@@ -165,15 +164,17 @@ implements OptionsListener, SolvingForListener
         {
         	// parse the returned XML
             Document doc = XMLParser.parse(resultXML);
-            Node powerList = doc.getFirstChild();
-            if (powerList == null)
+            NodeList powerListTags = doc.getElementsByTagName("powerList");
+            if (powerListTags == null || powerListTags.getLength() != 1)
             	throw new IllegalArgumentException("No results returned");
-            NamedNodeMap attrList = powerList.getAttributes();
+            NamedNodeMap attrList = powerListTags.item(0).getAttributes();
             if (attrList == null)
             	throw new IllegalArgumentException("Invalid response from power server");
+
             Node countAttr = attrList.getNamedItem("count");
             if (countAttr == null)
             	throw new IllegalArgumentException("Invalid response from power server");
+
             int count = Integer.parseInt(countAttr.getNodeValue());
             
             // fill the google visualization data table
@@ -189,15 +190,6 @@ implements OptionsListener, SolvingForListener
             	
             	// fill in the columns
             	int col = 0;
-            	Node alphaNode = attrs.getNamedItem("alpha");
-            	if (alphaNode != null) 
-            	{
-            		resultsData.setCell(row, col, Double.parseDouble(alphaNode.getNodeValue()), 
-            				alphaNode.getNodeValue(), null);
-            		curveColumnId.append("Alpha=");
-            		curveColumnId.append(alphaNode.getNodeValue());
-            	}
-            	col++;
             	
             	Node testNode = attrs.getNamedItem("test");
             	if (testNode != null) 
@@ -208,6 +200,76 @@ implements OptionsListener, SolvingForListener
             		curveColumnId.append(formatTestName(testNode.getNodeValue()));
             	}
             	col++;
+            	
+            	Node actualPowerNode = attrs.getNamedItem("actualPower");
+            	if (actualPowerNode != null) 
+            	{
+            		resultsData.setCell(row, col, Double.parseDouble(actualPowerNode.getNodeValue()), 
+            				formatDouble(actualPowerNode.getNodeValue()), null);
+            	}
+            	col++;
+            	
+            	Node sampleSizeNode = attrs.getNamedItem("sampleSize");
+            	if (sampleSizeNode != null) 
+            	{
+            		resultsData.setCell(row, col, Integer.parseInt(sampleSizeNode.getNodeValue()), 
+            				sampleSizeNode.getNodeValue(), null);
+            		if (xaxisType != XAxisType.TOTAL_N && solutionType != SolutionType.TOTAL_N)
+            		{
+            			curveColumnId.append("\nSample Size=");
+            			curveColumnId.append(sampleSizeNode.getNodeValue());
+            		}
+            	}
+            	col++;
+            	
+            	Node betaScaleNode = attrs.getNamedItem("betaScale");
+            	if (betaScaleNode != null) 
+            	{
+            		resultsData.setCell(row, col, betaScaleNode.getNodeValue(), 
+            				betaScaleNode.getNodeValue(), null);
+            		if (xaxisType != XAxisType.EFFECT_SIZE && solutionType != SolutionType.EFFECT_SIZE)
+            		{
+            			curveColumnId.append(",Effect Size Scale=");
+            			curveColumnId.append(betaScaleNode.getNodeValue());
+            		}
+            	}
+            	col++;
+            	
+            	Node sigmaScaleNode = attrs.getNamedItem("sigmaScale");
+            	if (sigmaScaleNode != null) 
+            	{
+            		resultsData.setCell(row, col, Double.parseDouble(sigmaScaleNode.getNodeValue()), 
+            				sigmaScaleNode.getNodeValue(), null);
+            		if (xaxisType != XAxisType.VARIANCE)
+            		{
+            			curveColumnId.append(",Variance Scale=");
+            			curveColumnId.append(sigmaScaleNode.getNodeValue());
+            		}
+            	}
+            	col++;     	
+
+            	Node alphaNode = attrs.getNamedItem("alpha");
+            	if (alphaNode != null) 
+            	{
+            		resultsData.setCell(row, col, Double.parseDouble(alphaNode.getNodeValue()), 
+            				alphaNode.getNodeValue(), null);
+            		curveColumnId.append("Alpha=");
+            		curveColumnId.append(alphaNode.getNodeValue());
+            	}
+            	col++;
+            	
+            	Node nominalPowerNode = attrs.getNamedItem("nominalPower");
+            	if (nominalPowerNode != null) 
+            	{
+            		resultsData.setCell(row, col, Double.parseDouble(nominalPowerNode.getNodeValue()), 
+            				formatDouble(nominalPowerNode.getNodeValue()), null);
+            		if (solutionType != SolutionType.POWER)
+            		{
+            			curveColumnId.append(",Nominal Power=");
+            			curveColumnId.append(nominalPowerNode.getNodeValue());
+            		}
+            	}
+            	col++;       
             	
             	Node powerMethodNode = attrs.getNamedItem("powerMethod");
             	if (powerMethodNode != null) 
@@ -227,65 +289,7 @@ implements OptionsListener, SolvingForListener
             		curveColumnId.append(",Quantile=");
             		curveColumnId.append(quantileNode.getNodeValue());
             	}
-            	col++;
-            	
-            	Node sigmaScaleNode = attrs.getNamedItem("sigmaScale");
-            	if (sigmaScaleNode != null) 
-            	{
-            		resultsData.setCell(row, col, Double.parseDouble(sigmaScaleNode.getNodeValue()), 
-            				sigmaScaleNode.getNodeValue(), null);
-            		if (xaxisType != XAxisType.VARIANCE)
-            		{
-            			curveColumnId.append(",Variance Scale=");
-            			curveColumnId.append(sigmaScaleNode.getNodeValue());
-            		}
-            	}
-            	col++;
-            	
-            	Node betaScaleNode = attrs.getNamedItem("betaScale");
-            	if (betaScaleNode != null) 
-            	{
-            		resultsData.setCell(row, col, Double.parseDouble(betaScaleNode.getNodeValue()), 
-            				betaScaleNode.getNodeValue(), null);
-            		if (xaxisType != XAxisType.EFFECT_SIZE)
-            		{
-            			curveColumnId.append(",Effect Size Scale=");
-            			curveColumnId.append(betaScaleNode.getNodeValue());
-            		}
-            	}
-            	col++;
 
-            	Node sampleSizeNode = attrs.getNamedItem("sampleSize");
-            	if (sampleSizeNode != null) 
-            	{
-            		resultsData.setCell(row, col, Integer.parseInt(sampleSizeNode.getNodeValue()), 
-            				sampleSizeNode.getNodeValue(), null);
-            		if (xaxisType != XAxisType.TOTAL_N)
-            		{
-            			curveColumnId.append("\nSample Size=");
-            			curveColumnId.append(sampleSizeNode.getNodeValue());
-            		}
-            	}
-            	col++;
-            	
-            	Node nominalPowerNode = attrs.getNamedItem("nominalPower");
-            	if (nominalPowerNode != null) 
-            	{
-            		resultsData.setCell(row, col, Double.parseDouble(nominalPowerNode.getNodeValue()), 
-            				formatDouble(nominalPowerNode.getNodeValue()), null);
-            		curveColumnId.append(",Nominal Power=");
-            		curveColumnId.append(testNode.getNodeValue());
-            	}
-            	col++;
-            	
-            	Node actualPowerNode = attrs.getNamedItem("actualPower");
-            	if (actualPowerNode != null) 
-            	{
-            		resultsData.setCell(row, col, Double.parseDouble(actualPowerNode.getNodeValue()), 
-            				formatDouble(actualPowerNode.getNodeValue()), null);
-            	}
-            	
-            	
             	// now add the data as a new column to the curve display
             	if (showCurve)
             	{
@@ -381,19 +385,36 @@ implements OptionsListener, SolvingForListener
     private void showCurveResults()
     {
     	resultsCurveTable.draw(resultsCurveData);
-    	ScatterChart chart = new ScatterChart(resultsCurveData, createCurveOptions());
+    	switch(xaxisType)
+    	{
+    	case TOTAL_N:
+    		scatterChartOptions.setTitleX("Total Sample Size");
+    		break;
+    	case EFFECT_SIZE:
+    		scatterChartOptions.setTitleX("Effect Size (scale factor)");
+    		break;
+    	case VARIANCE:
+    		scatterChartOptions.setTitleX("Variance (scale factor)");
+    		break;
+    	}
+    	ScatterChart chart = new ScatterChart(resultsCurveData, scatterChartOptions);
     	curveGrid.setWidget(0, 0, chart);
     }
     
 	private ScatterChart.Options createCurveOptions() {
 	    ScatterChart.Options options = ScatterChart.Options.create();
+	    options.setAxisFontSize(12);
 	    options.setWidth(800);
 	    options.setHeight(800);
 	    options.setTitle("Power Curve");
+	    options.setTitleFontSize(16);
 	    options.setShowCategories(true);
-	    options.setLegend(LegendPosition.RIGHT);
 	    options.setLegendFontSize(12);
 	    options.setLineSize(1);
+	    options.setAxisFontSize(14);
+	    options.setTitleY("Power");
+	   // options.setSmoothLine(true);
+	    
 	    return options;
 	  }
     
