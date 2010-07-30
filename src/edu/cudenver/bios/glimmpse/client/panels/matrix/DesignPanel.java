@@ -171,18 +171,10 @@ implements SolvingForListener, MatrixResizeListener, CovariateListener, DynamicL
 			buffer.append("<r ratio='" + lb.getItemText(lb.getSelectedIndex()) + "' />");
 		}
 		buffer.append("</rowMetaData>");
-		// TODO: might be getting rid of the column meta data
-		buffer.append("<columnMetaData>");
-		for(int c = 0; c < essenceFixed.getColumnDimension(); c++)
-		{
-			buffer.append("<c type='fixed' />");
-		}
-		buffer.append("</columnMetaData>");
+
 		// add fixed effects matrix
-		buffer.append(essenceFixed.toXML());
+		buffer.append(essenceFixed.toXML(GlimmpseConstants.MATRIX_FIXED));
 		// TODO: decide what we are doing here
-		
-		
 		
 		// if the user is controlling for a baseline covariate, add the random meta data
 		// and random effects matrix to the output
@@ -195,7 +187,7 @@ implements SolvingForListener, MatrixResizeListener, CovariateListener, DynamicL
 			buffer.append("' variance='");
 			buffer.append(covariatePanel.getVariance());
 			buffer.append("'></c></randomColumnMetaData>");
-			buffer.append(essenceCovariate.toXML());
+			buffer.append(essenceCovariate.toXML(GlimmpseConstants.MATRIX_RANDOM));
 		}
 		buffer.append("</essenceMatrix>");
 		return buffer.toString();

@@ -260,13 +260,18 @@ public class ResizableMatrix extends Composite
 		
 	public String toXML()
 	{
+		return toXML(name);
+	}
+	
+	public String toXML(String matrixName)
+	{
 		StringBuffer buffer = new StringBuffer();
 		
 		int start = 0;
 		int rows = matrixData.getRowCount();
 		int cols = matrixData.getCellCount(0);
 
-		buffer.append("<matrix name='" + name + "' rows='" +  rows + "' columns='" + 
+		buffer.append("<matrix name='" + matrixName + "' rows='" +  rows + "' columns='" + 
 		        cols + "'>");
 
 		for(int r = start; r < matrixData.getRowCount(); r++)

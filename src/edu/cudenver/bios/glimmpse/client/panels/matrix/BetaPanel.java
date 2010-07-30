@@ -138,11 +138,14 @@ implements MatrixResizeListener, CovariateListener, DynamicListValidator, Solvin
 	{
 		StringBuffer buffer = new StringBuffer();
 		if (betaScaleListPanel.isVisible()) buffer.append(betaScaleListPanel.toXML("betaScaleList"));
-		buffer.append(betaFixed.toXML());
+		buffer.append("<fixedRandomMatrix name='beta' combineHorizontal='false' >");
+		buffer.append(betaFixed.toXML(GlimmpseConstants.MATRIX_FIXED));
 		if (betaRandom.isVisible())
 		{
-			buffer.append(betaRandom.toXML());
+			buffer.append(betaRandom.toXML(GlimmpseConstants.MATRIX_RANDOM));
 		}
+		buffer.append("</fixedRandomMatrix>");
+
 		return buffer.toString();
 	}
 

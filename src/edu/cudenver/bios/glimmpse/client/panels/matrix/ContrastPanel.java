@@ -132,11 +132,13 @@ implements CovariateListener, MatrixResizeListener
 	public String toXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(betweenSubjectFixed.toXML());
+		buffer.append("<fixedRandomMatrix name='betweenSubjectContrast' combineHorizontal='true' >");
+		buffer.append(betweenSubjectFixed.toXML(GlimmpseConstants.MATRIX_FIXED));
 		if (betweenSubjectRandom.isVisible())
 		{
-			buffer.append(betweenSubjectRandom.toXML());
+			buffer.append(betweenSubjectRandom.toXML(GlimmpseConstants.MATRIX_RANDOM));
 		}
+		buffer.append("</fixedRandomMatrix>");
 		buffer.append(withinSubject.toXML());
 		return buffer.toString();
 	}

@@ -35,6 +35,8 @@ public interface GlimmpseConstants extends Constants
     public static final String MODE_GUIDED = "guided";
 
     // matrix names
+    public static final String MATRIX_FIXED = "fixed";
+    public static final String MATRIX_RANDOM = "random";
     public static final String MATRIX_DESIGN_FIXED = "design";
     public static final String MATRIX_DESIGN_RANDOM = "designRandom";
     public static final String MATRIX_BETA_FIXED = "beta";
