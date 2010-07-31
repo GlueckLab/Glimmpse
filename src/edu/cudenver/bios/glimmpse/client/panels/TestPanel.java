@@ -27,7 +27,7 @@ import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.OptionsListener;
 import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
 
-public class ResultsPanel extends WizardStepPanel
+public class TestPanel extends WizardStepPanel
 implements OptionsListener, SolvingForListener
 {	
 	private static final int STATUS_CODE_OK = 200;
@@ -37,7 +37,7 @@ implements OptionsListener, SolvingForListener
 	private static final String EFFECT_SIZE_URL = "/webapps/power/difference";
 	private static final String CURVE_URL = "http://localhost:8080/chart/scatter";
 	// private static final String CURVE_URL = "/webapps/chart/scatter";
-	public static final String POWER_CURVE_FRAME = "resultsPanelPowerCurveTargetFrame";
+	public static final String POWER_CURVE_FRAME = "TESTpowerCurveTargetFrame";
 	private static final String CHART_INPUT_NAME = "chart";
 
 	private NumberFormat doubleFormatter = NumberFormat.getFormat("0.0000");
@@ -78,9 +78,10 @@ implements OptionsListener, SolvingForListener
 	// pointer to the overall wizard panel which can generate the entity body from the other panels
 	protected StudyDesignManager manager;
 
-    public ResultsPanel(StudyDesignManager manager)
+    public TestPanel(StudyDesignManager manager)
     {
-    	super(Glimmpse.constants.stepsLeftResults());
+    	super("Image Test");
+    	complete = true;
     	this.manager = manager;
 
         VerticalPanel panel = new VerticalPanel();
