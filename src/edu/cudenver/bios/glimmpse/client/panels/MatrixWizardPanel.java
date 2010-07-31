@@ -55,7 +55,7 @@ implements StudyDesignManager
     protected CovariancePanel covariancePanel = new CovariancePanel();
     protected OptionsPanel optionsPanel = new OptionsPanel();
     protected ResultsPanel resultsPanel = new ResultsPanel(this);
-	
+	protected TestPanel testPanel = new TestPanel(this);
     // list of panels for the wizard
 	WizardStepPanel[] panelList = {
 			solvingForPanel,

@@ -4,12 +4,16 @@ import java.util.ArrayList;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
@@ -155,15 +159,26 @@ implements NavigationListener, StepStatusListener
     private void enterStep()
     {
     	WizardStepPanel w = (WizardStepPanel) wizardDeck.getWidget(currentStep);
-    	w.onEnter();
     	wizardDeck.showWidget(currentStep);
     	navPanel.setNext(w.isComplete());
+    	w.onEnter();
     }
     
     private HorizontalPanel createToolBar()
     {
 		HorizontalPanel panel = new HorizontalPanel();
 		
+	    MenuBar menu = new MenuBar();
+		// set options on the menu bar
+	    menu.setAutoOpen(true);
+	    menu.setAnimationEnabled(true);
+	    
+	    // build the submenus
+	    menu.addItem("Save", true, createSaveMenu());
+	    menu.addSeparator();
+	    menu.addItem("Clear", true, createClearMenu());
+	    menu.addSeparator();
+	    menu.addItem("Help", true, createHelpMenu());
 		// add the save study link and associated form
 		form.setAction(SAVEAS_URL);
 		form.setMethod(FormPanel.METHOD_POST);
@@ -171,44 +186,84 @@ implements NavigationListener, StepStatusListener
 		formContainer.add(matrixXML);
 		formContainer.add(new Hidden("filename", "study.xml"));
 		form.add(formContainer);
-		// save button
-		Button saveButton = new Button("Save", new ClickHandler() {
-			public void onClick(ClickEvent e)
+
+		
+		// layout the panel
+		panel.add(menu);
+
+		// set style TODO:
+		panel.setStyleName(STYLE_TOOLBAR);
+		
+		return panel;
+    }
+
+    
+	private MenuBar createSaveMenu()
+	{
+	    MenuBar saveMenu = new MenuBar(true);
+	    saveMenu.addItem(new MenuItem("Study Design", true, new Command() {
+			@Override
+			public void execute()
 			{
-				// TODO: set study text into matrixXML hidden field
-		    	form.submit();    	
+				
+			}
+	    }));
+	    saveMenu.addSeparator();
+	    saveMenu.addItem(new MenuItem("Results", true, new Command() {
+			@Override
+			public void execute()
+			{
+
+			}
+	    }));
+	    saveMenu.addItem(new MenuItem("Curve", true, new Command() {
+			@Override
+			public void execute()
+			{
+
+			}
+	    }));
+	    
+	    return saveMenu;
+	}
+	
+	private MenuBar createClearMenu()
+	{
+		MenuBar clearMenu = new MenuBar(true);
+		
+		
+		clearMenu.addItem("Current Screen", new Command() {
+			public void execute()
+			{
+				// TODO: dialog confirmation
+				WizardStepPanel wsp = (WizardStepPanel) wizardDeck.getWidget(currentStep);
+				wsp.reset();
 			}
 		});
-		// clear button
-		Button clearButton = new Button("Clear", new ClickHandler() {
-			public void onClick(ClickEvent e)
-			{
-				// TODO: Dialog box
-		    	WizardStepPanel w = (WizardStepPanel) wizardDeck.getWidget(currentStep);
-		    	w.reset();
-			}
-		});
-		// cancel button
-		Button cancelButton = new Button("New", new ClickHandler() {
-			public void onClick(ClickEvent e)
+		
+		clearMenu.addItem("All", new Command() {
+			public void execute()
 			{
 				notifyOnCancel();
 			}
 		});
 		
-		// layout the panel
-		panel.add(saveButton);
-		panel.add(clearButton);
-		panel.add(cancelButton);
-		// set style
-		panel.setStyleName(STYLE_TOOLBAR);
-		saveButton.setStyleName(STYLE_SAVE);
-		clearButton.setStyleName(STYLE_CLEAR);
-		cancelButton.setStyleName(STYLE_CANCEL);
-		
-		return panel;
-    }
+		return clearMenu;
+	}
+    
+	private MenuBar createHelpMenu()
+	{
+		MenuBar helpMenu = new MenuBar(true);
+		helpMenu.addItem("Manual", new Command() {
+			public void execute()
+			{
+				Window.open("/help/manual.pdf", "", "");
+			}
+		});
 
+		return helpMenu;
+	}
+    
     protected void notifyOnCancel()
     {
         for(CancelListener listener: listeners)
