@@ -37,9 +37,8 @@ implements OptionsListener, SolvingForListener
 	private static final String POWER_URL = "/webapps/power/power";
 	private static final String SAMPLE_SIZE_URL = "/webapps/power/samplesize";
 	private static final String EFFECT_SIZE_URL = "/webapps/power/difference";
-	private static final String CURVE_URL = "http://localhost:8080/chart/scatter";
-	// private static final String CURVE_URL = "/webapps/chart/scatter";
-	private static final String POWER_CURVE_FRAME = "TESTPanelPowerCurveTargetFrame";
+	private static final String CURVE_URL = "/webapps/chart/scatter";
+	private static final String IMAGE_FRAME_NAME_SUFFIX = "PowerCurveFrame";
 	private static final String STYLE_POWER_CURVE_FRAME = "powerCurveFrame";
 	private static final String CHART_INPUT_NAME = "chart";
 
@@ -65,8 +64,8 @@ implements OptionsListener, SolvingForListener
 	// didn't have enough control over line types, etc.  Thus, I rolled my own
 	// restlet on top of JFreeChart
 	// hidden iframe to hold the power curve image data
-	protected NamedFrame imageFrame = new NamedFrame(POWER_CURVE_FRAME);
-	protected FormPanel curveForm = new FormPanel(imageFrame);
+	protected NamedFrame imageFrame;
+	protected FormPanel curveForm;
 	protected Hidden curveEntityBodyHidden = new Hidden(CHART_INPUT_NAME);
 
 	// options for display of data
@@ -90,7 +89,12 @@ implements OptionsListener, SolvingForListener
 		buildWaitDialog();
 		// build the data table 
 		buildDataTable();
+		
 		// build the display panels
+		/* WARNING: this named frame must have a unique name or the curve will not display */
+		imageFrame = new NamedFrame(manager.getModeName() + IMAGE_FRAME_NAME_SUFFIX);
+		curveForm = new FormPanel(imageFrame);
+		
 		resultsTablePanel.add(new HTML("Results"));
 		resultsTablePanel.add(resultsTable);
 		resultsCurvePanel.add(new HTML("Curves"));
@@ -102,7 +106,7 @@ implements OptionsListener, SolvingForListener
 		VerticalPanel formContainer = new VerticalPanel();
 		formContainer.add(curveEntityBodyHidden);
 		curveForm.add(formContainer);
-
+		
 		// layout the panel
 		panel.add(resultsCurvePanel);
 		panel.add(resultsTablePanel);        

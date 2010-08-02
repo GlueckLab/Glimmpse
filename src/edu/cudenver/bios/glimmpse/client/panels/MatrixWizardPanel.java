@@ -145,4 +145,10 @@ implements StudyDesignManager
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public String getModeName()
+	{
+		return "matrix";
+	}
 }

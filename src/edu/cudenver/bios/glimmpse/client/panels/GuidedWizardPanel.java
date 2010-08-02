@@ -99,4 +99,9 @@ implements StudyDesignManager
 		return null;
 	}
 
+	@Override
+	public String getModeName()
+	{
+		return "guided";
+	}
 }
