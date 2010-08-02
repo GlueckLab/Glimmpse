@@ -54,8 +54,8 @@ implements StudyDesignManager
     protected ThetaPanel thetaPanel = new ThetaPanel();
     protected CovariancePanel covariancePanel = new CovariancePanel();
     protected OptionsPanel optionsPanel = new OptionsPanel();
-    protected ResultsPanel resultsPanel = new ResultsPanel(this);
-	protected TestPanel testPanel = new TestPanel(this);
+    //protected ResultsPanel resultsPanel = new ResultsPanel(this);
+	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
     // list of panels for the wizard
 	WizardStepPanel[] panelList = {
 			solvingForPanel,
@@ -66,7 +66,8 @@ implements StudyDesignManager
 			thetaPanel,
 			covariancePanel,
 			optionsPanel,
-			resultsPanel};
+			resultsPanel
+	};
 	
 	// wizard navigation panel
 	WizardPanel wizardPanel;
@@ -94,6 +95,7 @@ implements StudyDesignManager
 		contrastPanel.addBetweenSubjectMatrixResizeListener(thetaPanel);
 		contrastPanel.addWithinSubjectMatrixResizeListener(thetaPanel);
 		optionsPanel.addOptionsListener(resultsPanel);
+
 		betaPanel.addMatrixResizeListener(contrastPanel);
 		betaPanel.addMatrixResizeListener(covariancePanel);
 		// initialize

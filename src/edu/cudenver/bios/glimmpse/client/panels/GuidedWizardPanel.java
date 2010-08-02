@@ -27,7 +27,7 @@ implements StudyDesignManager
 	protected EffectSizePanel effectSizePanel = new EffectSizePanel();
 	protected VariabilityPanel variabilityPanel = new VariabilityPanel();
 	protected OptionsPanel optionsPanel = new OptionsPanel();
-	protected ResultsPanel resultsPanel = new ResultsPanel(this);
+	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
 	
     // list of panels for the wizard
 	WizardStepPanel[] panelList = {
