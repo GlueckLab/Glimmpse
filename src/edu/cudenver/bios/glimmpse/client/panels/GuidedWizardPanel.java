@@ -33,8 +33,8 @@ implements StudyDesignManager
 	WizardStepPanel[] panelList = {
 			solvingForPanel,
 			alphaPanel, 
-			outcomesPanel, 
 			predictorsPanel, 
+			outcomesPanel, 
 			studyGroupsPanel, 
 			hypothesisPanel,
 			effectSizePanel,
