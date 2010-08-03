@@ -139,7 +139,11 @@ public interface GlimmpseConstants extends Constants
     public String predictorsDescription();
     public String predictorsTableColumn();
     public String categoriesTableColumn();
-    
+    public String categoricalTitle();
+    public String categoricalDescription();
+    public String covariateTitle();
+    public String covariateDescription();
+
     // study groups panel constants
     public String studyGroupsTitle();
     public String studyGroupsDescription();
