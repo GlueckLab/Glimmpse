@@ -52,15 +52,23 @@ public class TextValidation
 	    return n;
 	}
 	
-	public static double parseDouble(String str, double lowerBound, double upperBound)
+	public static double parseDouble(String str, double lowerBound, double upperBound, 
+			boolean includeEndpoints)
 	throws NumberFormatException
 	{
-	    if (str == null || str.isEmpty()) throw new NumberFormatException();
+		if (str == null || str.isEmpty()) throw new NumberFormatException();
 
-	    double n = Double.parseDouble(str);
-	    if (n > upperBound || n < lowerBound) throw new NumberFormatException();
+		double n = Double.parseDouble(str);
+		if (includeEndpoints)
+		{
+			if (n > upperBound || n < lowerBound) throw new NumberFormatException();
+		}
+		else
+		{
+			if (n >= upperBound || n <= lowerBound) throw new NumberFormatException();
+		}
 
-	    return n;
+		return n;
 	}
 	
 	public static double parseDouble(String str, double bound, boolean lower)
