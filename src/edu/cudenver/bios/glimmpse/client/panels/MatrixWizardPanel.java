@@ -46,7 +46,7 @@ public class MatrixWizardPanel extends Composite
 implements StudyDesignManager
 {
 	// content panels 
-	protected SolvingForPanel solvingForPanel = new SolvingForPanel();
+	protected SolvingForPanel solvingForPanel = new SolvingForPanel(getModeName());
     protected AlphaPanel alphaPanel = new AlphaPanel();
     protected DesignPanel designPanel = new DesignPanel();
     protected ContrastPanel contrastPanel = new ContrastPanel();

@@ -45,6 +45,7 @@ implements SolvingForListener, PredictorsListener, OutcomesListener, DynamicList
     public StudyGroupsPanel()
     {
     	super(Glimmpse.constants.stepsLeftGroups());
+    	complete = true;
         VerticalPanel panel = new VerticalPanel();
         
         // create header/instruction text

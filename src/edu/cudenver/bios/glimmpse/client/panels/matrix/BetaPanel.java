@@ -76,7 +76,7 @@ implements MatrixResizeListener, CovariateListener, DynamicListValidator, Solvin
 	{
     	try
     	{
-    		TextValidation.parseDouble(value, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+    		TextValidation.parseDouble(value, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false);
     	}
     	catch (NumberFormatException nfe)
     	{

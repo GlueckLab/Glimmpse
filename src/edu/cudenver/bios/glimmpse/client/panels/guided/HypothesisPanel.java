@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.DeckPanel;
@@ -15,25 +20,33 @@ import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class HypothesisPanel extends WizardStepPanel
-implements OutcomesListener, PredictorsListener
+implements OutcomesListener, PredictorsListener, ClickHandler
 {   
 	private static final int INDEPENDENT_GROUPS_INDEX = 0;
 	private static final int REPEATED_MEASURES_INDEX = 1;
 	
 	protected boolean hasRepeatedMeasures = false;
 	protected List<String> outcomes = null;
-	
+	protected HashMap<String, ArrayList<String>> predictorMap = null;
 	protected DeckPanel deckPanel = new DeckPanel();
+	
+	// independent groups widgets
+	protected FlexTable independentMainEffectsTable = new FlexTable();
+	protected FlexTable independentInteractionsTable = new FlexTable();
+
 	
     public HypothesisPanel()
     {
     	super(Glimmpse.constants.stepsLeftHypotheses());
+    	// TODO: remove
+    	complete = true;
+    	
         VerticalPanel panel = new VerticalPanel();
         
         HTML header = new HTML(Glimmpse.constants.hypothesisTitle());
         HTML description = new HTML(Glimmpse.constants.hypothesisDescription());
         
-        deckPanel.add(createNonRepeatedMeasuresPanel());
+        deckPanel.add(createIndependentGroupsPanel());
         deckPanel.add(createRepeatedMeasuresPanel());
         deckPanel.showWidget(INDEPENDENT_GROUPS_INDEX);
         
@@ -49,10 +62,53 @@ implements OutcomesListener, PredictorsListener
         initWidget(panel);
     }
 
-    private VerticalPanel createNonRepeatedMeasuresPanel()
+    private VerticalPanel createIndependentGroupsPanel()
+    {
+    	VerticalPanel panel = new VerticalPanel();
+
+        panel.add(createIndependentMainEffectsPanel());
+        panel.add(createIndependentInteractionsPanel());
+
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+
+        
+        return panel;
+    	
+    }
+    
+    private VerticalPanel createIndependentMainEffectsPanel()
     {
     	VerticalPanel panel = new VerticalPanel();
     	
+    	HTML header = new HTML("Main Effects");
+
+    	panel.add(header);
+    	panel.add(this.independentMainEffectsTable);
+    	
+        // set style
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+        panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        
+    	return panel;
+    }
+    
+    private VerticalPanel createIndependentInteractionsPanel()
+    {
+    	VerticalPanel panel = new VerticalPanel();
+    	
+    	HTML header = new HTML("Interactions");
+
+    	panel.add(header);
+    	panel.add(this.independentInteractionsTable);
+    	
+        // set style
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+        panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        
     	return panel;
     }
     
@@ -63,7 +119,11 @@ implements OutcomesListener, PredictorsListener
     	return panel;
     }
     
-    public void reset() {}
+    public void reset() 
+    {
+    	independentInteractionsTable.removeAllRows();
+    	independentMainEffectsTable.removeAllRows();
+    }
 
 	@Override
 	public void onOutcomes(List<String> outcomes)
@@ -77,32 +137,63 @@ implements OutcomesListener, PredictorsListener
 		hasRepeatedMeasures = (repeatedMeasures == null);
 		if (repeatedMeasures == null)
 		{
-			
+			deckPanel.showWidget(INDEPENDENT_GROUPS_INDEX);
 		}
 		else
 		{
-			
+			deckPanel.showWidget(REPEATED_MEASURES_INDEX);
 		}
 	}
 
 	@Override
 	public void onPredictors(HashMap<String, ArrayList<String>> predictorMap)
 	{
+		this.predictorMap = predictorMap;
+	}
+	
+	@Override
+	public void onEnter()
+	{
+		Object[] predictorArray = (Object[]) predictorMap.keySet().toArray();
+		reset();
 		int i = 0;
-		for(String predictor: predictorMap.keySet())
+		for(Object predictor: predictorArray)
 		{
-			addMainEffect(predictor);
-			addInteractions(predictor, i++, predictorMap);
+			addMainEffect((String) predictor);
+			addInteractions((String) predictor, ++i, predictorArray);
 		}
 	}
 	
 	private void addMainEffect(String predictor)
 	{
-		
+		int startRow = independentMainEffectsTable.getRowCount();
+		for(String outcome: outcomes)
+		{
+			
+			independentMainEffectsTable.setWidget(startRow, 0, new CheckBox());
+			independentMainEffectsTable.setWidget(startRow, 1, new HTML(predictor + " main effect on " + outcome));
+			startRow++;
+		}
 	}
 	
-	private void addInteractions(String predictor, int startingIdx, HashMap<String, ArrayList<String>> predictorMap)
+	private void addInteractions(String predictor, int startIndex, Object[] predictorArray)
 	{
-		//for(int i = startingIdx; i < )
+		int startRow = independentInteractionsTable.getRowCount();
+		for(int i = startIndex; i < predictorArray.length; i++)
+		{
+			for(String outcome: outcomes)
+			{
+				independentInteractionsTable.setWidget(startRow, 0, new CheckBox());
+				independentInteractionsTable.setWidget(startRow, 1, 
+						new HTML(predictor + " x  " + (String) predictorArray[i] + " interaction effect on " + outcome));
+				startRow++;
+			}
+		}
+	}
+
+	@Override
+	public void onClick(ClickEvent event)
+	{
+		// check if any hypotheses are selected
 	}
 }

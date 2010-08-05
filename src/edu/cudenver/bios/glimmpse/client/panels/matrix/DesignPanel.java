@@ -13,6 +13,7 @@ import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
 import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
+import edu.cudenver.bios.glimmpse.client.panels.CovariatePanel;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
@@ -23,7 +24,7 @@ implements SolvingForListener, MatrixResizeListener, CovariateListener, DynamicL
 	private static final int MAX_RATIO = 10;
     protected ResizableMatrix essenceFixed;
     protected ResizableMatrix essenceCovariate;
-	protected CovariatePanel covariatePanel = new CovariatePanel();
+	protected CovariatePanel covariatePanel = new CovariatePanel(Glimmpse.constants.matrixCovariateDescription());
    	protected Grid rowMDGrid;
    	
    	// list of per group sample sizes

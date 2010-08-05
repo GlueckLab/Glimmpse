@@ -84,7 +84,7 @@ implements DynamicListValidator
     {
     	try
     	{
-    		TextValidation.parseDouble(value, 0, 1);
+    		TextValidation.parseDouble(value, 0, 1, false);
     	}
     	catch (NumberFormatException nfe)
     	{

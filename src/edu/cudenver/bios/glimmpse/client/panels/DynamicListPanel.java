@@ -19,16 +19,6 @@ import edu.cudenver.bios.glimmpse.client.TextValidation;
 public class DynamicListPanel extends Composite
 implements ChangeHandler
 {
-	public class RowTextBox extends TextBox
-	{
-		public int row = -1;
-		
-		public RowTextBox(int row)
-		{
-			super();
-			this.row = row;
-		}
-	}
 	
     // dynamic table of alpha values
     protected FlexTable flexTable = new FlexTable();

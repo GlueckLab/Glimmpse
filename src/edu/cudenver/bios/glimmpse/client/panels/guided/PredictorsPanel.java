@@ -19,13 +19,15 @@ import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
+import edu.cudenver.bios.glimmpse.client.panels.CovariatePanel;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
-import edu.cudenver.bios.glimmpse.client.panels.matrix.CovariatePanel;
 
 public class PredictorsPanel extends WizardStepPanel
+implements CovariateListener
 {        
     // covariate panel
-    protected CovariatePanel covariatePanel = new CovariatePanel();
+    protected CovariatePanel covariatePanel =
+    	new CovariatePanel(Glimmpse.constants.predictorsCovariateDescription());
     // listeners for outcome events
     protected ArrayList<PredictorsListener> listeners = new ArrayList<PredictorsListener>();
 
@@ -50,8 +52,7 @@ public class PredictorsPanel extends WizardStepPanel
         // create header/instruction text
         HTML header = new HTML(Glimmpse.constants.predictorsTitle());
         HTML description = new HTML(Glimmpse.constants.predictorsDescription());        
-        HTML covariateHeader = new HTML("Baseline Covariate");
-        HTML covariateDescription = new HTML("A baseline covariate is...");
+
 
         // disable category text box and delete buttons
         categoryTextBox.setEnabled(false);
@@ -61,31 +62,50 @@ public class PredictorsPanel extends WizardStepPanel
         // layout the overall panel
         panel.add(header);
         panel.add(description);
-        panel.add(buildCascadingList());
-        panel.add(covariateHeader);
-        panel.add(covariateDescription);
+        panel.add(buildCategoricalPanel());
         panel.add(covariatePanel);
         
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        covariateHeader.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        covariateDescription.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        
+
         initWidget(panel);
     }    
+    
+    private VerticalPanel buildCategoricalPanel()
+    {
+    	VerticalPanel panel = new VerticalPanel();
+
+        HTML header = new HTML(Glimmpse.constants.categoricalTitle());
+        HTML description = new HTML(Glimmpse.constants.categoricalDescription());
+        
+        panel.add(header);
+        panel.add(description);
+        panel.add(buildCascadingList());
+        
+        // set style
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+        panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+    	
+    	return panel;
+    }
     
     private VerticalPanel buildCascadingList()
     {
     	VerticalPanel panel = new VerticalPanel();
 
-    	predictorList.setVisibleItemCount(10);
+    	predictorList.setVisibleItemCount(5);
     	predictorList.setWidth("100%");
-    	categoryList.setVisibleItemCount(10);
+    	categoryList.setVisibleItemCount(5);
     	categoryList.setWidth("100%");
     	
     	// add callbacks
+    	covariatePanel.addCovariateListener(this);
     	predictorTextBox.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event)
@@ -263,19 +283,23 @@ public class PredictorsPanel extends WizardStepPanel
     
     public void checkComplete()
     {
-    	boolean isComplete = false;
+    	boolean isComplete = true;
     	for(ArrayList<String> categories: predictorCategoryMap.values())
     	{
-    		if (categories.size() > 1) 
+    		if (categories.size() < 2) 
     		{
-    			isComplete = true;
+    			isComplete = false;
     			break;
     		}
     	}
     	if (isComplete)
-    		notifyComplete();
-    	else
-    		notifyInProgress();
+    	{
+    		if (covariatePanel.isComplete())
+    			notifyComplete();
+    		else
+    			notifyInProgress();
+    	}
+
     }
     
     public void reset() 
@@ -284,4 +308,22 @@ public class PredictorsPanel extends WizardStepPanel
     	categoryList.clear();
     	predictorCategoryMap.clear();
     }
+
+	@Override
+	public void onHasCovariate(boolean hasCovariate)
+	{
+		checkComplete();
+	}
+
+	@Override
+	public void onMean(double mean)
+	{
+		checkComplete();
+	}
+
+	@Override
+	public void onVariance(double variance)
+	{
+		checkComplete();
+	}
 }

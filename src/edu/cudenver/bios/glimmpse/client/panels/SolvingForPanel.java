@@ -45,19 +45,15 @@ import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
 public class SolvingForPanel extends WizardStepPanel
 implements ClickHandler, DynamicListValidator
 {
-	protected static final String SOLVE_FOR_RADIO_GROUP = "solvingFor";
+	protected static final String SOLVE_FOR_RADIO_GROUP = "SolvingFor";
 	
 	// "solving for" check boxes
-	// TODO: constants
-	protected RadioButton solvingForPowerRadioButton = 
-		new RadioButton(SOLVE_FOR_RADIO_GROUP, "Power");
-	protected RadioButton solvingForSampleSizeRadioButton = 
-		new RadioButton(SOLVE_FOR_RADIO_GROUP, "Sample Size");
-	protected RadioButton solvingForEffectSizeRadioButton = 
-		new RadioButton(SOLVE_FOR_RADIO_GROUP, "Effect Size");
+	protected RadioButton solvingForPowerRadioButton; 
+	protected RadioButton solvingForSampleSizeRadioButton;
+	protected RadioButton solvingForEffectSizeRadioButton;
 	
+	// list of nominal power values.  Only displayed when solving for effect size or sample size
 	protected VerticalPanel nominalPowerPanel = new VerticalPanel();
-    // dynamic table of alpha values
 	String[] columnNames = { Glimmpse.constants.solvingForNominalPowerTableColumn()};
     protected DynamicListPanel nominalPowerListPanel = 
     	new DynamicListPanel(columnNames, this);
@@ -67,8 +63,10 @@ implements ClickHandler, DynamicListValidator
 	
 	/**
 	 * Constructor
+	 * 
+	 * @param radioGroupPrefix prefix to ensure uniqueness of the radio button group
 	 */
-	public SolvingForPanel()
+	public SolvingForPanel(String radioGroupPrefix)
 	{
 		super(Glimmpse.constants.stepsLeftSolvingFor());
 		// since one of the radio buttons will always be checked, this wizardsteppanel
@@ -77,12 +75,21 @@ implements ClickHandler, DynamicListValidator
 		
 		VerticalPanel panel = new VerticalPanel();
 		
-    	// TODO: constants
 		HTML header = new HTML(Glimmpse.constants.solvingForTitle());
 		HTML description = new HTML(Glimmpse.constants.solvingForDescription());
 
 		// build the nominal power subpanel
 		buildNominalPowerPanel();
+		
+		// create the radio buttons - note, we add a prefix to the radio group name since multiple
+		// instances of this class are created for matrix and guided mode
+		String group = radioGroupPrefix + SOLVE_FOR_RADIO_GROUP;
+		solvingForPowerRadioButton = 
+			new RadioButton(group, Glimmpse.constants.solvingForPowerLabel());
+		solvingForSampleSizeRadioButton = 
+			new RadioButton(group, Glimmpse.constants.solvingForSampleSizeLabel());
+		solvingForEffectSizeRadioButton = 
+			new RadioButton(group, Glimmpse.constants.solvingForEffectSizeLabel());
 		
 		// layout the radio buttons
 		Grid grid = new Grid(3,1);
@@ -132,8 +139,10 @@ implements ClickHandler, DynamicListValidator
 		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
 		nominalPowerPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
 	}
+	
 	/**
-	 * Reset the panel to the default, which is "solving for power"
+	 * Reset the panel to the default (solve for power), and clear the nominal 
+	 * power list
 	 */
 	public void reset()
 	{
@@ -155,7 +164,7 @@ implements ClickHandler, DynamicListValidator
 
 	/**
 	 * Notify solving for listeners when one of the solution type radio buttons
-	 * is clicked.
+	 * is clicked.  Also notify the current number of rows in the power list
 	 * 
 	 * @param event the click event
 	 */
@@ -186,22 +195,22 @@ implements ClickHandler, DynamicListValidator
 		}
 	}
 	
-	   /**
-     * Validate new entries in the alpha list
-     * @see DynamicListValidator
-     */
-    public void validate(String value, int column) throws IllegalArgumentException
-    {
-    	try
-    	{
-    		TextValidation.parseDouble(value, 0, 1);
-    	}
-    	catch (NumberFormatException nfe)
-    	{
-    		throw new IllegalArgumentException(Glimmpse.constants.errorInvalidPower());
-    	}
-    }
-    
+	/**
+	 * Validate new entries in the alpha list
+	 * @see DynamicListValidator
+	 */
+	public void validate(String value, int column) throws IllegalArgumentException
+	{
+		try
+		{
+			TextValidation.parseDouble(value, 0, 1, false);
+		}
+		catch (NumberFormatException nfe)
+		{
+			throw new IllegalArgumentException(Glimmpse.constants.errorInvalidPower());
+		}
+	}
+
     /**
      * Callback when the number of valid entries in the list of
      * alpha values changes

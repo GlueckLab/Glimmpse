@@ -116,6 +116,7 @@ public interface GlimmpseConstants extends Constants
     public String solvingForDescription();
     public String solvingForPowerLabel();
     public String solvingForSampleSizeLabel();
+    public String solvingForEffectSizeLabel();
     public String solvingForNominalPowerTitle();
     public String solvingForNominalPowerDescription();
     public String solvingForNominalPowerTableColumn();
@@ -142,7 +143,11 @@ public interface GlimmpseConstants extends Constants
     public String categoricalTitle();
     public String categoricalDescription();
     public String covariateTitle();
-    public String covariateDescription();
+    public String predictorsCovariateDescription();
+    public String matrixCovariateDescription();
+    public String covariateCheckBoxLabel();
+    public String covariateMeanLabel();
+    public String covariateStandardDeviationLabel();
 
     // study groups panel constants
     public String studyGroupsTitle();
@@ -188,7 +193,7 @@ public interface GlimmpseConstants extends Constants
     public String errorUploadInvalidStudyFile();
     public String errorInvalidAlpha();
     public String errorInvalidMean();
-    public String errorInvalidVariance();
+    public String errorInvalidStandardDeviation();
     public String errorInvalidQuantile();
     public String errorInvalidPower();
     public String errorInvalidNumber();

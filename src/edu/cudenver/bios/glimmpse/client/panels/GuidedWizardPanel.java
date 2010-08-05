@@ -1,6 +1,26 @@
+/*
+ * User Interface for the GLIMMPSE Software System.  Allows
+ * users to perform power, sample size, and detectable difference
+ * calculations. 
+ * 
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package edu.cudenver.bios.glimmpse.client.panels;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
@@ -14,11 +34,20 @@ import edu.cudenver.bios.glimmpse.client.panels.guided.PredictorsPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.StudyGroupsPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityPanel;
 
+/**
+ * Wizard panel for "guided" input mode.  Contains panels to describe 
+ * study subjects, outcomes, and estimate effect sizes and variability
+ * 
+ * @author Sarah Kreidler
+ *
+ */
 public class GuidedWizardPanel extends Composite
 implements StudyDesignManager
 {
+	private static final String MODE_NAME = "guided";
+	
 	// content panels 
-	protected SolvingForPanel solvingForPanel = new SolvingForPanel();
+	protected SolvingForPanel solvingForPanel = new SolvingForPanel(getModeName());
 	protected AlphaPanel alphaPanel = new AlphaPanel();
 	protected OutcomesPanel outcomesPanel = new OutcomesPanel();
 	protected PredictorsPanel predictorsPanel = new PredictorsPanel();
@@ -34,8 +63,8 @@ implements StudyDesignManager
 			solvingForPanel,
 			alphaPanel, 
 			predictorsPanel, 
-			outcomesPanel, 
 			studyGroupsPanel, 
+			outcomesPanel, 
 			hypothesisPanel,
 			effectSizePanel,
 			variabilityPanel,
@@ -59,7 +88,10 @@ implements StudyDesignManager
 		solvingForPanel.addSolvingForListener(studyGroupsPanel);
 		solvingForPanel.addSolvingForListener(resultsPanel);
 		outcomesPanel.addOutcomesListener(studyGroupsPanel);
+		outcomesPanel.addOutcomesListener(hypothesisPanel);
 		predictorsPanel.addPredictorsListener(studyGroupsPanel);
+		predictorsPanel.addPredictorsListener(hypothesisPanel);
+		predictorsPanel.addCovariateListener(optionsPanel);
 		predictorsPanel.addCovariateListener(optionsPanel);
 		// initialize
 		initWidget(panel);
@@ -99,9 +131,12 @@ implements StudyDesignManager
 		return null;
 	}
 
+	/**
+	 * Returns the input mode name
+	 */
 	@Override
 	public String getModeName()
 	{
-		return "guided";
+		return MODE_NAME;
 	}
 }

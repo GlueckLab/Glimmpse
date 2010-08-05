@@ -3,38 +3,32 @@ package edu.cudenver.bios.glimmpse.client.panels.guided;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.AbstractDataTable;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.Selection;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.events.SelectHandler;
-import com.google.gwt.visualization.client.events.SelectHandler.SelectEvent;
-import com.google.gwt.visualization.client.formatters.BarFormat;
 import com.google.gwt.visualization.client.formatters.ColorFormat;
-import com.google.gwt.visualization.client.formatters.BarFormat.Color;
-import com.google.gwt.visualization.client.visualizations.ColumnChart;
-import com.google.gwt.visualization.client.visualizations.ColumnChart.Options;
+import com.google.gwt.visualization.client.visualizations.BarChart;
+import com.google.gwt.visualization.client.visualizations.BarChart.Options;
 
 public class EffectSizeBarChart extends Composite
 {
 	DataTable data = DataTable.create();
 	Options options;
-	ColumnChart chart;
+	BarChart chart;
 	int selectedRow = -1;
 	int selectedColumn = -1;
 	public EffectSizeBarChart()
 	{
 		VerticalPanel panel = new VerticalPanel();
 
-		chart = new ColumnChart(createTable(), createOptions());
+		chart = new BarChart(createTable(), createOptions());
 		chart.addSelectHandler(new SelectHandler() {
 			public void onSelect(SelectEvent event) {
 				// May be multiple selections.
@@ -178,7 +172,7 @@ public class EffectSizeBarChart extends Composite
 		data.addColumn(ColumnType.STRING, "Label");
 		data.addColumn(ColumnType.NUMBER, "Difference");
 		data.addRows(4);
-		data.setValue(0, 0, "M,A");
+		data.setValue(0, 0, "M,Aggggggggggggggggggggggggggggggggg");
 		data.setValue(0, 1, 1);
 		data.setValue(1, 0, "M,B");
 		data.setValue(1, 1, 2);
@@ -203,5 +197,7 @@ public class EffectSizeBarChart extends Composite
 	    options.setShowCategories(true);
 	    return options;
 	  }
+	
+	
 	
 }
