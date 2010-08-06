@@ -35,12 +35,11 @@ import edu.cudenver.bios.glimmpse.client.TextValidation;
  *
  */
 public class AlphaPanel extends WizardStepPanel
-implements DynamicListValidator
+implements ListValidator
 {
-    // dynamic table of alpha values
-	String[] columnNames = { Glimmpse.constants.alphaTableColumn() };
-    protected DynamicListPanel alphaListPanel = 
-    	new DynamicListPanel(columnNames, this);
+    // list of alpha values
+    protected ListEntryPanel alphaListPanel = 
+    	new ListEntryPanel(Glimmpse.constants.alphaTableColumn() , this);
 
     /**
      * Create an empty type I error panel
@@ -80,7 +79,7 @@ implements DynamicListValidator
      * Validate new entries in the alpha list
      * @see DynamicListValidator
      */
-    public void validate(String value, int column) throws IllegalArgumentException
+    public void validate(String value) throws IllegalArgumentException
     {
     	try
     	{
