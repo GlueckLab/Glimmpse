@@ -89,8 +89,10 @@ implements StudyDesignManager
 		solvingForPanel.addSolvingForListener(resultsPanel);
 		outcomesPanel.addOutcomesListener(studyGroupsPanel);
 		outcomesPanel.addOutcomesListener(hypothesisPanel);
+		outcomesPanel.addOutcomesListener(effectSizePanel);
 		predictorsPanel.addPredictorsListener(studyGroupsPanel);
 		predictorsPanel.addPredictorsListener(hypothesisPanel);
+		predictorsPanel.addPredictorsListener(effectSizePanel);
 		predictorsPanel.addCovariateListener(optionsPanel);
 		predictorsPanel.addCovariateListener(optionsPanel);
 		// initialize

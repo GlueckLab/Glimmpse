@@ -3,17 +3,13 @@ package edu.cudenver.bios.glimmpse.client.panels.guided;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.visualization.client.visualizations.Table.Options;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -28,19 +24,20 @@ import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 public class StudyGroupsPanel extends WizardStepPanel
 implements SolvingForListener, PredictorsListener, OutcomesListener, DynamicListValidator
 {
-	
+	protected static final int MAX_RELATIVE_SIZE = 10;
    	// list of per group sample sizes
 	protected String[] columnNames = { Glimmpse.constants.perGroupSampleSizeTableColumn() };
     protected DynamicListPanel perGroupNListPanel =
     	new DynamicListPanel(columnNames, this);
-    
-    protected CheckBox equalSizesCheckBox = new CheckBox();
-    
-    protected VerticalPanel groupSizesPanel = new VerticalPanel();
-    
+    // panel containing group sample size list
     protected VerticalPanel perGroupSampleSizePanel = new VerticalPanel();
     
-    protected Grid groupSizesTable = new Grid(1,1);
+    // data table to display possible groups
+    protected FlexTable groupSizesTable = new FlexTable();
+//    protected DataTable groupData = DataTable.create();
+//    protected Options options = createTableOptions();
+//    protected Table groupSizesTable = new Table(groupData, options);
+
     
     public StudyGroupsPanel()
     {
@@ -52,30 +49,53 @@ implements SolvingForListener, PredictorsListener, OutcomesListener, DynamicList
         HTML header = new HTML(Glimmpse.constants.studyGroupsTitle());
         HTML description = new HTML(Glimmpse.constants.studyGroupsDescription());
 
+        // build the per group sample size list
+        buildPerGroupSampleSizePanel();
+    
+        // layout the overall panel
+        panel.add(header);
+        panel.add(description);
+        panel.add(createRatioPanel());
+        panel.add(perGroupSampleSizePanel);
+
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-
-        groupSizesPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_PANEL);
-        groupSizesTable.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE);
-        groupSizesTable.getRowFormatter().setStylePrimaryName(0, 
-        		GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_COLUMN_HEADER);
-    
-        groupSizesPanel.add(groupSizesTable);
-        panel.add(header);
-        panel.add(description);
-        panel.add(groupSizesPanel);
-        panel.add(perGroupSampleSizePanel);
-
+        
         initWidget(panel);
     }
     
-    private void buildRatioPanel()
+    /**
+     * Create panel containing all possible group sizes
+     * 
+     * @return group sizes panel
+     */
+    private VerticalPanel createRatioPanel()
     {
+    	VerticalPanel panel = new VerticalPanel();
     	
+        HTML header = new HTML("Relative group sizes");
+        HTML description = new HTML("Group size instructions...");
+        
+        panel.add(header);
+        panel.add(description);
+
+        panel.add(groupSizesTable);
+    	// add style
+    	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+    	panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+    	
+    	return panel;
     }
     
+    /**
+     * Layout the widgets in the per group sample size panel
+     */
     private void buildPerGroupSampleSizePanel()
     {
         HTML header = new HTML(Glimmpse.constants.perGroupSampleSizeTitle());
@@ -85,83 +105,67 @@ implements SolvingForListener, PredictorsListener, OutcomesListener, DynamicList
     	perGroupSampleSizePanel.add(description);
     	perGroupSampleSizePanel.add(perGroupNListPanel);
     	
-    	perGroupSampleSizePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+    	perGroupSampleSizePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+    	perGroupSampleSizePanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+
     }
     
     public void reset()
     {
-    	
+    	groupSizesTable.removeAllRows();
     }
-
+    
 	@Override
 	public void onOutcomes(List<String> outcomes)
 	{
-		// TODO Auto-generated method stub
+		// TODO
 	}
 
 	@Override
-	public void onRepeatedMeasures(List<String> repeatedMeasures)
+	public void onRepeatedMeasures(List<RepeatedMeasure> repeatedMeasures)
 	{
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void onPredictors(HashMap<String, ArrayList<String>> predictorMap)
+	public void onPredictors(HashMap<String, ArrayList<String>> predictorMap, DataTable groups)
 	{
-		Set<String>predictors = predictorMap.keySet();
-		if (predictors.size() > 0)
-		{
-			int rows = 1;
-			for(ArrayList<String> categories: predictorMap.values())
-			{
-				rows *= categories.size();
-			}
-			groupSizesTable.resize(rows+1, predictors.size()+1);
-			groupSizesTable.setWidget(0, 0, new HTML("Relative<br>Group<br>Size"));
-			for(int r = 1; r < rows+1; r++)
-			{
-				ListBox sizeTb = new ListBox();
-				for(int size = 1; size <= 10; size++) sizeTb.addItem(Integer.toString(size));
-				groupSizesTable.setWidget(r, 0, sizeTb);
-			}
-			int previousRepeat = 0;
-			int col = 1;
-			for(String predictor: predictors)
-			{
-				ArrayList<String> categories = predictorMap.get(predictor);
-				groupSizesTable.setWidget(0, col, new HTML(predictor));
-				int r = 1;
-				if (previousRepeat == 0)
-				{
-					previousRepeat = rows / categories.size();
-					for(String category: categories)
-					{
-						for (int reps = 0; reps < previousRepeat; reps++, r++) 
-							groupSizesTable.setWidget(r, col, new HTML(category));
-					}
-				}
-				else
-				{
-					int categorylistRepeat = rows / previousRepeat;
-					previousRepeat = previousRepeat / categories.size();
-					groupSizesTable.setWidget(0, col, new HTML(predictor));
-					for(int categoryListRep = 0; categoryListRep < categorylistRepeat; categoryListRep++)
-					{
-						for(String category: categories)
-						{
-							for (int reps = 0; reps < previousRepeat; reps++, r++) 
-								groupSizesTable.setWidget(r, col, new HTML(category));
-						}
-					}
-				}
-				col++;
-			}
-
-		}
-		
+    	reset();
+    	if (predictorMap.size() > 0)
+    	{
+    		groupSizesTable.setWidget(0, 0, new HTML("Relative Group Size"));
+    		for(int col = 0; col < groups.getNumberOfColumns(); col++)
+    		{
+    			groupSizesTable.setWidget(0, col+1, new HTML(groups.getColumnLabel(col)));
+    		}
+    		for(int row = 0; row < groups.getNumberOfRows(); row++)
+    		{
+    			groupSizesTable.setWidget(row+1, 0, createGroupSizeListBox());
+    			for(int col = 0; col < groups.getNumberOfColumns(); col++)
+    			{
+    				groupSizesTable.setWidget(row+1, col+1, new HTML(groups.getValueString(row, col)));
+    			}
+    		}
+    	}
+	}
+	
+	private ListBox createGroupSizeListBox()
+	{
+		ListBox lb = new ListBox();
+		for(int i = 1; i <= MAX_RELATIVE_SIZE; i++) lb.addItem(Integer.toString(i));
+		return lb;
+	}
+	
+	private Options createTableOptions()
+	{
+		Options opts = Options.create();
+		opts.setWidth("80%");
+	    return opts;
 	}
 
 	@Override

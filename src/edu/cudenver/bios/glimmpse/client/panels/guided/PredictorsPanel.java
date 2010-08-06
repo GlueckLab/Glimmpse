@@ -7,6 +7,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -14,6 +15,8 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -266,10 +269,67 @@ implements CovariateListener
 		checkComplete();
     }
     
+    private DataTable buildGroupTable()
+    {
+    	DataTable data = DataTable.create();
+    	
+    	if (predictorCategoryMap.size() > 0)
+    	{
+    		int rows = 1;
+    		int col = 0;
+    		for(String predictor: predictorCategoryMap.keySet())
+    		{
+    			data.addColumn(ColumnType.STRING, predictor);
+    			rows *= predictorCategoryMap.get(predictor).size();
+    		}
+    		data.addRows(rows);
+    		
+    		int previousRepeat = 0;
+    		col = 0;
+    		for(String predictor: predictorCategoryMap.keySet())
+    		{
+    			int row = 0;
+				ArrayList<String> categories = predictorCategoryMap.get(predictor);
+				if (previousRepeat == 0)
+				{
+					previousRepeat = rows / categories.size();
+					for(String category: categories)
+					{
+						for (int reps = 0; reps < previousRepeat; reps++, row++) 
+						{
+							data.setCell(row, col, category, category, null);
+						}
+					}
+				}
+				else
+				{
+					int categorylistRepeat = rows / previousRepeat;
+					previousRepeat = previousRepeat / categories.size();
+					for(int categoryListRep = 0; categoryListRep < categorylistRepeat; categoryListRep++)
+					{
+						for(String category: categories)
+						{
+							for (int reps = 0; reps < previousRepeat; reps++, row++) 
+							{
+								data.setCell(row, col, category, category, null);
+							}
+						}
+					}
+				}
+				col++;
+    		}
+    	}
+    	Window.alert("num cols: " + data.getNumberOfColumns() + " num rows:" + data.getNumberOfRows());
+    	return data;
+    }
+    
+    
     public void onExit()
     {
-    	for(PredictorsListener listener: listeners) listener.onPredictors(predictorCategoryMap);
+    	DataTable groups = buildGroupTable();
+    	for(PredictorsListener listener: listeners) listener.onPredictors(predictorCategoryMap, groups);
     }
+    
     
     public void addPredictorsListener(PredictorsListener listener)
     {

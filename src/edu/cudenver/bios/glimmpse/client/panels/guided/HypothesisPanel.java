@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -12,6 +11,7 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.visualization.client.DataTable;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -38,9 +38,7 @@ implements OutcomesListener, PredictorsListener, ClickHandler
     public HypothesisPanel()
     {
     	super(Glimmpse.constants.stepsLeftHypotheses());
-    	// TODO: remove
     	complete = true;
-    	
         VerticalPanel panel = new VerticalPanel();
         
         HTML header = new HTML(Glimmpse.constants.hypothesisTitle());
@@ -132,10 +130,9 @@ implements OutcomesListener, PredictorsListener, ClickHandler
 	}
 
 	@Override
-	public void onRepeatedMeasures(List<String> repeatedMeasures)
+	public void onRepeatedMeasures(List<RepeatedMeasure> repeatedMeasures)
 	{
-		hasRepeatedMeasures = (repeatedMeasures == null);
-		if (repeatedMeasures == null)
+		if (repeatedMeasures == null || repeatedMeasures.size() <= 0)
 		{
 			deckPanel.showWidget(INDEPENDENT_GROUPS_INDEX);
 		}
@@ -146,7 +143,7 @@ implements OutcomesListener, PredictorsListener, ClickHandler
 	}
 
 	@Override
-	public void onPredictors(HashMap<String, ArrayList<String>> predictorMap)
+	public void onPredictors(HashMap<String, ArrayList<String>> predictorMap, DataTable groups)
 	{
 		this.predictorMap = predictorMap;
 	}
@@ -169,8 +166,9 @@ implements OutcomesListener, PredictorsListener, ClickHandler
 		int startRow = independentMainEffectsTable.getRowCount();
 		for(String outcome: outcomes)
 		{
-			
-			independentMainEffectsTable.setWidget(startRow, 0, new CheckBox());
+			CheckBox cb = new CheckBox();
+			cb.addClickHandler(this);
+			independentMainEffectsTable.setWidget(startRow, 0, cb);
 			independentMainEffectsTable.setWidget(startRow, 1, new HTML(predictor + " main effect on " + outcome));
 			startRow++;
 		}
@@ -183,7 +181,9 @@ implements OutcomesListener, PredictorsListener, ClickHandler
 		{
 			for(String outcome: outcomes)
 			{
-				independentInteractionsTable.setWidget(startRow, 0, new CheckBox());
+				CheckBox cb = new CheckBox();
+				cb.addClickHandler(this);
+				independentInteractionsTable.setWidget(startRow, 0, cb);
 				independentInteractionsTable.setWidget(startRow, 1, 
 						new HTML(predictor + " x  " + (String) predictorArray[i] + " interaction effect on " + outcome));
 				startRow++;
@@ -194,6 +194,41 @@ implements OutcomesListener, PredictorsListener, ClickHandler
 	@Override
 	public void onClick(ClickEvent event)
 	{
+		boolean hypothesisSelected = false;
+
 		// check if any hypotheses are selected
+		if (deckPanel.getVisibleWidget() == INDEPENDENT_GROUPS_INDEX)
+		{
+			for(int r = 0; r < independentMainEffectsTable.getRowCount(); r++)
+			{
+				CheckBox cb = (CheckBox) independentMainEffectsTable.getWidget(r, 0);
+				if (cb.getValue())
+				{
+					hypothesisSelected = true;
+					break;
+				}
+			}
+			if (!hypothesisSelected)
+			{
+				for(int r = 0; r < independentInteractionsTable.getRowCount(); r++)
+				{
+					CheckBox cb = (CheckBox) independentInteractionsTable.getWidget(r, 0);
+					if (cb.getValue())
+					{
+						hypothesisSelected = true;
+						break;
+					}
+				}
+			}
+		}
+		else
+		{
+			
+		}
+		
+		if (hypothesisSelected)
+			notifyComplete();
+		else
+			notifyInProgress();
 	}
 }

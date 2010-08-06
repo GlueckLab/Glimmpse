@@ -21,9 +21,11 @@ package edu.cudenver.bios.glimmpse.client.listener;
 
 import java.util.List;
 
+import edu.cudenver.bios.glimmpse.client.panels.guided.RepeatedMeasure;
+
 public interface OutcomesListener
 {
 	public void onOutcomes(List<String> outcomes);
 	
-	public void onRepeatedMeasures(List<String> repeatedMeasures);
+	public void onRepeatedMeasures(List<RepeatedMeasure> repeatedMeasures);
 }

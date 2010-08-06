@@ -275,6 +275,25 @@ public class OutcomesPanel extends WizardStepPanel
     	for(OutcomesListener listener: listeners) listener.onOutcomes(outcomes);
     }
     
+    
+    private void notifyRepeatedMeasures()
+    {
+    	ArrayList<RepeatedMeasure> rmList = new ArrayList<RepeatedMeasure>();
+    	for(int r = 0; r < repeatedMeasuresTable.getRowCount(); r++)
+    	{
+    		String repeatStr = 
+    			((TextBox) repeatedMeasuresTable.getWidget(r, REPEATS_TEXTBOX_COLUMN)).getText();
+    		String unitStr = 
+    			((TextBox) repeatedMeasuresTable.getWidget(r, UNITS_TEXTBOX_COLUMN)).getText();
+    		if (!repeatStr.isEmpty() && !unitStr.isEmpty())
+    		{
+        		rmList.add(new RepeatedMeasure(unitStr, Integer.parseInt(repeatStr)));
+    		}
+    	}
+    	for(OutcomesListener listener: listeners) listener.onRepeatedMeasures(rmList);
+
+    }
+    
     public void reset()
     {
     	
@@ -294,6 +313,7 @@ public class OutcomesPanel extends WizardStepPanel
     public void onExit()
     {
     	notifyOutcomes();
+    	notifyRepeatedMeasures();
     }
 
 
