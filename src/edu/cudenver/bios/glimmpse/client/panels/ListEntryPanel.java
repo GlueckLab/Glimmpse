@@ -1,5 +1,8 @@
 package edu.cudenver.bios.glimmpse.client.panels;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -135,6 +138,16 @@ public class ListEntryPanel extends Composite
     public int getValidRowCount()
     {
     	return listBox.getItemCount();
+    }
+    
+    public List<String> getValues()
+    {
+    	ArrayList<String> outputList = new ArrayList<String>();
+    	for(int i = 0; i < listBox.getItemCount(); i++)
+    	{
+    		outputList.add(listBox.getItemText(i));
+    	}
+    	return outputList;
     }
     
     public void reset()

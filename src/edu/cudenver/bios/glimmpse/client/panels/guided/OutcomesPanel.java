@@ -38,6 +38,8 @@ import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
+import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
+import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.RowCheckBox;
 import edu.cudenver.bios.glimmpse.client.panels.RowTextBox;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
@@ -59,11 +61,10 @@ public class OutcomesPanel extends WizardStepPanel
     protected FlexTable repeatedMeasuresTable = new FlexTable();
     
     // dynamic table of outcomes
-    protected String[] outcomesColumnNames = {Glimmpse.constants.outcomesTableColumn()};
-    protected DynamicListPanel outcomesListPanel = 
-    	new DynamicListPanel(outcomesColumnNames, 
-    			new DynamicListValidator() {
-    		public void validate(String value, int column) throws IllegalArgumentException {}
+    protected ListEntryPanel outcomesListPanel = 
+    	new ListEntryPanel(Glimmpse.constants.outcomesTableColumn(), 
+    			new ListValidator() {
+    		public void validate(String value) throws IllegalArgumentException {}
 
     		public void onValidRowCount(int validRowCount)
     		{
@@ -271,7 +272,7 @@ public class OutcomesPanel extends WizardStepPanel
      */
     private void notifyOutcomes()
     {
-    	List<String> outcomes = outcomesListPanel.getColumnValues(0);
+    	List<String> outcomes = outcomesListPanel.getValues();
     	for(OutcomesListener listener: listeners) listener.onOutcomes(outcomes);
     }
     

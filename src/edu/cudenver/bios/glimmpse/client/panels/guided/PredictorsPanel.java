@@ -319,7 +319,6 @@ implements CovariateListener
 				col++;
     		}
     	}
-    	Window.alert("num cols: " + data.getNumberOfColumns() + " num rows:" + data.getNumberOfRows());
     	return data;
     }
     

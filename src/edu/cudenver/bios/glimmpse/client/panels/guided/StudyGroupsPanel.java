@@ -9,7 +9,6 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.visualization.client.visualizations.Table.Options;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -17,27 +16,22 @@ import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
-import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
-import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
+import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
+import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class StudyGroupsPanel extends WizardStepPanel
-implements SolvingForListener, PredictorsListener, OutcomesListener, DynamicListValidator
+implements SolvingForListener, PredictorsListener, OutcomesListener, ListValidator
 {
 	protected static final int MAX_RELATIVE_SIZE = 10;
    	// list of per group sample sizes
-	protected String[] columnNames = { Glimmpse.constants.perGroupSampleSizeTableColumn() };
-    protected DynamicListPanel perGroupNListPanel =
-    	new DynamicListPanel(columnNames, this);
+    protected ListEntryPanel perGroupNListPanel =
+    	new ListEntryPanel(Glimmpse.constants.perGroupSampleSizeTableColumn(), this);
     // panel containing group sample size list
     protected VerticalPanel perGroupSampleSizePanel = new VerticalPanel();
     
     // data table to display possible groups
     protected FlexTable groupSizesTable = new FlexTable();
-//    protected DataTable groupData = DataTable.create();
-//    protected Options options = createTableOptions();
-//    protected Table groupSizesTable = new Table(groupData, options);
-
     
     public StudyGroupsPanel()
     {
@@ -160,13 +154,6 @@ implements SolvingForListener, PredictorsListener, OutcomesListener, DynamicList
 		for(int i = 1; i <= MAX_RELATIVE_SIZE; i++) lb.addItem(Integer.toString(i));
 		return lb;
 	}
-	
-	private Options createTableOptions()
-	{
-		Options opts = Options.create();
-		opts.setWidth("80%");
-	    return opts;
-	}
 
 	@Override
 	public void onValidRowCount(int validRowCount)
@@ -178,7 +165,7 @@ implements SolvingForListener, PredictorsListener, OutcomesListener, DynamicList
 	}
 
 	@Override
-	public void validate(String value, int column)
+	public void validate(String value)
 			throws IllegalArgumentException
 	{
     	try

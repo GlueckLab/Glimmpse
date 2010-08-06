@@ -4,12 +4,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.visualization.client.Selection;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.visualizations.BarChart;
 import com.google.gwt.visualization.client.visualizations.Table;
@@ -17,23 +22,25 @@ import com.google.gwt.visualization.client.visualizations.BarChart.Options;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
+import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
+import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
+import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class EffectSizePanel extends WizardStepPanel
-implements OutcomesListener, PredictorsListener, DynamicListValidator
+implements OutcomesListener, PredictorsListener, ListValidator
 {
 	protected static final int MAX_RELATIVE_EFFECT_SIZE = 10;
 	
-	// data table holding the relative sizes of the groups
-	protected DataTable barChartData = DataTable.create();
-	protected Options options = createOptions();
-	protected BarChart chart = new BarChart();
-	
-	protected FlexTable outcomesTable = new FlexTable();
+	// effect size table
+	protected FlexTable effectSizeTable = new FlexTable();
+    // error display
+    protected HTML errorHTML = new HTML();
+
 	protected List<String> outcomesList = null;
 	protected List<RepeatedMeasure> repeatedMeasuresList = null;
 	
@@ -41,9 +48,8 @@ implements OutcomesListener, PredictorsListener, DynamicListValidator
 	protected DataTable groupData;
 	
    	// list of per group sample sizes
-	String[] columnNames = { Glimmpse.constants.betaScaleTableColumn() };
-    protected DynamicListPanel betaScaleListPanel =
-    	new DynamicListPanel(columnNames, this);
+    protected ListEntryPanel betaScaleListPanel =
+    	new ListEntryPanel(Glimmpse.constants.betaScaleTableColumn(), this);
     
     public EffectSizePanel()
     {
@@ -74,12 +80,11 @@ implements OutcomesListener, PredictorsListener, DynamicListValidator
     	VerticalPanel panel = new VerticalPanel();
     	
         HTML header = new HTML("Relative Effect Sizes");
-        HTML description = new HTML("Use the drop down list to adjust the relative differences in each outcome");
+        HTML description = new HTML("Select the bar for the group mean you wish to adjust and type the updated value in the text box");
         
         panel.add(header);
         panel.add(description);
-        panel.add(outcomesTable);
-        panel.add(chart);
+        panel.add(effectSizeTable);
 
     	// add style
     	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -91,7 +96,7 @@ implements OutcomesListener, PredictorsListener, DynamicListValidator
     	    	
     	return panel;
     }
-    
+        
     private VerticalPanel createBetaScalePanel()
     {
     	VerticalPanel panel = new VerticalPanel();
@@ -114,57 +119,22 @@ implements OutcomesListener, PredictorsListener, DynamicListValidator
     	return panel;
     }
     
-    private Options createOptions() 
-    {
-    	options = Options.create();
-    	options.setWidth(500);
-    	options.setHeight(500);
-    	//options.set3D(true);
-    	options.setTitle("Estimated Relative Clinical Differences");
-    	options.setShowCategories(true);
-    	return options;
-    }
 	
     public void reset()
     {
-    	barChartData.removeRows(0, barChartData.getNumberOfRows());
-    	outcomesTable.removeAllRows();
     }
 
     @Override
     public void onEnter()
     {
-    	reset();
-    	loadOutcomesList();
-    	loadBarChart();
+    	// add the outcomes to the flex table 
+    	
+    	
     }
     
 
     
-    private void loadOutcomesList()
-    {
-    	outcomesTable.removeAllRows();
-    	if (outcomesList != null)
-    	{
-    		ListBox lb = new ListBox();
-    		for(String outcome: outcomesList)
-    		{
-    			lb.addItem(outcome);
-    		}
-    		outcomesTable.setWidget(0, 0, lb);
-    	}
-		
-    	int col = 1;
-		for (RepeatedMeasure rm: repeatedMeasuresList)
-		{
-    		ListBox lb = new ListBox();
-    		for(int i = 1; i <= rm.repeats; i++)
-    		{
-    			lb.addItem(rm.units + " " + i);
-    		}
-    		outcomesTable.setWidget(0, col++, lb);
-		}
-    }
+
     
     private String effectSizeRowToLabel(int row)
     {
@@ -177,30 +147,7 @@ implements OutcomesListener, PredictorsListener, DynamicListValidator
     	return buffer.toString();
     }
     
-    private void loadBarChart()
-    {
-    	barChartData.removeRows(0, barChartData.getNumberOfRows());
-    	barChartData.removeColumns(0, barChartData.getNumberOfColumns());
-    	barChartData.addColumn(ColumnType.STRING, "labels");
-    	barChartData.addRows(groupData.getNumberOfRows());
 
-		for(int r = 0; r < groupData.getNumberOfRows(); r++)
-		{
-			String label = effectSizeRowToLabel(r);
-			barChartData.setCell(r, 0, label, label, null);
-		}
-    	int col = 1; 
-    	for(String outcome: outcomesList)
-    	{
-    		barChartData.addColumn(ColumnType.NUMBER, outcome);
-    		for(int r = 0; r < groupData.getNumberOfRows(); r++)
-    		{
-    			barChartData.setCell(r, col, r, "0", null);
-    		}
-    		col++;
-    	}
-    	chart.draw(barChartData, options);
-    }
     
 	@Override
 	public void onOutcomes(List<String> outcomes)
@@ -219,14 +166,22 @@ implements OutcomesListener, PredictorsListener, DynamicListValidator
 	{
 		this.predictorMap = predictorMap;	
 		this.groupData = groupData;
-	}
-
-	
-	private ListBox createEffectSizeListBox()
-	{
-		ListBox lb = new ListBox();
-		for(int i = 0; i <= MAX_RELATIVE_EFFECT_SIZE; i++) lb.addItem(Integer.toString(i));
-		return lb;
+		effectSizeTable.removeAllRows();
+		
+    	if (predictorMap.size() > 0)
+    	{
+    		for(int col = 0; col < groupData.getNumberOfColumns(); col++)
+    		{
+    			effectSizeTable.setWidget(0, col, new HTML(groupData.getColumnLabel(col)));
+    		}
+    		for(int row = 0; row < groupData.getNumberOfRows(); row++)
+    		{
+    			for(int col = 0; col < groupData.getNumberOfColumns(); col++)
+    			{
+    				effectSizeTable.setWidget(row+1, col, new HTML(groupData.getValueString(row, col)));
+    			}
+    		}
+    	}
 	}
 	
 	@Override
@@ -237,7 +192,7 @@ implements OutcomesListener, PredictorsListener, DynamicListValidator
 	}
 
 	@Override
-	public void validate(String value, int column)
+	public void validate(String value)
 			throws IllegalArgumentException
 	{
 		// TODO Auto-generated method stub
