@@ -157,8 +157,8 @@
 }
 
 .wizardStepHeader-subpanel {
-	border-bottom: 1px solid #000;
-	font-weight: bold;
+	border-top: 1px solid #ccc;
+	font-weight: normal;
 	font-size: 12pt;
 	margin: 10px 0px;
 }
@@ -323,35 +323,45 @@
 	width: 320px;
 	overflow: hidden;
 }
+    
 
 .wizardStepTablePanel {
 	border: 1px outset #14f;
 	background: #E0ECF8;
-	width: 80%;
 }
 
 .wizardStepTable {
-	width: 100%;
+	border-collapse:collapse;
 }
 
-.wizardStepTableTextBox {
-	width: 100%;
-	border: none;
-}
-
-
-.wizardStepTableColumnHeader {
-	color: black;
+.wizardStepTableHeader .gwt-HTML {
 	font-weight: bold;
+	color: #000;
+}
+
+.wizardStepTableHeader td {
+	border: 1px solid #ccc;
+	padding: 5px;
+	text-align: center;
 }
 
 .wizardStepTableRow {
 	background: #fff;
-	width: 100%;
+	/*width: 100%;*/
+}
+
+.wizardStepTableRow td {
+	border: 1px solid #ccc;
+	padding: 5px;
 }
 
 .wizardStepTableRow .gwt-TextBox {
 	width: 100%;
+}
+
+.wizardStepTableRow .gwt-ListBox {
+	width: 100%;
+	border: none;
 }
 
 .wizardStepTableRow-odd {
@@ -361,3 +371,37 @@
 .wizardStepTableRow-even {
 	background: #fff;
 }
+
+
+.wizardStepListPanel {
+	border: 1px outset #14f;
+	background: #E0ECF8;
+	width: 80%;
+}
+
+.wizardStepList {
+	border-collapse:collapse;
+	width: 100%;
+}
+
+.wizardStepList .gwt-HTML {
+	font-weight: bold;
+}
+
+.wizardStepList .gwt-ListBox {
+	width: 100%;
+	border: 1px solid #ccc;	
+}
+
+.wizardStepList .gwt-Button {
+	border: 1px solid #ccc;
+}
+
+.wizardStepListTextBox {
+}
+
+.wizardStepListHeader {
+	font-weight: bold;
+}
+
+
