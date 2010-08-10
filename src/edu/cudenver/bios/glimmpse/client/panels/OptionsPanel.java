@@ -324,6 +324,8 @@ implements CovariateListener, ClickHandler
 		xaxisTotalNRadioButton.setEnabled(false);
 		xaxisEffectSizeRadioButton.setEnabled(false);
 		xaxisVarianceRadioButton.setEnabled(false);
+		
+		checkComplete();
 	}
 
 	/**
