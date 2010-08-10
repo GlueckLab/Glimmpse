@@ -11,6 +11,7 @@ public class VariabilityPanel extends WizardStepPanel
     public VariabilityPanel()
     {
     	super(Glimmpse.constants.stepsLeftVariability());
+    	complete = true;
         VerticalPanel panel = new VerticalPanel();
         
         LearCovariancePanel chart = new LearCovariancePanel();

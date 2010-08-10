@@ -16,10 +16,12 @@ import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
 import edu.cudenver.bios.glimmpse.client.panels.CovariatePanel;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
+import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
+import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class DesignPanel extends WizardStepPanel
-implements SolvingForListener, MatrixResizeListener, CovariateListener, DynamicListValidator
+implements SolvingForListener, MatrixResizeListener, CovariateListener, ListValidator
 {    	
 	private static final int MAX_RATIO = 10;
     protected ResizableMatrix essenceFixed;
@@ -28,9 +30,8 @@ implements SolvingForListener, MatrixResizeListener, CovariateListener, DynamicL
    	protected Grid rowMDGrid;
    	
    	// list of per group sample sizes
-	String[] columnNames = { Glimmpse.constants.perGroupSampleSizeTableColumn() };
-    protected DynamicListPanel perGroupNListPanel =
-    	new DynamicListPanel(columnNames, this);
+    protected ListEntryPanel perGroupNListPanel =
+    	new ListEntryPanel(Glimmpse.constants.perGroupSampleSizeTableColumn(), this);
    	
 	public DesignPanel()
 	{
@@ -123,7 +124,7 @@ implements SolvingForListener, MatrixResizeListener, CovariateListener, DynamicL
 		
 	}
 	
-	public void validate(String value, int column) throws IllegalArgumentException
+	public void validate(String value) throws IllegalArgumentException
 	{
     	try
     	{

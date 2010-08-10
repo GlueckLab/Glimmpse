@@ -205,10 +205,10 @@ implements CovariateListener
     	panel.add(grid);
     	
     	// set style
-    	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_PANEL);
-    	grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE);
+    	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_PANEL);
+    	grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST);
         grid.getRowFormatter().setStylePrimaryName(0, 
-        		GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_COLUMN_HEADER);
+        		GlimmpseConstants.STYLE_WIZARD_STEP_LIST_HEADER);
     	
     	
     	return panel;

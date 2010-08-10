@@ -42,9 +42,8 @@ implements CovariateListener, ClickHandler
 	protected CheckBox quantilePowerCheckBox = new CheckBox();
 	protected int numQuantiles = 0;
 	// dynamic list of quantile values
-	String[] columnNames = { Glimmpse.constants.quantilesTableColumn()};
-    protected DynamicListPanel quantileListPanel = 
-    	new DynamicListPanel(columnNames, new DynamicListValidator() {
+    protected ListEntryPanel quantileListPanel = 
+    	new ListEntryPanel(Glimmpse.constants.quantilesTableColumn(), new ListValidator() {
 
 			@Override
 			public void onValidRowCount(int validRowCount)
@@ -54,7 +53,7 @@ implements CovariateListener, ClickHandler
 			}
 
 			@Override
-			public void validate(String value, int column)
+			public void validate(String value)
 					throws IllegalArgumentException
 			{
 		    	try
@@ -139,9 +138,11 @@ implements CovariateListener, ClickHandler
 		
 		// set style
 		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+		header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		testSubpanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-		
+		description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+		testSubpanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+		testSubpanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 	}
 
 	private void buildPowerMethodSubpanel()
@@ -182,8 +183,11 @@ implements CovariateListener, ClickHandler
 		
 		// set style
 		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+		header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		powerMethodSubpanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+		description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+		powerMethodSubpanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+		powerMethodSubpanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 	}
 
 	private void buildDisplaySubpanel()
@@ -191,14 +195,15 @@ implements CovariateListener, ClickHandler
 		HTML header = new HTML("select results display options");
 		HTML description = new HTML("want a table or a curve?");
 
-		Grid grid = new Grid(5,2);
+		Grid grid = new Grid(6,2);
 		grid.setWidget(0, 0, showTableCheckBox);
 		grid.setWidget(0, 1, new HTML("Display table of results"));
 		grid.setWidget(1, 0, showCurveCheckBox);
 		grid.setWidget(1, 1, new HTML("Display power curve"));
-		grid.setWidget(2, 1, xaxisTotalNRadioButton);
-		grid.setWidget(3, 1, xaxisEffectSizeRadioButton);
-		grid.setWidget(4, 1, xaxisVarianceRadioButton);
+		grid.setWidget(2, 1, new HTML("Which value would you like to display on the X-axis?"));
+		grid.setWidget(3, 1, xaxisTotalNRadioButton);
+		grid.setWidget(4, 1, xaxisEffectSizeRadioButton);
+		grid.setWidget(5, 1, xaxisVarianceRadioButton);
 		xaxisTotalNRadioButton.setValue(true);
 		
 		// set conditional power on by default
@@ -211,8 +216,11 @@ implements CovariateListener, ClickHandler
 		
 		// set style
 		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+		header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		displaySubpanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+		description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+		displaySubpanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+		displaySubpanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 	}
 
 	public void reset()

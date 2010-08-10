@@ -1,6 +1,5 @@
 package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -10,12 +9,12 @@ import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
 import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
-import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
-import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
+import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
+import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class BetaPanel extends WizardStepPanel
-implements MatrixResizeListener, CovariateListener, DynamicListValidator, SolvingForListener
+implements MatrixResizeListener, CovariateListener, ListValidator, SolvingForListener
 {
     protected ResizableMatrix betaFixed = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_BETA_FIXED,
@@ -27,9 +26,8 @@ implements MatrixResizeListener, CovariateListener, DynamicListValidator, Solvin
     			"0", "&beta; Random"); 
     
    	// list of per group sample sizes
-	String[] columnNames = { Glimmpse.constants.betaScaleTableColumn() };
-    protected DynamicListPanel betaScaleListPanel =
-    	new DynamicListPanel(columnNames, this);
+    protected ListEntryPanel betaScaleListPanel =
+    	new ListEntryPanel(Glimmpse.constants.betaScaleTableColumn(), this);
 
 	public BetaPanel()
 	{
@@ -72,7 +70,7 @@ implements MatrixResizeListener, CovariateListener, DynamicListValidator, Solvin
     
     
     
-	public void validate(String value, int column) throws IllegalArgumentException
+	public void validate(String value) throws IllegalArgumentException
 	{
     	try
     	{

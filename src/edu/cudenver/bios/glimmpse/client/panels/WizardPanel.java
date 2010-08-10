@@ -266,6 +266,14 @@ implements NavigationListener, StepStatusListener
     
     protected void notifyOnCancel()
     {
+    	// clear all of the steps
+    	for(int i = 0; i < wizardDeck.getWidgetCount(); i++)
+    	{
+    		WizardStepPanel wsp = (WizardStepPanel) wizardDeck.getWidget(i);
+    		wsp.reset();
+    	}
+    	onStep(0);
+    	
         for(CancelListener listener: listeners)
             listener.onCancel();
     }
@@ -274,4 +282,5 @@ implements NavigationListener, StepStatusListener
     {
         listeners.add(listener);
     }
+
 }

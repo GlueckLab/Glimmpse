@@ -56,7 +56,6 @@ implements SolvingForListener, PredictorsListener, OutcomesListener, ListValidat
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        
         initWidget(panel);
     }
     
@@ -68,14 +67,15 @@ implements SolvingForListener, PredictorsListener, OutcomesListener, ListValidat
     private VerticalPanel createRatioPanel()
     {
     	VerticalPanel panel = new VerticalPanel();
+    	VerticalPanel tablePanel = new VerticalPanel();
     	
         HTML header = new HTML("Relative group sizes");
         HTML description = new HTML("Group size instructions...");
         
         panel.add(header);
         panel.add(description);
-
-        panel.add(groupSizesTable);
+        tablePanel.add(groupSizesTable);
+        panel.add(tablePanel);
     	// add style
     	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
     	panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
@@ -83,7 +83,9 @@ implements SolvingForListener, PredictorsListener, OutcomesListener, ListValidat
         header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
         description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-    	
+        tablePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_PANEL);
+        groupSizesTable.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE);
+
     	return panel;
     }
     
@@ -132,6 +134,8 @@ implements SolvingForListener, PredictorsListener, OutcomesListener, ListValidat
     	reset();
     	if (predictorMap.size() > 0)
     	{
+    		groupSizesTable.getRowFormatter().setStyleName(0, 
+    				GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_HEADER);
     		groupSizesTable.setWidget(0, 0, new HTML("Relative Group Size"));
     		for(int col = 0; col < groups.getNumberOfColumns(); col++)
     		{
@@ -140,6 +144,7 @@ implements SolvingForListener, PredictorsListener, OutcomesListener, ListValidat
     		for(int row = 0; row < groups.getNumberOfRows(); row++)
     		{
     			groupSizesTable.setWidget(row+1, 0, createGroupSizeListBox());
+    			groupSizesTable.getRowFormatter().setStyleName(row+1, GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_ROW);
     			for(int col = 0; col < groups.getNumberOfColumns(); col++)
     			{
     				groupSizesTable.setWidget(row+1, col+1, new HTML(groups.getValueString(row, col)));

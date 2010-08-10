@@ -53,7 +53,7 @@ implements ChangeHandler
         tablePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_PANEL);
         flexTable.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE);
         flexTable.getRowFormatter().setStylePrimaryName(0, 
-        		GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_COLUMN_HEADER);
+        		GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_HEADER);
         errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
         
         // initialize the panel
@@ -68,7 +68,7 @@ implements ChangeHandler
         for(int col = 0; col < cols; col++)
         {
         	RowTextBox rtb = new RowTextBox(row);
-        	rtb.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_TEXTBOX);
+        	//rtb.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_TEXTBOX);
         	rtb.addChangeHandler(this);
         	flexTable.setWidget(row, col, rtb);
         	if (col == 0) rtb.setFocus(true);

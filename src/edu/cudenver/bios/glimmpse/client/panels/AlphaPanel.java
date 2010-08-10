@@ -112,5 +112,6 @@ implements ListValidator
     public void reset()
     {
     	alphaListPanel.reset();
+    	notifyInProgress();
     }
 }

@@ -84,8 +84,10 @@ implements OutcomesListener, PredictorsListener, ListValidator
         
         panel.add(header);
         panel.add(description);
-        panel.add(effectSizeTable);
-
+        VerticalPanel tablePanel = new VerticalPanel();
+        tablePanel.add(effectSizeTable);
+        panel.add(tablePanel);
+        
     	// add style
     	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
     	panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
@@ -93,7 +95,8 @@ implements OutcomesListener, PredictorsListener, ListValidator
         header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
         description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-    	    	
+        tablePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_PANEL);
+        effectSizeTable.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE);
     	return panel;
     }
         
@@ -127,28 +130,65 @@ implements OutcomesListener, PredictorsListener, ListValidator
     @Override
     public void onEnter()
     {
-    	// add the outcomes to the flex table 
-    	
-    	
-    }
-    
-
-    
-
-    
-    private String effectSizeRowToLabel(int row)
-    {
-    	StringBuffer buffer = new StringBuffer();
-    	for(int col = 0; col < groupData.getNumberOfColumns(); col++)
+    	// clear the flex table 
+		effectSizeTable.removeAllRows();
+		// add the study groups to the table
+    	if (predictorMap.size() > 0 && outcomesList.size() > 0)
     	{
-    		if (col > 0) buffer.append(", ");
-    		buffer.append(groupData.getValueString(row, col));
-    	}
-    	return buffer.toString();
-    }
-    
+    		effectSizeTable.setWidget(0, 0, new HTML("Group"));
+    		effectSizeTable.getFlexCellFormatter().setColSpan(0, 0, groupData.getNumberOfColumns());
+    		effectSizeTable.getRowFormatter().setStyleName(0, GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_HEADER);
 
-    
+    		for(int col = 0; col < groupData.getNumberOfColumns(); col++)
+    		{
+    			effectSizeTable.setWidget(1, col, new HTML(groupData.getColumnLabel(col)));
+    		}
+    		effectSizeTable.getRowFormatter().setStyleName(1, GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_HEADER);
+
+    		for(int row = 0; row < groupData.getNumberOfRows(); row++)
+    		{
+    			effectSizeTable.getRowFormatter().setStyleName(row+2, GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_ROW);
+    			for(int col = 0; col < groupData.getNumberOfColumns(); col++)
+    			{
+    				effectSizeTable.setWidget(row+2, col, new HTML(groupData.getValueString(row, col)));
+    			}
+    		}
+    		// add outcomes to table
+    		if (this.repeatedMeasuresList.size() <= 0)
+    		{
+        		// for non-repeated measures, we display all outcomes at once.
+    			int startCol = groupData.getNumberOfColumns();
+    			effectSizeTable.setWidget(0, startCol, new HTML("Estimated Means"));
+    			effectSizeTable.getFlexCellFormatter().setColSpan(0, startCol, 
+    					outcomesList.size());
+    			int col = startCol;
+    			for(String outcome: outcomesList)
+    			{
+    				effectSizeTable.setWidget(1, col, new HTML(outcome));
+    				for(int row = 2; row < effectSizeTable.getRowCount(); row++)
+    				{
+    					TextBox tb = new TextBox();
+    					tb.setText("0");
+    					effectSizeTable.setWidget(row, col, tb);
+    				}
+    				col++;
+    			}
+    		}
+    		else
+    		{
+    			// for repeated measures, we display the possible "repeat" combinations at once, and 
+    			// provide a drop down list to select the outcome
+    		}
+    		
+    		
+    		// add a deck panel to display values for each outcome measures
+    		
+    	}
+    	
+    	
+    	
+    }
+   
 	@Override
 	public void onOutcomes(List<String> outcomes)
 	{
@@ -166,36 +206,28 @@ implements OutcomesListener, PredictorsListener, ListValidator
 	{
 		this.predictorMap = predictorMap;	
 		this.groupData = groupData;
-		effectSizeTable.removeAllRows();
-		
-    	if (predictorMap.size() > 0)
-    	{
-    		for(int col = 0; col < groupData.getNumberOfColumns(); col++)
-    		{
-    			effectSizeTable.setWidget(0, col, new HTML(groupData.getColumnLabel(col)));
-    		}
-    		for(int row = 0; row < groupData.getNumberOfRows(); row++)
-    		{
-    			for(int col = 0; col < groupData.getNumberOfColumns(); col++)
-    			{
-    				effectSizeTable.setWidget(row+1, col, new HTML(groupData.getValueString(row, col)));
-    			}
-    		}
-    	}
 	}
 	
 	@Override
 	public void onValidRowCount(int validRowCount)
 	{
-		// TODO Auto-generated method stub
-		
+		if (validRowCount > 0)
+			notifyComplete();
+		else
+			notifyInProgress();
 	}
 
 	@Override
 	public void validate(String value)
 			throws IllegalArgumentException
 	{
-		// TODO Auto-generated method stub
-		
+		try
+		{
+			Double.parseDouble(value);
+		}
+		catch (NumberFormatException e)
+		{
+			throw new IllegalArgumentException(Glimmpse.constants.errorInvalidNumber());
+		}
 	}
 }

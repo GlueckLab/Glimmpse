@@ -8,12 +8,12 @@ import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
-import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
-import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
+import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
+import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class CovariancePanel extends WizardStepPanel
-implements CovariateListener, MatrixResizeListener, DynamicListValidator
+implements CovariateListener, MatrixResizeListener, ListValidator
 {
 	private static final int FIXED_INDEX = 0;
 	private static final int RANDOM_INDEX = 0;
@@ -36,9 +36,8 @@ implements CovariateListener, MatrixResizeListener, DynamicListValidator
     			1, 1, "0", "&Sigma; G (Covariate)"); 
     
     // list of sigma scale factors
-	String[] columnNames = { Glimmpse.constants.sigmaScaleTableColumn() };
-    protected DynamicListPanel sigmaScaleListPanel = 
-    	new DynamicListPanel(columnNames, this);
+    protected ListEntryPanel sigmaScaleListPanel = 
+    	new ListEntryPanel(Glimmpse.constants.sigmaScaleTableColumn(), this);
     
 	protected DeckPanel deckPanel = new DeckPanel(); 
 	
@@ -172,7 +171,7 @@ implements CovariateListener, MatrixResizeListener, DynamicListValidator
 	}
 
 	@Override
-	public void validate(String value, int column)
+	public void validate(String value)
 			throws IllegalArgumentException
 	{
 		try

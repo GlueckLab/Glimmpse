@@ -18,11 +18,19 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_STEP_EVEN = "even";
     public static final String STYLE_WIZARD_STEP_ODD = "odd";
     public static final String STYLE_WIZARD_STEP_BUTTON = "wizardStepButton";
+    
     public static final String STYLE_WIZARD_STEP_TABLE_PANEL = "wizardStepTablePanel";
     public static final String STYLE_WIZARD_STEP_TABLE = "wizardStepTable";
-    public static final String STYLE_WIZARD_STEP_TABLE_COLUMN_HEADER = "wizardStepTableColumnHeader";
+    public static final String STYLE_WIZARD_STEP_TABLE_HEADER = "wizardStepTableHeader";
     public static final String STYLE_WIZARD_STEP_TABLE_ROW = "wizardStepTableRow";
-    public static final String STYLE_WIZARD_STEP_TABLE_TEXTBOX = "wizardStepTableTextBox";
+    
+    public static final String STYLE_WIZARD_STEP_LIST_PANEL = "wizardStepListPanel";
+    public static final String STYLE_WIZARD_STEP_LIST = "wizardStepList";
+    public static final String STYLE_WIZARD_STEP_LIST_BUTTON = "wizardStepListButton";
+    public static final String STYLE_WIZARD_STEP_LIST_TEXTBOX = "wizardStepListTextBox";
+    public static final String STYLE_WIZARD_STEP_LIST_HEADER = "wizardStepListHeader";
+
+    
     public static final String STYLE_MESSAGE = "message";
     public static final String STYLE_MESSAGE_ERROR = "error";
     public static final String STYLE_MESSAGE_OKAY = "okay";

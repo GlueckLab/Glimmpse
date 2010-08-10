@@ -21,6 +21,7 @@ import edu.cudenver.bios.glimmpse.client.TextValidation;
 
 public class ListEntryPanel extends Composite
 {
+	protected static final int VISIBLE_COUNT = 4;
 	protected static final int HEADER_ROW = 0;
 	protected static final int LISTBOX_ROW = 1;
 	protected static final int DELETE_ROW = 2;
@@ -63,12 +64,11 @@ public class ListEntryPanel extends Composite
         tablePanel.add(errorHTML);
         
         // set style
-        listBox.setWidth("100%"); // TODO: stylesheet this info!
-        listBox.setVisibleItemCount(5);
-        tablePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_PANEL);
-        layoutGrid.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE);
+        listBox.setVisibleItemCount(VISIBLE_COUNT); // can't seem to do this with css?
+        tablePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_PANEL);
+        layoutGrid.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST);
         layoutGrid.getRowFormatter().setStylePrimaryName(0, 
-        		GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_COLUMN_HEADER);
+        		GlimmpseConstants.STYLE_WIZARD_STEP_LIST_HEADER);
         errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
         
         // initialize the panel
@@ -119,6 +119,7 @@ public class ListEntryPanel extends Composite
 		{
 			if (listBox.isItemSelected(i)) listBox.removeItem(i);
 		}
+		validator.onValidRowCount(listBox.getItemCount());
 	}
 	
 	public String toXML(String tagName)

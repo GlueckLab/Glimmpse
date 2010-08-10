@@ -92,6 +92,7 @@ implements StudyDesignManager
 		designPanel.addCovariateListener(betaPanel);
 		designPanel.addCovariateListener(contrastPanel);
 		designPanel.addCovariateListener(covariancePanel);
+		designPanel.addCovariateListener(optionsPanel);
 		contrastPanel.addBetweenSubjectMatrixResizeListener(thetaPanel);
 		contrastPanel.addWithinSubjectMatrixResizeListener(thetaPanel);
 		optionsPanel.addOptionsListener(resultsPanel);

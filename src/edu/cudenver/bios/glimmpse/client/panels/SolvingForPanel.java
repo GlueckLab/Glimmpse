@@ -43,7 +43,7 @@ import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
  *
  */
 public class SolvingForPanel extends WizardStepPanel
-implements ClickHandler, DynamicListValidator
+implements ClickHandler, ListValidator
 {
 	protected static final String SOLVE_FOR_RADIO_GROUP = "SolvingFor";
 	
@@ -54,9 +54,8 @@ implements ClickHandler, DynamicListValidator
 	
 	// list of nominal power values.  Only displayed when solving for effect size or sample size
 	protected VerticalPanel nominalPowerPanel = new VerticalPanel();
-	String[] columnNames = { Glimmpse.constants.solvingForNominalPowerTableColumn()};
-    protected DynamicListPanel nominalPowerListPanel = 
-    	new DynamicListPanel(columnNames, this);
+    protected ListEntryPanel nominalPowerListPanel = 
+    	new ListEntryPanel(Glimmpse.constants.solvingForNominalPowerTableColumn(), this);
     
 	// listeners for changes to the solution type
 	protected ArrayList<SolvingForListener> listeners = new ArrayList<SolvingForListener>();
@@ -136,8 +135,12 @@ implements ClickHandler, DynamicListValidator
 		
 		// set style
 		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+		header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+		description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 		nominalPowerPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+		nominalPowerPanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+
 	}
 	
 	/**
@@ -199,7 +202,7 @@ implements ClickHandler, DynamicListValidator
 	 * Validate new entries in the alpha list
 	 * @see DynamicListValidator
 	 */
-	public void validate(String value, int column) throws IllegalArgumentException
+	public void validate(String value) throws IllegalArgumentException
 	{
 		try
 		{

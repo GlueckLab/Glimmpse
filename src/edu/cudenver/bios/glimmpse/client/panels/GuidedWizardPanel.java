@@ -94,7 +94,6 @@ implements StudyDesignManager
 		predictorsPanel.addPredictorsListener(hypothesisPanel);
 		predictorsPanel.addPredictorsListener(effectSizePanel);
 		predictorsPanel.addCovariateListener(optionsPanel);
-		predictorsPanel.addCovariateListener(optionsPanel);
 		// initialize
 		initWidget(panel);
 	}
