@@ -55,7 +55,7 @@ implements StudyDesignManager
 	protected HypothesisPanel hypothesisPanel = new HypothesisPanel();
 	protected EffectSizePanel effectSizePanel = new EffectSizePanel();
 	protected VariabilityPanel variabilityPanel = new VariabilityPanel();
-	protected OptionsPanel optionsPanel = new OptionsPanel();
+	protected OptionsPanel optionsPanel = new OptionsPanel(getModeName());
 	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
 	
     // list of panels for the wizard

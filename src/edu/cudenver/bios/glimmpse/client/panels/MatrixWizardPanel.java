@@ -53,7 +53,7 @@ implements StudyDesignManager
     protected BetaPanel betaPanel = new BetaPanel();
     protected ThetaPanel thetaPanel = new ThetaPanel();
     protected CovariancePanel covariancePanel = new CovariancePanel();
-    protected OptionsPanel optionsPanel = new OptionsPanel();
+    protected OptionsPanel optionsPanel = new OptionsPanel(getModeName());
     //protected ResultsPanel resultsPanel = new ResultsPanel(this);
 	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
     // list of panels for the wizard
