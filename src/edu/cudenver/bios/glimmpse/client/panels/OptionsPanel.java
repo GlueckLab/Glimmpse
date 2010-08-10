@@ -1,3 +1,24 @@
+/*
+ * User Interface for the GLIMMPSE Software System.  Allows
+ * users to perform power, sample size, and detectable difference
+ * calculations. 
+ * 
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package edu.cudenver.bios.glimmpse.client.panels;
 
 import java.util.ArrayList;
@@ -17,12 +38,22 @@ import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.OptionsListener;
 import edu.cudenver.bios.glimmpse.client.listener.OptionsListener.XAxisType;
 
+/**
+ * Panel which allows user to select statistical tests, display options
+ * for their power/sample size calculations.  Note that two instances of this 
+ * class are created (one for matrix mode, one for guided mode) so any
+ * radio groups or other unique identifiers must have a mode-specific prefix
+ * 
+ * @author Sarah Kreidler
+ *
+ */
 public class OptionsPanel extends WizardStepPanel
 implements CovariateListener, ClickHandler
 {
 	protected static final String XAXIS_RADIO_GROUP = "xAxis";
 	protected ArrayList<OptionsListener> listeners = new ArrayList<OptionsListener>();
 
+	// subpanels
 	protected VerticalPanel testSubpanel = new VerticalPanel();
 	protected VerticalPanel powerMethodSubpanel = new VerticalPanel();
 	protected VerticalPanel displaySubpanel = new VerticalPanel();
@@ -41,6 +72,7 @@ implements CovariateListener, ClickHandler
 	protected CheckBox unconditionalPowerCheckBox = new CheckBox();
 	protected CheckBox quantilePowerCheckBox = new CheckBox();
 	protected int numQuantiles = 0;
+	
 	// dynamic list of quantile values
     protected ListEntryPanel quantileListPanel = 
     	new ListEntryPanel(Glimmpse.constants.quantilesTableColumn(), new ListValidator() {
@@ -70,38 +102,53 @@ implements CovariateListener, ClickHandler
     // options for results display
     protected CheckBox showTableCheckBox = new CheckBox();
     protected CheckBox showCurveCheckBox = new CheckBox();
-    protected RadioButton xaxisTotalNRadioButton = new RadioButton(XAXIS_RADIO_GROUP, "Sample Size");
-    protected RadioButton xaxisVarianceRadioButton = new RadioButton(XAXIS_RADIO_GROUP, "Variance");
-    protected RadioButton xaxisEffectSizeRadioButton = new RadioButton(XAXIS_RADIO_GROUP, "Effect Size");
+    protected HTML xaxisLabel = new HTML(Glimmpse.constants.displayOptionsXAxisLabel());
+    protected RadioButton xaxisTotalNRadioButton;
+    protected RadioButton xaxisVarianceRadioButton;
+    protected RadioButton xaxisEffectSizeRadioButton;
 
-    
-    public OptionsPanel()
+    /**
+     * Constructor
+     * @param mode mode identifier (needed for unique widget identifiers)
+     */
+    public OptionsPanel(String mode)
 	{
 		super(Glimmpse.constants.stepsLeftOptions());
 		VerticalPanel panel = new VerticalPanel();
 
+		// create header, description
 		HTML header = new HTML(Glimmpse.constants.optionsTitle());
 		HTML description = new HTML(Glimmpse.constants.optionsDescription());        
 
+		// layout the subpanels
 		buildTestSubpanel();
 		buildPowerMethodSubpanel();
-		buildDisplaySubpanel();
+		buildDisplaySubpanel(mode);
 
+		// layout the overall panel
 		panel.add(header);
 		panel.add(description);
 		panel.add(testSubpanel);
 		panel.add(powerMethodSubpanel);
 		panel.add(displaySubpanel);
-
+		
+		// set defaults
+		reset();
+		// hide the power methods - only visible when controlling for a covariate
 		powerMethodSubpanel.setVisible(false);
 
+		// set style
 		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
 		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
 		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
 
+		// initialize
 		initWidget(panel);
 	}
     
+    /**
+     * Build the subpanel to select statistical tests
+     */
 	private void buildTestSubpanel()
 	{
 		HTML header = new HTML(Glimmpse.constants.testTitle());
@@ -145,6 +192,9 @@ implements CovariateListener, ClickHandler
 		testSubpanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 	}
 
+	/**
+	 * Build the subpanel for selection methods of power calculation
+	 */
 	private void buildPowerMethodSubpanel()
 	{
 		HTML header = new HTML(Glimmpse.constants.powerMethodTitle());
@@ -190,17 +240,28 @@ implements CovariateListener, ClickHandler
 		powerMethodSubpanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 	}
 
-	private void buildDisplaySubpanel()
+	/**
+	 * Build the subpanel for indicating if results should be displayed graphically 
+	 * or in table form
+	 * 
+	 * @param radioGroupPrefix ensures this instance of the radio group is unique
+	 */
+	private void buildDisplaySubpanel(String radioGroupPrefix)
 	{
-		HTML header = new HTML("select results display options");
-		HTML description = new HTML("want a table or a curve?");
+		HTML header = new HTML(Glimmpse.constants.displayOptionsTitle());
+		HTML description = new HTML(Glimmpse.constants.displayOptionsDescription());
 
+		String group = radioGroupPrefix + XAXIS_RADIO_GROUP;
+	    xaxisTotalNRadioButton = new RadioButton(group, Glimmpse.constants.displayOptionsXAxisSampleSizeLabel());
+	    xaxisVarianceRadioButton = new RadioButton(group, Glimmpse.constants.displayOptionsXAxisVarianceLabel());
+	    xaxisEffectSizeRadioButton = new RadioButton(group, Glimmpse.constants.displayOptionsXAxisEffectSizeLabel());
+		
 		Grid grid = new Grid(6,2);
 		grid.setWidget(0, 0, showTableCheckBox);
-		grid.setWidget(0, 1, new HTML("Display table of results"));
+		grid.setWidget(0, 1, new HTML(Glimmpse.constants.displayOptionsTableLabel()));
 		grid.setWidget(1, 0, showCurveCheckBox);
-		grid.setWidget(1, 1, new HTML("Display power curve"));
-		grid.setWidget(2, 1, new HTML("Which value would you like to display on the X-axis?"));
+		grid.setWidget(1, 1, new HTML(Glimmpse.constants.displayOptionsCurveLabel()));
+		grid.setWidget(2, 1, xaxisLabel);
 		grid.setWidget(3, 1, xaxisTotalNRadioButton);
 		grid.setWidget(4, 1, xaxisEffectSizeRadioButton);
 		grid.setWidget(5, 1, xaxisVarianceRadioButton);
@@ -208,6 +269,18 @@ implements CovariateListener, ClickHandler
 		
 		// set conditional power on by default
 		showTableCheckBox.setValue(true);
+		
+		// callback to enable/disable the X-axis options when the user clicks the display curve box
+		showCurveCheckBox.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				CheckBox cb = (CheckBox) event.getSource();
+				xaxisTotalNRadioButton.setEnabled(cb.getValue());
+				xaxisEffectSizeRadioButton.setEnabled(cb.getValue());
+				xaxisVarianceRadioButton.setEnabled(cb.getValue());
+			}
+		});
 		
 		// layout the subpanel
 		displaySubpanel.add(header);
@@ -223,11 +296,42 @@ implements CovariateListener, ClickHandler
 		displaySubpanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 	}
 
+	/**
+	 * Clear the options panel
+	 */
 	public void reset()
 	{
+		// set the power method to conditional
+		conditionalPowerCheckBox.setValue(true);
+		unconditionalPowerCheckBox.setValue(false);
+		quantilePowerCheckBox.setValue(false);
+		numQuantiles = 0;
 		quantileListPanel.reset();
+		
+		// clear the statistical tests
+		hotellingLawleyCheckBox.setValue(false);
+		pillaiBartlettCheckBox.setValue(false);
+		wilksCheckBox.setValue(false);
+		unirepCheckBox.setValue(false);
+		unirepGGCheckBox.setValue(false);
+		unirepHFCheckBox.setValue(false);
+		unirepBoxCheckBox.setValue(false);
+		
+		// set the display options to table only
+		showTableCheckBox.setValue(true);
+		showCurveCheckBox.setValue(false);
+		xaxisTotalNRadioButton.setValue(true);
+		xaxisTotalNRadioButton.setEnabled(false);
+		xaxisEffectSizeRadioButton.setEnabled(false);
+		xaxisVarianceRadioButton.setEnabled(false);
 	}
 
+	/**
+	 * Displays the power method selection panel if the study design
+	 * includes a baseline covariate
+	 * 
+	 * @param hasCovariate indicates if the user is controlling for a covariate
+	 */
 	@Override
 	public void onHasCovariate(boolean hasCovariate)
 	{
@@ -247,6 +351,9 @@ implements CovariateListener, ClickHandler
 		}
 	}
 
+	/**
+	 * No action required by this panel for onMean callback from CovariateListener
+	 */
 	@Override
 	public void onMean(double mean)
 	{
@@ -254,6 +361,9 @@ implements CovariateListener, ClickHandler
 
 	}
 
+	/**
+	 * No action required by this panel for onVariance callback from CovariateListener
+	 */
 	@Override
 	public void onVariance(double variance)
 	{
@@ -261,6 +371,11 @@ implements CovariateListener, ClickHandler
 
 	}
 
+	/**
+	 * Create an XML representation of the list of selected power methods
+	 * 
+	 * @return XML representation of the power methods
+	 */
 	public String powerMethodListToXML()
 	{
 		StringBuffer buffer = new StringBuffer();
@@ -288,6 +403,12 @@ implements CovariateListener, ClickHandler
 		return buffer.toString();
 	}
 
+	/**
+	 * Create an XML representation of the currently selected 
+	 * statistical test list
+	 * 
+	 * @return XML representation of statistical test list
+	 */
 	public String testListToXML()
 	{
 		StringBuffer buffer = new StringBuffer();
@@ -339,6 +460,13 @@ implements CovariateListener, ClickHandler
 		return buffer.toString();
 	}
 
+	
+	/**
+	 * Convenience function to create XML representations of all
+	 * lists in this panel
+	 * 
+	 * @return
+	 */
 	public String toXML()
 	{
 		StringBuffer buffer = new StringBuffer();
@@ -346,12 +474,23 @@ implements CovariateListener, ClickHandler
 		buffer.append(powerMethodListToXML());
 		return buffer.toString();
 	}
+	
+	
+	/**
+	 * Click handler for all checkboxes on the Options screen.
+	 * Determines if the current selections represent a complete
+	 * set of options.
+	 */
 	@Override
 	public void onClick(ClickEvent event)
 	{
 		checkComplete();			
 	}
 	
+	/**
+	 * Check if the user has selected a complete set of options, and
+	 * if so notify that forward navigation is allowed
+	 */
 	private void checkComplete()
 	{
 		// check if continue is allowed
@@ -378,6 +517,9 @@ implements CovariateListener, ClickHandler
 		}
 	}
 	
+	/**
+	 * Notify options listeners of selected options as we exit the options screen
+	 */
 	@Override
 	public void onExit()
 	{
@@ -403,6 +545,10 @@ implements CovariateListener, ClickHandler
 		}
 	}
 	
+	/**
+	 * Add a listener for Options panel events
+	 * @param listener class implementing the OptionsListener interface
+	 */
 	public void addOptionsListener(OptionsListener listener)
 	{
 		listeners.add(listener);
