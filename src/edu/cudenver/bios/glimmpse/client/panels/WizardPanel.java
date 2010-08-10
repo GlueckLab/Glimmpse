@@ -1,12 +1,30 @@
+/*
+ * User Interface for the GLIMMPSE Software System.  Allows
+ * users to perform power, sample size, and detectable difference
+ * calculations. 
+ * 
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package edu.cudenver.bios.glimmpse.client.panels;
 
 import java.util.ArrayList;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.FormPanel;
@@ -17,38 +35,68 @@ import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
+import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.NavigationListener;
+import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
 import edu.cudenver.bios.glimmpse.client.listener.StepStatusListener;
+import edu.cudenver.bios.glimmpse.client.listener.SaveListener.SaveType;
 
+/**
+ * Abstract base class for "wizard" input panels.  Manages navigation,
+ * basic toolbars, etc.
+ * 
+ * @author Sarah Kreidler
+ *
+ */
 public class WizardPanel extends Composite
 implements NavigationListener, StepStatusListener
 {
 	// style
 	protected static final String STYLE_TOOLBAR = "wizardToolBar";
-	protected static final String STYLE_SAVE = "wizardToolBarButtonSave";
-	protected static final String STYLE_CANCEL = "wizardToolBarButtonCancel";
-	protected static final String STYLE_CLEAR = "wizardToolBarButtonClear";
+	// uri for help manual
+	protected static final String HELP_URL = "/help/manual.pdf";
 	// url for file save web service
 	protected static final String SAVEAS_URL = "/webapps/file/saveas"; 
     // form for saving the study design
-	protected FormPanel form = new FormPanel("_blank");
-	protected Hidden matrixXML = new Hidden("data");
+	protected FormPanel saveForm = new FormPanel("_blank");
+	protected Hidden dataHidden = new Hidden("data");
+	protected Hidden filenameHidden = new Hidden("filename");
 	
-	// navigation event listeners
-    ArrayList<CancelListener> listeners = new ArrayList<CancelListener>();
+	// cancel event listeners
+	protected ArrayList<CancelListener> cancelListeners = new ArrayList<CancelListener>();
+	// save event listeners
+	protected ArrayList<SaveListener> saveListeners = new ArrayList<SaveListener>();
 	
 	// main panel
-	HorizontalPanel panel = new HorizontalPanel();
+	protected HorizontalPanel panel = new HorizontalPanel();
 	// left navigation / "steps left" panel
     protected StepsLeftPanel stepsLeftPanel;
 	// index of currently visible step
     protected int currentStep = 0;    
     // deck panel containing all steps in the input wizard
-	DeckPanel wizardDeck = new DeckPanel();
-	// top toolbar (save, clear, start over)
+    protected DeckPanel wizardDeck = new DeckPanel();
+	// save results, curve menu items - these are enabled at the end
+    protected MenuItem saveResultsMenuItem = 
+    	new MenuItem(Glimmpse.constants.toolBarSaveResultsMenuItem(), true, (Command) null);
+    protected Command saveResultsCommand = new Command() {
+		@Override
+		public void execute()
+		{
+			notifyOnSave(SaveType.RESULTS);
+		}
+    };
+    protected MenuItem saveCurveMenuItem = 
+    	new MenuItem(Glimmpse.constants.toolBarSaveCurveMenuItem(), true, (Command) null);
+    protected Command saveCurveCommand = new Command() {
+		@Override
+		public void execute()
+		{
+			notifyOnSave(SaveType.CURVE);
+		}
+    };
 	// navigation buttons
-	NavigationPanel navPanel = new NavigationPanel();
+    protected NavigationPanel navPanel = new NavigationPanel();
 	
 	/**
 	 * Create an empty matrix panel
@@ -79,10 +127,6 @@ implements NavigationListener, StepStatusListener
 		contentPanel.add(navPanel);
 		panel.add(stepsLeftPanel);		
 		panel.add(contentPanel);
-
-		// set style
-		// TODO: finish style
-		//panel.setStyleName(LAYOUT_STYLE);		
 
 		// initialize
 		initWidget(panel);
@@ -142,6 +186,7 @@ implements NavigationListener, StepStatusListener
     		step.reset();
     	}
     	stepsLeftPanel.reset();
+    	onStep(0);
     }
 
     /**
@@ -162,8 +207,34 @@ implements NavigationListener, StepStatusListener
     	wizardDeck.showWidget(currentStep);
     	navPanel.setNext(w.isComplete());
     	w.onEnter();
+    	
+    	// enable the save menu items if we're on the last step.  Note, I'm not crazy about this
+    	// since it assumes that results are only shown on the last step, but I didn't have time
+    	// to make it all robust and stuff.  Bad programmer, no biscuit for you.
+    	if (currentStep == wizardDeck.getWidgetCount() - 1)
+    	{
+    	    saveResultsMenuItem.removeStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+    	    saveCurveMenuItem.removeStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+    	    // add save command
+    	    saveResultsMenuItem.setCommand(saveResultsCommand);
+    	    saveCurveMenuItem.setCommand(saveCurveCommand);
+    	}
+    	else
+    	{
+    	    saveResultsMenuItem.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+    	    saveCurveMenuItem.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+    	    // clear the commands
+    	    saveResultsMenuItem.setCommand(null);
+    	    saveCurveMenuItem.setCommand(null);
+    	}
     }
     
+    /**
+     * Create the save, clear, help toolbar. 
+     * (there's probably a way to make this more generic, but this works for now)
+     * 
+     * @return HorizontalPanel widget
+     */
     private HorizontalPanel createToolBar()
     {
 		HorizontalPanel panel = new HorizontalPanel();
@@ -174,113 +245,155 @@ implements NavigationListener, StepStatusListener
 	    menu.setAnimationEnabled(true);
 	    
 	    // build the submenus
-	    menu.addItem("Save", true, createSaveMenu());
+	    menu.addItem(Glimmpse.constants.toolBarSaveMenu(), true, createSaveMenu());
 	    menu.addSeparator();
-	    menu.addItem("Clear", true, createClearMenu());
+	    menu.addItem(Glimmpse.constants.toolBarClearMenu(), true, createClearMenu());
 	    menu.addSeparator();
-	    menu.addItem("Help", true, createHelpMenu());
+	    menu.addItem(Glimmpse.constants.toolBarHelpMenu(), true, createHelpMenu());
+	    
 		// add the save study link and associated form
-		form.setAction(SAVEAS_URL);
-		form.setMethod(FormPanel.METHOD_POST);
+		saveForm.setAction(SAVEAS_URL);
+		saveForm.setMethod(FormPanel.METHOD_POST);
 		VerticalPanel formContainer = new VerticalPanel();
-		formContainer.add(matrixXML);
-		formContainer.add(new Hidden("filename", "study.xml"));
-		form.add(formContainer);
-
+		formContainer.add(dataHidden);
+		formContainer.add(filenameHidden);
+		saveForm.add(formContainer);
 		
 		// layout the panel
 		panel.add(menu);
+		panel.add(saveForm);
 
-		// set style TODO:
+		// set style 
 		panel.setStyleName(STYLE_TOOLBAR);
 		
 		return panel;
     }
 
-    
+    /**
+     * Create a menubar to save either the study design or results
+     * @return "save" menubar
+     */
 	private MenuBar createSaveMenu()
 	{
 	    MenuBar saveMenu = new MenuBar(true);
-	    saveMenu.addItem(new MenuItem("Study Design", true, new Command() {
+	    MenuItem saveDesignMenuItem = 
+	    	new MenuItem(Glimmpse.constants.toolBarSaveStudyMenuItem(), true, 
+	    			new Command() {
 			@Override
 			public void execute()
 			{
-				
+				notifyOnSave(SaveType.STUDY);
 			}
-	    }));
-	    saveMenu.addSeparator();
-	    saveMenu.addItem(new MenuItem("Results", true, new Command() {
-			@Override
-			public void execute()
-			{
-
-			}
-	    }));
-	    saveMenu.addItem(new MenuItem("Curve", true, new Command() {
-			@Override
-			public void execute()
-			{
-
-			}
-	    }));
+	    });
 	    
+	    saveMenu.addItem(saveDesignMenuItem);
+	    saveMenu.addSeparator();
+	    saveMenu.addItem(saveResultsMenuItem);
+	    saveMenu.addItem(saveCurveMenuItem);
+	    
+	    // add disabled style to the results, curve
+	    // GWT doesn't provide enable/disable of menu items, so css is the workaround
+	    saveResultsMenuItem.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+	    saveCurveMenuItem.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+
 	    return saveMenu;
 	}
 	
+	/**
+	 * Create a menubar for clearing the all or the current screen
+	 * @return "Clear" menubar
+	 */
 	private MenuBar createClearMenu()
 	{
 		MenuBar clearMenu = new MenuBar(true);
-		
-		
-		clearMenu.addItem("Current Screen", new Command() {
+
+		clearMenu.addItem(Glimmpse.constants.toolBarClearAllMenuItem(), new Command() {
 			public void execute()
 			{
-				// TODO: dialog confirmation
-				WizardStepPanel wsp = (WizardStepPanel) wizardDeck.getWidget(currentStep);
-				wsp.reset();
+				if (Window.confirm(Glimmpse.constants.confirmClearScreen()))
+				{
+					WizardStepPanel wsp = (WizardStepPanel) wizardDeck.getWidget(currentStep);
+					wsp.reset();
+				}
 			}
 		});
-		
-		clearMenu.addItem("All", new Command() {
+		clearMenu.addItem(Glimmpse.constants.toolBarClearAllMenuItem(), new Command() {
 			public void execute()
 			{
-				notifyOnCancel();
+				if (Window.confirm(Glimmpse.constants.confirmClearAll()))
+				{
+					notifyOnCancel();
+				}
 			}
 		});
 		
 		return clearMenu;
 	}
     
+	/**
+	 * Create a menu bar for accessing the help manual
+	 * @return "Help" menubar
+	 */
 	private MenuBar createHelpMenu()
 	{
 		MenuBar helpMenu = new MenuBar(true);
-		helpMenu.addItem("Manual", new Command() {
+		helpMenu.addItem(Glimmpse.constants.toolBarHelpManualMenuItem(), new Command() {
 			public void execute()
 			{
-				Window.open("/help/manual.pdf", "", "");
+				Window.open(HELP_URL, "", "");
 			}
 		});
 
 		return helpMenu;
 	}
     
+	/**
+	 * Notify cancel listeners of cancel event
+	 */
     protected void notifyOnCancel()
-    {
-    	// clear all of the steps
-    	for(int i = 0; i < wizardDeck.getWidgetCount(); i++)
-    	{
-    		WizardStepPanel wsp = (WizardStepPanel) wizardDeck.getWidget(i);
-    		wsp.reset();
-    	}
-    	onStep(0);
-    	
-        for(CancelListener listener: listeners)
-            listener.onCancel();
+    {  	
+    	for(CancelListener listener: cancelListeners) listener.onCancel();
     }
     
+    /**
+     * Add a listener for cancel events
+     * @param listener
+     */
     public void addCancelListener(CancelListener listener)
     {
-        listeners.add(listener);
+    	cancelListeners.add(listener);
+    }
+    
+    /**
+     * Notify listeners that a save action is requested
+     * @param type type of save requested
+     */
+    protected void notifyOnSave(SaveType type)
+    {  	
+    	for(SaveListener listener: saveListeners) listener.onSave(type);
+    }
+    
+    /**
+     * Add a listener for save events
+     * @param listener
+     */
+    public void addSaveListener(SaveListener listener)
+    {
+    	saveListeners.add(listener);
     }
 
+    /**
+     * Send a save request to the File web service.  A service is used to force
+     * the browser to pop-up the save as dialog box.
+     * 
+     * @param data the data to be saved
+     * @param filename default filename to use
+     */
+    public void sendSaveRequest(String data, String filename)
+    {
+    	dataHidden.setValue(data);
+    	filenameHidden.setValue(filename);
+    	saveForm.submit();
+    }
+    
 }
