@@ -1,3 +1,24 @@
+/*
+ * User Interface for the GLIMMPSE Software System.  Allows
+ * users to perform power, sample size, and detectable difference
+ * calculations. 
+ * 
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package edu.cudenver.bios.glimmpse.client.panels;
 
 import java.util.ArrayList;
@@ -15,10 +36,19 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
 
+/**
+ * Common widget for entering lists of values.  Values are validated 
+ * before being added to the list.
+ * 
+ * @author Sarah Kreidler
+ *
+ */
 public class ListEntryPanel extends Composite
 {
 	protected static final int VISIBLE_COUNT = 4;
@@ -37,6 +67,12 @@ public class ListEntryPanel extends Composite
     // counter of the number of valid rows in the table
     protected int validRowCount = 0;
     
+    /**
+     * Construct a new list entry panel
+     * @param columnName title/label for list entry items
+     * @param validator class which validates list entries
+     * @see ListValidator
+     */
 	public ListEntryPanel(String columnName, ListValidator validator)
 	{
 		this.validator = validator;
@@ -75,6 +111,12 @@ public class ListEntryPanel extends Composite
         initWidget(tablePanel);
 	}
 	
+	/**
+	 * Create the top input bar for the list entry panel
+	 * 
+	 * @param columnName title/label for list items
+	 * @return panel
+	 */
 	private HorizontalPanel createTextEntry(String columnName)
 	{
 		HorizontalPanel panel = new HorizontalPanel();
@@ -90,6 +132,9 @@ public class ListEntryPanel extends Composite
 		return panel;
 	}
 	
+	/**
+	 * Validate and add an item to the listbox
+	 */
 	private void addListIem()
 	{
 		String value = listEntryTextBox.getValue();
@@ -113,6 +158,9 @@ public class ListEntryPanel extends Composite
 		}
 	}
 	
+	/**
+	 * Clear selected items from the listbox
+	 */
 	private void removeSelectedListItems()
 	{
 		for(int i = listBox.getItemCount()-1; i >= 0; i--)
@@ -122,6 +170,11 @@ public class ListEntryPanel extends Composite
 		validator.onValidRowCount(listBox.getItemCount());
 	}
 	
+	/**
+	 * Return an XML representation of the list
+	 * @param tagName the enclosing list tag name
+	 * @return XML representation of the list
+	 */
 	public String toXML(String tagName)
 	{
     	StringBuffer buffer = new StringBuffer();
@@ -136,11 +189,19 @@ public class ListEntryPanel extends Composite
     	return buffer.toString();
 	}
 	
+	/**
+	 * Get the number of entries in the list
+	 * @return number of entries in the list
+	 */
     public int getValidRowCount()
     {
     	return listBox.getItemCount();
     }
     
+    /**
+     * Get a list of the values in the list as Strings
+     * @return list of values
+     */
     public List<String> getValues()
     {
     	ArrayList<String> outputList = new ArrayList<String>();
@@ -151,8 +212,47 @@ public class ListEntryPanel extends Composite
     	return outputList;
     }
     
+    /**
+     * Clear the list
+     */
     public void reset()
     {
     	listBox.clear();
+    }
+    
+    /**
+     * Manually add an item to the list.  Invalid entries are ignored
+     * @param value the item to be added
+     */
+    public void add(String value)
+    {
+    	try
+    	{
+    		validator.validate(value);
+        	listBox.addItem(value);
+    	}
+    	catch (Exception e)
+    	{
+    		// ignore invalid entries
+    	}
+    }
+    
+    /**
+     * Load the list from an XML representation of the list values.
+     * 
+     * @param node DOM node
+     */
+    public void loadFromNode(Node node)
+    {
+		NodeList children = node.getChildNodes();
+		for(int i = 0; i < children.getLength(); i++)
+		{
+			Node child = children.item(i);
+			Node valueNode = child.getFirstChild();
+			if (valueNode != null)
+			{
+				add(valueNode.getNodeValue());
+			}
+		}
     }
 }
