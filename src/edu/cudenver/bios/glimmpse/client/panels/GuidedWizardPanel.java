@@ -24,9 +24,13 @@ package edu.cudenver.bios.glimmpse.client.panels;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
+import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
+import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
 import edu.cudenver.bios.glimmpse.client.panels.guided.EffectSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.OutcomesPanel;
@@ -42,9 +46,13 @@ import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityPanel;
  *
  */
 public class GuidedWizardPanel extends Composite
-implements StudyDesignManager
+implements StudyDesignManager, SaveListener
 {
 	private static final String MODE_NAME = "guided";
+	// default filenames
+	protected static final String DEFAULT_STUDY_FILENAME = "study.xml";
+	protected static final String DEFAULT_RESULTS_FILENAME = "power.csv";
+	protected static final String DEFAULT_CURVE_FILENAME = "powerCurve.jpg";
 	
 	// content panels 
 	protected SolvingForPanel solvingForPanel = new SolvingForPanel(getModeName());
@@ -82,6 +90,7 @@ implements StudyDesignManager
 		VerticalPanel panel = new VerticalPanel();
 		
 		wizardPanel = new WizardPanel(panelList);
+		wizardPanel.addSaveListener(this);
 		panel.add(wizardPanel);
 
 		// set up listener relationships
@@ -103,8 +112,29 @@ implements StudyDesignManager
 	 */
 	public void loadFromXML(Document doc)
 	{
-		
+		Node studyNode = doc.getElementsByTagName(GlimmpseConstants.TAG_STUDY).item(0);
+		if (studyNode != null)
+		{
+			NodeList children = studyNode.getChildNodes();
+			for(int i = 0; i < children.getLength(); i++)
+			{
+				Node child = children.item(i);
+				String childName = child.getNodeName();
+				if (GlimmpseConstants.TAG_SOLVING_FOR.equals(childName))
+					solvingForPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_ALPHA_LIST.equals(childName))
+					alphaPanel.loadFromNode(child);
+				
+				
+				
+				
+				else if (GlimmpseConstants.TAG_OPTIONS.equals(childName))
+					optionsPanel.loadFromNode(child);
+					
+			}
+		}
 	}
+	
     
     public void reset()
     {
@@ -119,17 +149,39 @@ implements StudyDesignManager
 	@Override
 	public String getPowerRequestXML()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		StringBuffer buffer = new StringBuffer();
+		
+		buffer.append("<" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
+		buffer.append(solvingForPanel.toRequestXML());
+		buffer.append(alphaPanel.toXML());
+//		buffer.append(designPanel.toXML());
+//		buffer.append(betaPanel.toXML());
+//		buffer.append(contrastPanel.toXML());
+//		buffer.append(thetaPanel.toXML());
+//		buffer.append(covariancePanel.toXML());
+		buffer.append(optionsPanel.toRequestXML());
+		buffer.append("</" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
+		
+		return buffer.toString();
 	}
 
 	@Override
 	public String getStudyDesignXML()
 	{
-		// TODO Auto-generated method stub
-		//buffer.append(solvingForPanel.toXML());
-
-		return null;
+		StringBuffer buffer = new StringBuffer();
+		
+		buffer.append("<" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
+		buffer.append(solvingForPanel.toStudyXML());
+		buffer.append(alphaPanel.toXML());
+//		buffer.append(designPanel.toXML());
+//		buffer.append(betaPanel.toXML());
+//		buffer.append(contrastPanel.toXML());
+//		buffer.append(thetaPanel.toXML());
+//		buffer.append(covariancePanel.toXML());
+		buffer.append(optionsPanel.toStudyXML());
+		buffer.append("</" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
+		
+		return buffer.toString();
 	}
 
 	/**
@@ -139,5 +191,26 @@ implements StudyDesignManager
 	public String getModeName()
 	{
 		return MODE_NAME;
+	}
+
+	/**
+	 * Save the study design, results, or power curve
+	 * @param type the type of save requested
+	 */
+	@Override
+	public void onSave(SaveType type)
+	{
+		switch(type)
+		{
+		case STUDY:
+			wizardPanel.sendSaveRequest(getStudyDesignXML(), DEFAULT_STUDY_FILENAME);
+			break;
+		case RESULTS:
+			wizardPanel.sendSaveRequest(resultsPanel.dataTableToCSV(),DEFAULT_RESULTS_FILENAME);
+			break;
+		case CURVE:
+			resultsPanel.saveCurveData();
+			break;
+		}	
 	}
 }

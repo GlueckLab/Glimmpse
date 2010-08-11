@@ -3,6 +3,7 @@ package edu.cudenver.bios.glimmpse.client.panels.matrix;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -74,5 +75,12 @@ implements MatrixResizeListener
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(theta.toXML());
 		return buffer.toString();
+	}
+
+	@Override
+	public void loadFromNode(Node node)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

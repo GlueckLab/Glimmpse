@@ -1,6 +1,7 @@
 package edu.cudenver.bios.glimmpse.client.panels.guided;
 
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.panels.LearCovariancePanel;
@@ -26,4 +27,11 @@ public class VariabilityPanel extends WizardStepPanel
     {
     	
     }
+
+	@Override
+	public void loadFromNode(Node node)
+	{
+		// TODO Auto-generated method stub
+		
+	}
 }

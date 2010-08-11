@@ -29,6 +29,9 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.xml.client.NamedNodeMap;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -229,14 +232,93 @@ implements ClickHandler, ListValidator
     }
     
     /**
-     * 
-     * @return
+     * Return an XML representation of this panel for saving the study design
+     * @return XML of solving for information
      */
-    public String toXML()
+    public String toStudyXML()
+    {
+    	StringBuffer buffer = new StringBuffer();
+    	
+    	buffer.append("<");
+    	buffer.append(GlimmpseConstants.TAG_SOLVING_FOR);
+    	buffer.append(" " + GlimmpseConstants.ATTR_TYPE + "='");
+    	if (solvingForPowerRadioButton.getValue())
+    	{
+    		buffer.append(GlimmpseConstants.SOLUTION_TYPE_POWER);
+    	}
+    	else if (solvingForSampleSizeRadioButton.getValue())
+    	{
+    		buffer.append(GlimmpseConstants.SOLUTION_TYPE_SAMPLE_SIZE);
+    	}
+    	else
+    	{
+    		buffer.append(GlimmpseConstants.SOLUTION_TYPE_EFFECT_SIZE);
+    	}
+    	buffer.append("'>");
+    	
+    	buffer.append(toRequestXML());
+    	
+    	buffer.append("</");
+    	buffer.append(GlimmpseConstants.TAG_SOLVING_FOR);
+    	buffer.append(">");
+    	
+    	return buffer.toString();
+    }
+
+    /**
+     * Return an XML representation of the nominal power list, or null if 
+     * solving for power
+     * 
+     * @return XML representation of the nominal power list
+     */
+    public String toRequestXML()
     {
     	if (!solvingForPowerRadioButton.getValue())
-    		return nominalPowerListPanel.toXML("powerList");
+    		return nominalPowerListPanel.toXML(GlimmpseConstants.TAG_POWER_LIST);
     	else
     		return "";
     }
+    
+	@Override
+	public void loadFromNode(Node node)
+	{
+		if (node != null && GlimmpseConstants.TAG_SOLVING_FOR.equals(node.getNodeName()))
+		{
+			NamedNodeMap attrs = node.getAttributes();
+			Node typeNode = attrs.getNamedItem(GlimmpseConstants.ATTR_TYPE);
+			if (typeNode != null)
+			{
+				String value = typeNode.getNodeValue();
+				if (GlimmpseConstants.SOLUTION_TYPE_EFFECT_SIZE.equals(value))
+					solvingForEffectSizeRadioButton.setValue(true);
+				else if (GlimmpseConstants.SOLUTION_TYPE_SAMPLE_SIZE.equals(value))
+					solvingForSampleSizeRadioButton.setValue(true);
+				else
+					solvingForPowerRadioButton.setValue(true);
+			}
+			
+			// get the power list
+			NodeList children = node.getChildNodes();
+			for(int i = 0; i < children.getLength(); i++)
+			{
+				Node child = children.item(i);
+				if (GlimmpseConstants.TAG_POWER_LIST.equals(child.getNodeName()))
+				{
+					nominalPowerListPanel.loadFromNode(child);
+				}
+			}
+			
+			// make sure the right panels are visible
+			if (solvingForPowerRadioButton.getValue())
+			{
+				nominalPowerPanel.setVisible(false);
+				notifyComplete();
+			}
+			else
+			{
+				nominalPowerPanel.setVisible(true);
+				onValidRowCount(nominalPowerListPanel.getValidRowCount());
+			}
+		}
+	}
 }

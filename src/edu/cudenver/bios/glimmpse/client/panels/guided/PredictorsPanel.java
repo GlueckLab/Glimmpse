@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
+import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -384,5 +385,12 @@ implements CovariateListener
 	public void onVariance(double variance)
 	{
 		checkComplete();
+	}
+
+	@Override
+	public void loadFromNode(Node node)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

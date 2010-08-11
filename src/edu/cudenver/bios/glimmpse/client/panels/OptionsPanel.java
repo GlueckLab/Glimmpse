@@ -30,6 +30,9 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.xml.client.NamedNodeMap;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -50,6 +53,18 @@ import edu.cudenver.bios.glimmpse.client.listener.OptionsListener.XAxisType;
 public class OptionsPanel extends WizardStepPanel
 implements CovariateListener, ClickHandler
 {
+	// constants for xml parsing
+	private static final String TAG_DISPLAY = "display";
+    private static final String TAG_QUANTILE_LIST = "quantileList";
+    private static final String TAG_TEST_LIST = "testList";
+    private static final String TAG_POWER_METHOD_LIST = "powerMethodList";
+	private static final String ATTR_TABLE = "table";
+	private static final String ATTR_CURVE = "curve";
+	private static final String ATTR_XAXIS = "xaxis";
+	private static final String ATTR_VALUE_XAXIS_TOTAL_N = "totalN";
+	private static final String ATTR_VALUE_XAXIS_EFFECT_SIZE = "effectSize";
+	private static final String ATTR_VALUE_XAXIS_VARIANCE = "variance";
+
 	protected static final String XAXIS_RADIO_GROUP = "xAxis";
 	protected ArrayList<OptionsListener> listeners = new ArrayList<OptionsListener>();
 
@@ -382,7 +397,9 @@ implements CovariateListener, ClickHandler
 	{
 		StringBuffer buffer = new StringBuffer();
 
-		buffer.append("<powerMethodList>");
+		buffer.append("<");
+		buffer.append(TAG_POWER_METHOD_LIST);
+		buffer.append(">");
 		if (conditionalPowerCheckBox.getValue())
 		{
 			buffer.append("<v>");
@@ -401,7 +418,9 @@ implements CovariateListener, ClickHandler
 			buffer.append(GlimmpseConstants.POWER_METHOD_QUANTILE);
 			buffer.append("</v>");
 		}
-		buffer.append("</powerMethodList>");
+		buffer.append("</");
+		buffer.append(TAG_POWER_METHOD_LIST);
+		buffer.append(">");
 		return buffer.toString();
 	}
 
@@ -415,7 +434,9 @@ implements CovariateListener, ClickHandler
 	{
 		StringBuffer buffer = new StringBuffer();
 
-		buffer.append("<testList>");
+		buffer.append("<");
+		buffer.append(TAG_TEST_LIST);
+		buffer.append(">");
 		if (hotellingLawleyCheckBox.getValue())
 		{
 			buffer.append("<v>");
@@ -458,25 +479,72 @@ implements CovariateListener, ClickHandler
 			buffer.append(GlimmpseConstants.TEST_UNIREP_BOX);
 			buffer.append("</v>");
 		}
-		buffer.append("</testList>");
+		buffer.append("</");
+		buffer.append(TAG_TEST_LIST);
+		buffer.append(">");
 		return buffer.toString();
 	}
 
+	/**
+	 * Create an XML representation of the panel to be saved with
+	 * the study design
+	 * 
+	 * @return study XML
+	 */
+	public String toStudyXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		// open tag
+		buffer.append("<");
+		buffer.append(GlimmpseConstants.TAG_OPTIONS);
+		buffer.append(">");
+		// list of tests, power methods, quantiles
+		buffer.append(toRequestXML());
+		// add display options - format: <display table=[T|F] curve=[T|F] xaxis=[totaln|effectSize|variance]/>
+		buffer.append("<");
+		buffer.append(TAG_DISPLAY);
+		buffer.append(" ");
+		buffer.append(ATTR_TABLE);
+		buffer.append("='");
+		buffer.append(showTableCheckBox.getValue());
+		buffer.append("' ");
+		buffer.append(ATTR_CURVE);
+		buffer.append("='");
+		buffer.append(showCurveCheckBox.getValue());
+		buffer.append("' ");
+		
+		buffer.append(ATTR_XAXIS);
+		buffer.append("='");
+		if (xaxisTotalNRadioButton.getValue())
+			buffer.append(ATTR_VALUE_XAXIS_TOTAL_N);
+		else if (xaxisEffectSizeRadioButton.getValue())
+			buffer.append(ATTR_VALUE_XAXIS_EFFECT_SIZE);
+		else
+			buffer.append(ATTR_VALUE_XAXIS_VARIANCE);
+		buffer.append("' ");
+		buffer.append("/>");
+		// close tag
+		buffer.append("</");
+		buffer.append(GlimmpseConstants.TAG_OPTIONS);
+		buffer.append(">");
+
+		return buffer.toString();
+	}
 	
 	/**
-	 * Convenience function to create XML representations of all
-	 * lists in this panel
+	 * Create an XML representation of the panel for sending to the
+	 * Power web service
 	 * 
 	 * @return
 	 */
-	public String toXML()
+	public String toRequestXML()
 	{
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(testListToXML());
 		buffer.append(powerMethodListToXML());
+		buffer.append(quantileListPanel.toXML(TAG_QUANTILE_LIST));
 		return buffer.toString();
 	}
-	
 	
 	/**
 	 * Click handler for all checkboxes on the Options screen.
@@ -554,5 +622,116 @@ implements CovariateListener, ClickHandler
 	public void addOptionsListener(OptionsListener listener)
 	{
 		listeners.add(listener);
+	}
+
+	/**
+	 * Parse the saved study design information and set the appropriate options
+	 */
+	@Override
+	public void loadFromNode(Node node)
+	{
+		if (GlimmpseConstants.TAG_OPTIONS.equals(node.getNodeName()))
+		{
+			NodeList children = node.getChildNodes();
+			for(int i = 0; i < children.getLength(); i++)
+			{
+				Node child = children.item(i);
+				if (TAG_QUANTILE_LIST.equals(child.getNodeName()))
+				{
+					quantileListPanel.loadFromNode(child);
+				}
+				else if (TAG_TEST_LIST.equals(child.getNodeName()))
+				{
+					NodeList testChildren = child.getChildNodes();
+					for(int ti = 0; ti < testChildren.getLength(); ti++)
+					{
+						Node testChild = testChildren.item(ti);
+						Node testNode = testChild.getFirstChild();
+						if (testNode != null)
+						{
+							if (GlimmpseConstants.TEST_HOTELLING_LAWLEY_TRACE.equals(testNode.getNodeValue()))
+								hotellingLawleyCheckBox.setValue(true);
+							else if (GlimmpseConstants.TEST_PILLAI_BARTLETT_TRACE.equals(testNode.getNodeValue()))
+								pillaiBartlettCheckBox.setValue(true);
+							else if (GlimmpseConstants.TEST_WILKS_LAMBDA.equals(testNode.getNodeValue()))
+								wilksCheckBox.setValue(true);
+							else if (GlimmpseConstants.TEST_UNIREP.equals(testNode.getNodeValue()))
+								unirepCheckBox.setValue(true);
+							else if (GlimmpseConstants.TEST_UNIREP_BOX.equals(testNode.getNodeValue()))
+								unirepBoxCheckBox.setValue(true);
+							else if (GlimmpseConstants.TEST_UNIREP_GEISSER_GRENNHOUSE.equals(testNode.getNodeValue()))
+								unirepGGCheckBox.setValue(true);
+							else if (GlimmpseConstants.TEST_UNIREP_HUYNH_FELDT.equals(testNode.getNodeValue()))
+								unirepHFCheckBox.setValue(true);
+						}
+					}
+				}
+				else if (TAG_POWER_METHOD_LIST.equals(child.getNodeName()))
+				{
+					NodeList pmChildren = child.getChildNodes();
+					for(int pmi = 0; pmi < pmChildren.getLength(); pmi++)
+					{
+						Node pmChild = pmChildren.item(pmi);
+						Node pmNode = pmChild.getFirstChild();
+						if (pmNode != null)
+						{
+							if (GlimmpseConstants.POWER_METHOD_CONDITIONAL.equals(pmNode.getNodeValue()))
+								conditionalPowerCheckBox.setValue(true);
+							else if (GlimmpseConstants.POWER_METHOD_UNCONDITIONAL.equals(pmNode.getNodeValue()))
+								unconditionalPowerCheckBox.setValue(true);
+							else if (GlimmpseConstants.POWER_METHOD_QUANTILE.equals(pmNode.getNodeValue()))
+							{
+								quantilePowerCheckBox.setValue(true);
+								quantileListPanel.setVisible(true);
+							}
+						}
+					}
+				}
+				else if (TAG_DISPLAY.equals(child.getNodeName()))
+				{
+					NamedNodeMap attrs = child.getAttributes();
+					try
+					{
+						Node tableNode = attrs.getNamedItem(ATTR_TABLE);
+						if (tableNode != null) 
+							showTableCheckBox.setValue(Boolean.parseBoolean(tableNode.getNodeValue()));
+						
+						Node curveNode = attrs.getNamedItem(ATTR_CURVE);
+						if (curveNode != null) 
+							showCurveCheckBox.setValue(Boolean.parseBoolean(curveNode.getNodeValue()));
+						
+						Node xaxisNode = attrs.getNamedItem(ATTR_XAXIS);
+						if (xaxisNode != null)
+						{
+							if (ATTR_VALUE_XAXIS_TOTAL_N.equals(xaxisNode.getNodeValue()))
+							{
+								xaxisTotalNRadioButton.setValue(true);
+							}
+							else if (ATTR_VALUE_XAXIS_EFFECT_SIZE.equals(xaxisNode.getNodeValue()))
+							{
+								xaxisEffectSizeRadioButton.setValue(true);
+							}
+							else if (ATTR_VALUE_XAXIS_VARIANCE.equals(xaxisNode.getNodeValue()))
+							{
+								xaxisVarianceRadioButton.setValue(true);
+							}
+						}
+					}
+					catch (Exception e)
+					{
+						// ignore parsing errors here
+					}
+				}
+			}
+		}
+		
+		// enable/disable the xaxis radio buttons
+		xaxisTotalNRadioButton.setEnabled(showCurveCheckBox.getValue());
+		xaxisEffectSizeRadioButton.setEnabled(showCurveCheckBox.getValue());
+		xaxisVarianceRadioButton.setEnabled(showCurveCheckBox.getValue());
+
+		
+		// check if the options are complete
+		checkComplete();
 	}
 }

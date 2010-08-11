@@ -3,6 +3,7 @@ package edu.cudenver.bios.glimmpse.client.panels.matrix;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -182,5 +183,12 @@ implements CovariateListener, MatrixResizeListener, ListValidator
 		{
     		throw new IllegalArgumentException(Glimmpse.constants.errorInvalidNumber());
 		}
+	}
+
+	@Override
+	public void loadFromNode(Node node)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

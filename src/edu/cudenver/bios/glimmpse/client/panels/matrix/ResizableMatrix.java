@@ -37,6 +37,7 @@ import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
+import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
 
@@ -47,10 +48,6 @@ import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
  */
 public class ResizableMatrix extends Composite 
 {
-    protected static final String MATRIX_STYLE = "matrix";
-	protected static final String DIMENSION_STYLE = "matrixDimensions";
-	protected static final String MATRIX_DATA_STYLE = "matrixData";
-	protected static final String MATRIX_CELL_STYLE = "matrixCell";
 	protected static final int MAX_ROWS = 50;
 	protected static final int MIN_ROW_COL = 1;
 	protected static final int MAX_COLS = 50;
@@ -136,9 +133,9 @@ public class ResizableMatrix extends Composite
 		matrixPanel.add(errorHTML);
 		
 		// set up styles
-		matrixPanel.setStyleName(MATRIX_STYLE);
-		matrixDimensions.setStyleName(DIMENSION_STYLE);
-		matrixData.setStyleName(MATRIX_DATA_STYLE);
+		matrixPanel.setStyleName(GlimmpseConstants.STYLE_MATRIX_PANEL);
+		matrixDimensions.setStyleName(GlimmpseConstants.STYLE_MATRIX_DIMENSION);
+		matrixData.setStyleName(GlimmpseConstants.STYLE_MATRIX_DATA);
 		
 		// initialize the widget
 		initWidget(matrixPanel);
@@ -237,7 +234,7 @@ public class ResizableMatrix extends Composite
 	{
 		TextBox textBox = new TextBox();
 		textBox.setValue(value);
-		textBox.setStyleName(MATRIX_CELL_STYLE);
+		textBox.setStyleName(GlimmpseConstants.STYLE_MATRIX_CELL);
 		textBox.setEnabled(enabled);
 		matrixData.setWidget(row, col, textBox);
 	}

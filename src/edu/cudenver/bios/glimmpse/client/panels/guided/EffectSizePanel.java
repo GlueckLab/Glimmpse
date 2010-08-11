@@ -19,6 +19,7 @@ import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.visualizations.BarChart;
 import com.google.gwt.visualization.client.visualizations.Table;
 import com.google.gwt.visualization.client.visualizations.BarChart.Options;
+import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -49,7 +50,7 @@ implements OutcomesListener, PredictorsListener, ListValidator
 	
    	// list of per group sample sizes
     protected ListEntryPanel betaScaleListPanel =
-    	new ListEntryPanel(Glimmpse.constants.betaScaleTableColumn(), this);
+    	new ListEntryPanel(Glimmpse.constants.effectSizeTableColumn(), this);
     
     public EffectSizePanel()
     {
@@ -57,9 +58,8 @@ implements OutcomesListener, PredictorsListener, ListValidator
         VerticalPanel panel = new VerticalPanel();
 
         // create header/instruction text
-        HTML header = new HTML("Effect Sizes");
-        HTML description = new HTML("Here you will estimate the differences you expect in your outcomes.  You will first specify the relative differences, and then a list");
-        
+        HTML header = new HTML(Glimmpse.constants.effectSizeTitle());
+        HTML description = new HTML(Glimmpse.constants.effectSizeDescription());
         
         // layout the overall panel
         panel.add(header);
@@ -229,5 +229,12 @@ implements OutcomesListener, PredictorsListener, ListValidator
 		{
 			throw new IllegalArgumentException(Glimmpse.constants.errorInvalidNumber());
 		}
+	}
+
+	@Override
+	public void loadFromNode(Node node)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

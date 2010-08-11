@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -69,13 +70,14 @@ implements SolvingForListener, PredictorsListener, OutcomesListener, ListValidat
     	VerticalPanel panel = new VerticalPanel();
     	VerticalPanel tablePanel = new VerticalPanel();
     	
-        HTML header = new HTML("Relative group sizes");
-        HTML description = new HTML("Group size instructions...");
+        HTML header = new HTML(Glimmpse.constants.relativeGroupSizeTitle());
+        HTML description = new HTML(Glimmpse.constants.relativeGroupSizeDescription());
         
         panel.add(header);
         panel.add(description);
         tablePanel.add(groupSizesTable);
         panel.add(tablePanel);
+        
     	// add style
     	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
     	panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
@@ -136,7 +138,7 @@ implements SolvingForListener, PredictorsListener, OutcomesListener, ListValidat
     	{
     		groupSizesTable.getRowFormatter().setStyleName(0, 
     				GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_HEADER);
-    		groupSizesTable.setWidget(0, 0, new HTML("Relative Group Size"));
+    		groupSizesTable.setWidget(0, 0, new HTML(Glimmpse.constants.relativeGroupSizeTableColumn()));
     		for(int col = 0; col < groups.getNumberOfColumns(); col++)
     		{
     			groupSizesTable.setWidget(0, col+1, new HTML(groups.getColumnLabel(col)));
@@ -187,5 +189,12 @@ implements SolvingForListener, PredictorsListener, OutcomesListener, ListValidat
 	public void onSolvingFor(SolutionType solutionType)
 	{
 		perGroupSampleSizePanel.setVisible(solutionType != SolutionType.TOTAL_N);
+	}
+
+	@Override
+	public void loadFromNode(Node node)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

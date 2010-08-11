@@ -3,6 +3,7 @@ package edu.cudenver.bios.glimmpse.client.panels;
 import java.util.ArrayList;
 
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.listener.StepStatusListener;
 
@@ -45,6 +46,8 @@ public abstract class WizardStepPanel extends Composite
     }
     
     public abstract void reset();
+    
+    public abstract void loadFromNode(Node node);
     
     public void onEnter() {}
     

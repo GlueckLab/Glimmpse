@@ -25,6 +25,8 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -32,6 +34,7 @@ import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
+import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.BetaPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.ContrastPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.CovariancePanel;
@@ -43,8 +46,12 @@ import edu.cudenver.bios.glimmpse.client.panels.matrix.ThetaPanel;
  * for each type of matrix required for power calculations on the GLMM
  */
 public class MatrixWizardPanel extends Composite
-implements StudyDesignManager
+implements StudyDesignManager, SaveListener
 {
+	// default filenames
+	protected static final String DEFAULT_STUDY_FILENAME = "study.xml";
+	protected static final String DEFAULT_RESULTS_FILENAME = "power.csv";
+	protected static final String DEFAULT_CURVE_FILENAME = "powerCurve.jpg";
 	// content panels 
 	protected SolvingForPanel solvingForPanel = new SolvingForPanel(getModeName());
     protected AlphaPanel alphaPanel = new AlphaPanel();
@@ -80,6 +87,7 @@ implements StudyDesignManager
 		VerticalPanel panel = new VerticalPanel();
 		
 		wizardPanel = new WizardPanel(panelList);
+		wizardPanel.addSaveListener(this);
 		panel.add(wizardPanel);
 
 		// set up listener relationships between the matrix panels
@@ -108,6 +116,27 @@ implements StudyDesignManager
 	 */
 	public void loadFromXML(Document doc)
 	{
+		Node studyNode = doc.getElementsByTagName(GlimmpseConstants.TAG_STUDY).item(0);
+		if (studyNode != null)
+		{
+			NodeList children = studyNode.getChildNodes();
+			for(int i = 0; i < children.getLength(); i++)
+			{
+				Node child = children.item(i);
+				String childName = child.getNodeName();
+				if (GlimmpseConstants.TAG_SOLVING_FOR.equals(childName))
+					solvingForPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_ALPHA_LIST.equals(childName))
+					alphaPanel.loadFromNode(child);
+				
+				
+				
+				
+				else if (GlimmpseConstants.TAG_OPTIONS.equals(childName))
+					optionsPanel.loadFromNode(child);
+					
+			}
+		}
 		
 	}
     
@@ -127,14 +156,14 @@ implements StudyDesignManager
 		StringBuffer buffer = new StringBuffer();
 		
 		buffer.append("<" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
-		buffer.append(solvingForPanel.toXML());
+		buffer.append(solvingForPanel.toRequestXML());
 		buffer.append(alphaPanel.toXML());
 		buffer.append(designPanel.toXML());
 		buffer.append(betaPanel.toXML());
 		buffer.append(contrastPanel.toXML());
 		buffer.append(thetaPanel.toXML());
 		buffer.append(covariancePanel.toXML());
-		buffer.append(optionsPanel.toXML());
+		buffer.append(optionsPanel.toRequestXML());
 		buffer.append("</" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
 		
 		return buffer.toString();
@@ -143,13 +172,53 @@ implements StudyDesignManager
 	@Override
 	public String getStudyDesignXML()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		StringBuffer buffer = new StringBuffer();
+		
+		buffer.append("<");
+		buffer.append(GlimmpseConstants.TAG_STUDY);
+		buffer.append(" ");
+		buffer.append(GlimmpseConstants.ATTR_MODE);
+		buffer.append("='");
+		buffer.append(getModeName());
+		buffer.append("'>");
+
+		buffer.append(solvingForPanel.toStudyXML());
+		buffer.append(alphaPanel.toXML());
+		buffer.append(designPanel.toXML());
+		buffer.append(betaPanel.toXML());
+		buffer.append(contrastPanel.toXML());
+		buffer.append(thetaPanel.toXML());
+		buffer.append(covariancePanel.toXML());
+		buffer.append(optionsPanel.toStudyXML());
+		
+		
+		buffer.append("</");
+		buffer.append(GlimmpseConstants.TAG_STUDY);
+		buffer.append(">");
+		
+		return buffer.toString();
 	}
 	
 	@Override
 	public String getModeName()
 	{
 		return "matrix";
+	}
+
+	@Override
+	public void onSave(SaveType type)
+	{
+		switch(type)
+		{
+		case STUDY:
+			wizardPanel.sendSaveRequest(getStudyDesignXML(), DEFAULT_STUDY_FILENAME);
+			break;
+		case RESULTS:
+			wizardPanel.sendSaveRequest(resultsPanel.dataTableToCSV(),DEFAULT_RESULTS_FILENAME);
+			break;
+		case CURVE:
+			resultsPanel.saveCurveData();
+			break;
+		}	
 	}
 }

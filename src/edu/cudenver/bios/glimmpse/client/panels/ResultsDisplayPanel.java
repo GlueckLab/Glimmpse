@@ -41,7 +41,8 @@ implements OptionsListener, SolvingForListener
 	private static final String IMAGE_FRAME_NAME_SUFFIX = "PowerCurveFrame";
 	private static final String STYLE_POWER_CURVE_FRAME = "powerCurveFrame";
 	private static final String CHART_INPUT_NAME = "chart";
-
+	private static final String SAVE_INPUT_NAME = "save";
+	
 	private NumberFormat doubleFormatter = NumberFormat.getFormat("0.0000");
 
 	// wait dialog
@@ -67,6 +68,11 @@ implements OptionsListener, SolvingForListener
 	protected NamedFrame imageFrame;
 	protected FormPanel curveForm;
 	protected Hidden curveEntityBodyHidden = new Hidden(CHART_INPUT_NAME);
+	// this is a separate form for saving an image, since we have to resubmit the request to a 
+	// blank target window
+	protected FormPanel saveForm = new FormPanel("_blank");
+	protected Hidden saveEntityBodyHidden = new Hidden(CHART_INPUT_NAME);
+	protected Hidden saveHidden = new Hidden(SAVE_INPUT_NAME);
 
 	// options for display of data
 	protected boolean showTable = true;
@@ -100,22 +106,31 @@ implements OptionsListener, SolvingForListener
 		resultsCurvePanel.add(new HTML("Curves"));
 		resultsCurvePanel.add(imageFrame);
 
-		// setup the form for submitting curve requests
+		// setup the form for submitting curve requests to the target IFrame
 		curveForm.setAction(CURVE_URL);
 		curveForm.setMethod(FormPanel.METHOD_POST);
 		VerticalPanel formContainer = new VerticalPanel();
 		formContainer.add(curveEntityBodyHidden);
 		curveForm.add(formContainer);
 		
+		// setup the form for saving curve data - you can't dynamically change a form target,
+		// so we need the separate one for saving
+		saveForm.setAction(CURVE_URL);
+		saveForm.setMethod(FormPanel.METHOD_POST);
+		VerticalPanel saveFormContainer = new VerticalPanel();
+		formContainer.add(saveEntityBodyHidden);
+		formContainer.add(saveHidden);
+		saveForm.add(saveFormContainer);
+		
 		// layout the panel
 		panel.add(resultsCurvePanel);
 		panel.add(resultsTablePanel);        
 		panel.add(curveForm);
+		panel.add(saveForm);
 
 		// set style
 		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
 		imageFrame.setStyleName(STYLE_POWER_CURVE_FRAME);
-		//onShowCurve(true, XAxisType.TOTAL_N, null);
 
 		initWidget(panel);
 	}
@@ -353,35 +368,8 @@ implements OptionsListener, SolvingForListener
 
 	private void showCurveResults()
 	{
-		// build the full chart xml
-		StringBuffer buffer = new StringBuffer();
-
-		buffer.append("<chart title='Power Curve' legend='false' >");
-		buffer.append("<yaxis label='Power' />");
-		buffer.append("<xaxis label='"); 
-		switch(xaxisType)
-		{
-		case TOTAL_N:
-			buffer.append("Total Sample Size");
-			break;
-		case EFFECT_SIZE:
-			buffer.append("Effect Size Scale Factor");
-			break;
-		case VARIANCE:
-			buffer.append("Variance Scale Factor");
-			break;
-		}
-		buffer.append("' />");
-		for(StringBuffer columnBuffer: curveXMLByColumn.values())
-		{
-			buffer.append(columnBuffer);
-			buffer.append("</series>");
-		}
-
-		buffer.append("</chart>");
-		
 		// submit the result to the chart service
-		curveEntityBodyHidden.setValue(buffer.toString());
+		curveEntityBodyHidden.setValue(buildCurveRequestXML());
 		curveForm.submit();
 		resultsCurvePanel.setVisible(true);
 	}
@@ -483,5 +471,87 @@ implements OptionsListener, SolvingForListener
 	{
 		this.solutionType = solutionType;
 	}    
+	
+	/**
+	 * Output the data table in CSV format
+	 * @return CSV formatted data
+	 */
+	public String dataTableToCSV()
+	{
+		StringBuffer buffer = new StringBuffer();
+		
+		if (resultsData.getNumberOfRows() > 0)
+		{
+			// add the column headers
+			for(int col = 0; col < resultsData.getNumberOfColumns(); col++)
+			{
+				if (col > 0) buffer.append(",");
+				buffer.append(resultsData.getColumnId(col));
+			}
+			buffer.append("\n");
+			// now add the data
+			for(int row = 0; row < resultsData.getNumberOfRows(); row++)
+			{
+				for(int col = 0; col < resultsData.getNumberOfColumns(); col++)
+				{
+					if (col > 0) buffer.append(",");
+					if (resultsData.getColumnType(col) == ColumnType.STRING)
+						buffer.append(resultsData.getValueString(row, col));
+					else	
+						buffer.append(resultsData.getValueDouble(row, col));	
+				}
+				buffer.append("\n");
+			}
+		}
+		return buffer.toString();
+	}
 
+	private String buildCurveRequestXML()
+	{
+		// build the full chart xml
+		StringBuffer buffer = new StringBuffer();
+
+		buffer.append("<chart title='Power Curve' legend='false' >");
+		buffer.append("<yaxis label='Power' />");
+		buffer.append("<xaxis label='"); 
+		switch(xaxisType)
+		{
+		case TOTAL_N:
+			buffer.append("Total Sample Size");
+			break;
+		case EFFECT_SIZE:
+			buffer.append("Effect Size Scale Factor");
+			break;
+		case VARIANCE:
+			buffer.append("Variance Scale Factor");
+			break;
+		}
+		buffer.append("' />");
+		for(StringBuffer columnBuffer: curveXMLByColumn.values())
+		{
+			buffer.append(columnBuffer);
+			buffer.append("</series>");
+		}
+
+		buffer.append("</chart>");
+		return buffer.toString();
+	}
+	
+	public void saveCurveData()
+	{
+		if (showCurve)
+		{
+			// submit the result to the chart service
+			saveEntityBodyHidden.setValue(buildCurveRequestXML());
+			saveHidden.setValue("true");
+			saveForm.submit();
+		}
+	}
+
+	@Override
+	public void loadFromNode(Node node)
+	{
+		// TODO Auto-generated method stub
+		
+	}
 }

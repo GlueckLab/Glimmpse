@@ -7,6 +7,7 @@ import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener.SolutionTyp
 public interface GlimmpseConstants extends Constants
 {
     // shared style names for input wizard steps
+	public static final String STYLE_DISABLED = "disabled";
 	public static final String STYLE_GLIMMPSE_PANEL = "glimmpsePanel";
     public static final String STYLE_WIZARD_STEP_PANEL = "wizardStepPanel";
     public static final String STYLE_WIZARD_STEP_INPUT_CONTAINER = "wizardStepInputContainer";
@@ -30,6 +31,10 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_STEP_LIST_TEXTBOX = "wizardStepListTextBox";
     public static final String STYLE_WIZARD_STEP_LIST_HEADER = "wizardStepListHeader";
 
+    public static final String STYLE_MATRIX_PANEL = "matrixPanel";
+    public static final String STYLE_MATRIX_DIMENSION = "matrixDimensions";
+    public static final String STYLE_MATRIX_DATA = "matrixData";
+    public static final String STYLE_MATRIX_CELL= "matrixCell";
     
     public static final String STYLE_MESSAGE = "message";
     public static final String STYLE_MESSAGE_ERROR = "error";
@@ -37,6 +42,20 @@ public interface GlimmpseConstants extends Constants
 
     // REST API tag names
     public static final String TAG_POWER_PARAMETERS = "glmmPowerParameters";
+    public static final String TAG_STUDY = "study";
+    public static final String TAG_SOLVING_FOR = "solvingFor";
+    public static final String TAG_POWER_LIST = "powerList";
+    public static final String TAG_ALPHA_LIST = "alphaList";
+    public static final String TAG_OPTIONS = "options";
+//    public static final String TAG_STUDY = "study";
+//    public static final String TAG_STUDY = "study";
+//    public static final String TAG_STUDY = "study";
+//    public static final String TAG_STUDY = "study";
+//    public static final String TAG_STUDY = "study";
+//    public static final String TAG_STUDY = "study";
+
+    public static final String ATTR_MODE = "mode";
+    public static final String ATTR_TYPE = "type";
     
     // mode names
     public static final String MODE_MATRIX = "matrix";
@@ -82,7 +101,10 @@ public interface GlimmpseConstants extends Constants
 
     // default solving for value
     public static final SolutionType DEFAULT_SOLUTION = SolutionType.POWER;
-    
+    public static final String SOLUTION_TYPE_POWER = "power";
+    public static final String SOLUTION_TYPE_SAMPLE_SIZE = "sampleSize";
+    public static final String SOLUTION_TYPE_EFFECT_SIZE = "effectSize";
+
     // toolbar buttons
     public String buttonSaveStudy();
     public String buttonCancel();
@@ -118,6 +140,17 @@ public interface GlimmpseConstants extends Constants
     public String stepsLeftTheta();
     public String stepsLeftSigma();
     public String stepsLeftSolvingFor();
+    
+    // tool bar menus / items
+    public String toolBarSaveMenu();
+    public String toolBarSaveStudyMenuItem();
+    public String toolBarSaveResultsMenuItem();
+    public String toolBarSaveCurveMenuItem();
+    public String toolBarClearMenu();
+    public String toolBarClearAllMenuItem();
+    public String toolBarClearScreenMenuItem();
+    public String toolBarHelpMenu();
+    public String toolBarHelpManualMenuItem();
     
     // "solving for" panel constants
     public String solvingForTitle();
@@ -160,13 +193,23 @@ public interface GlimmpseConstants extends Constants
     // study groups panel constants
     public String studyGroupsTitle();
     public String studyGroupsDescription();
-    public String equalGroupsLabel();
+    public String relativeGroupSizeTitle();
+    public String relativeGroupSizeDescription();
+    public String relativeGroupSizeTableColumn();
     public String perGroupSampleSizeTitle();
     public String perGroupSampleSizeDescription();
+    public String perGroupSampleSizeTableColumn();
 
     // hypotheses panel constants
     public String hypothesisTitle();
     public String hypothesisDescription();
+
+    // effect size panel
+    public String effectSizeTitle();
+    public String effectSizeDescription();
+    public String effectSizeScalingTitle();
+    public String effectSizeScalingDescription();
+    public String effectSizeTableColumn();
 
     // options panel constants
     public String optionsTitle();
@@ -187,13 +230,35 @@ public interface GlimmpseConstants extends Constants
     public String powerMethodQuantileLabel();
     public String powerMethodUnconditionalLabel();
     public String quantilesTableColumn();
-    
+    // display constants
+    public String displayOptionsTitle();
+    public String displayOptionsDescription();
+    public String displayOptionsTableLabel();
+    public String displayOptionsCurveLabel();
+    public String displayOptionsXAxisLabel();
+    public String displayOptionsXAxisSampleSizeLabel();
+    public String displayOptionsXAxisEffectSizeLabel();
+    public String displayOptionsXAxisVarianceLabel();
+
     // matrix constants
     public String matrixDimensionSeparator();
     
     // design matrix screen
-    public String perGroupSampleSizeTableColumn();
-    public String betaScaleTableColumn();
+    public String matrixDesignTitle();
+    public String matrixDesignDescription();
+    public String matrixCategoricalEffectsLabel();
+    public String matrixCovariateEffectsLabel();
+    
+    // beta matrix screen
+    public String matrixBetaTitle();
+    public String matrixBetaDescription();
+    public String matrixBetaScalingTitle();
+    public String matrixBetaScalingDescription();
+    public String matrixBetaScaleTableColumn();
+    public String matrixBetaFixedMatrixName();
+    public String matrixBetaGaussianMatrixName();
+
+    // sigma matrix screen
     public String sigmaScaleTableColumn();
     
     // error messages
@@ -206,4 +271,7 @@ public interface GlimmpseConstants extends Constants
     public String errorInvalidPower();
     public String errorInvalidNumber();
     
+    // confirm messages
+    public String confirmClearScreen();
+    public String confirmClearAll();
 }

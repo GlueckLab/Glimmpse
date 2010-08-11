@@ -2,6 +2,7 @@ package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -19,15 +20,15 @@ implements MatrixResizeListener, CovariateListener, ListValidator, SolvingForLis
     protected ResizableMatrix betaFixed = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_BETA_FIXED,
     			GlimmpseConstants.DEFAULT_Q, 
-    			GlimmpseConstants.DEFAULT_P, "0", "&beta; Fixed"); 
+    			GlimmpseConstants.DEFAULT_P, "0", Glimmpse.constants.matrixBetaFixedMatrixName()); 
     protected ResizableMatrix betaRandom = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_BETA_RANDOM,
     			1, GlimmpseConstants.DEFAULT_P, 
-    			"0", "&beta; Random"); 
+    			"0", Glimmpse.constants.matrixBetaGaussianMatrixName()); 
     
    	// list of per group sample sizes
     protected ListEntryPanel betaScaleListPanel =
-    	new ListEntryPanel(Glimmpse.constants.betaScaleTableColumn(), this);
+    	new ListEntryPanel(Glimmpse.constants.matrixBetaScaleTableColumn(), this);
 
 	public BetaPanel()
 	{
@@ -35,11 +36,27 @@ implements MatrixResizeListener, CovariateListener, ListValidator, SolvingForLis
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text
-        HTML header = new HTML("Specify your &beta; Matrix");
-        HTML description = new HTML("The &beta; matrix represents your estimated regression coefficients for each cell in your design matrix.  ");
+        HTML header = new HTML(Glimmpse.constants.matrixBetaTitle());
+        HTML description = new HTML(Glimmpse.constants.matrixBetaDescription());
 
+        // layout the panel
         panel.add(header);
         panel.add(description);
+        panel.add(createBetaMatrixPanel());
+        panel.add(createBetaScalePanel());
+        
+        // set style
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        
+		initWidget(panel);
+	}
+	
+	private VerticalPanel createBetaMatrixPanel()
+	{
+    	VerticalPanel panel = new VerticalPanel();
+    	
         panel.add(betaFixed);
         panel.add(betaRandom);
 		panel.add(betaScaleListPanel);
@@ -57,10 +74,35 @@ implements MatrixResizeListener, CovariateListener, ListValidator, SolvingForLis
         // disable both dimensions on the random beta matrix
         betaRandom.setEnabledRowDimension(false);
         betaRandom.setEnabledColumnDimension(false);
-
+    	
+    	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+    	panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         
-		initWidget(panel);
+    	return panel;
 	}
+	
+    private VerticalPanel createBetaScalePanel()
+    {
+    	VerticalPanel panel = new VerticalPanel();
+    	
+        HTML header = new HTML(Glimmpse.constants.matrixBetaScalingTitle());
+        HTML description = new HTML(Glimmpse.constants.matrixBetaScalingDescription());
+        
+        panel.add(header);
+        panel.add(description);
+        panel.add(betaScaleListPanel);
+
+    	// add style
+    	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+    	panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+    	    	
+    	return panel;
+    }
+	
 	
     public void reset()
     {
@@ -151,5 +193,12 @@ implements MatrixResizeListener, CovariateListener, ListValidator, SolvingForLis
 	public void onSolvingFor(SolutionType solutionType)
 	{
 		betaScaleListPanel.setVisible(solutionType != SolutionType.EFFECT_SIZE);
+	}
+
+	@Override
+	public void loadFromNode(Node node)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -12,6 +12,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -230,5 +231,12 @@ implements OutcomesListener, PredictorsListener, ClickHandler
 			notifyComplete();
 		else
 			notifyInProgress();
+	}
+
+	@Override
+	public void loadFromNode(Node node)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

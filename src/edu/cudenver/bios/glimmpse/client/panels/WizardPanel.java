@@ -208,11 +208,14 @@ implements NavigationListener, StepStatusListener
     	navPanel.setNext(w.isComplete());
     	w.onEnter();
     	
+    	boolean lastPanel = (currentStep == wizardDeck.getWidgetCount() - 1);
+    	navPanel.setVisible(!lastPanel);
+    	
     	// enable the save menu items if we're on the last step.  Note, I'm not crazy about this
     	// since it assumes that results are only shown on the last step, but I didn't have time
     	// to make it all robust and stuff.  Bad programmer, no biscuit for you.
-    	if (currentStep == wizardDeck.getWidgetCount() - 1)
-    	{
+    	if (lastPanel)
+    	{    		
     	    saveResultsMenuItem.removeStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
     	    saveCurveMenuItem.removeStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
     	    // add save command
@@ -307,7 +310,7 @@ implements NavigationListener, StepStatusListener
 	{
 		MenuBar clearMenu = new MenuBar(true);
 
-		clearMenu.addItem(Glimmpse.constants.toolBarClearAllMenuItem(), new Command() {
+		clearMenu.addItem(Glimmpse.constants.toolBarClearScreenMenuItem(), new Command() {
 			public void execute()
 			{
 				if (Window.confirm(Glimmpse.constants.confirmClearScreen()))
@@ -393,6 +396,7 @@ implements NavigationListener, StepStatusListener
     {
     	dataHidden.setValue(data);
     	filenameHidden.setValue(filename);
+    	Window.alert(dataHidden.getValue());
     	saveForm.submit();
     }
     

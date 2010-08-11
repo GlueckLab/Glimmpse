@@ -23,6 +23,8 @@ package edu.cudenver.bios.glimmpse.client.panels;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -37,6 +39,7 @@ import edu.cudenver.bios.glimmpse.client.TextValidation;
 public class AlphaPanel extends WizardStepPanel
 implements ListValidator
 {
+	private static final String TAG_ALPHA_LIST = "alphaList";
     // list of alpha values
     protected ListEntryPanel alphaListPanel = 
     	new ListEntryPanel(Glimmpse.constants.alphaTableColumn() , this);
@@ -72,7 +75,7 @@ implements ListValidator
      */
     public String toXML()
     {
-    	return alphaListPanel.toXML("alphaList");
+    	return alphaListPanel.toXML(TAG_ALPHA_LIST);
     }
     
     /**
@@ -113,5 +116,20 @@ implements ListValidator
     {
     	alphaListPanel.reset();
     	notifyInProgress();
+    }
+
+    /**
+     * Load the alpha panel from an "alphaList" Dom node
+     * 
+     * @param node "alphalist" node
+     */
+    @Override
+    public void loadFromNode(Node node)
+    {
+    	if (TAG_ALPHA_LIST.equals(node.getNodeName()))
+    	{
+    		alphaListPanel.loadFromNode(node);
+    	}
+    	onValidRowCount(alphaListPanel.getValidRowCount());
     }
 }

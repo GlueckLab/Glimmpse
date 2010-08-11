@@ -178,14 +178,17 @@ public class ListEntryPanel extends Composite
 	public String toXML(String tagName)
 	{
     	StringBuffer buffer = new StringBuffer();
-    	buffer.append("<" + tagName + ">");
-    	for(int i = 0; i < listBox.getItemCount(); i++)
+    	if (listBox.getItemCount() > 0)
     	{
-        		buffer.append("<v>");
-        		buffer.append(listBox.getItemText(i));
-        		buffer.append("</v>");	
+    		buffer.append("<" + tagName + ">");
+    		for(int i = 0; i < listBox.getItemCount(); i++)
+    		{
+    			buffer.append("<v>");
+    			buffer.append(listBox.getItemText(i));
+    			buffer.append("</v>");	
+    		}
+    		buffer.append("</" + tagName + ">");
     	}
-    	buffer.append("</" + tagName + ">");
     	return buffer.toString();
 	}
 	

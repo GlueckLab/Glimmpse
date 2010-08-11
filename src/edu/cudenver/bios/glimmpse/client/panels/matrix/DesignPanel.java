@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.HasVerticalAlignment.VerticalAlignmentConstant;
+import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -24,15 +25,20 @@ public class DesignPanel extends WizardStepPanel
 implements SolvingForListener, MatrixResizeListener, CovariateListener, ListValidator
 {    	
 	private static final int MAX_RATIO = 10;
-    protected ResizableMatrix essenceFixed;
-    protected ResizableMatrix essenceCovariate;
+    protected ResizableMatrix essenceFixed = new ResizableMatrix(GlimmpseConstants.MATRIX_DESIGN_FIXED,
+			GlimmpseConstants.DEFAULT_N, 
+			GlimmpseConstants.DEFAULT_Q, "0", Glimmpse.constants.matrixCategoricalEffectsLabel());
+    protected ResizableMatrix essenceCovariate = new ResizableMatrix(GlimmpseConstants.MATRIX_DESIGN_RANDOM,
+			GlimmpseConstants.DEFAULT_N,1,"1", Glimmpse.constants.matrixCovariateEffectsLabel());
 	protected CovariatePanel covariatePanel = new CovariatePanel(Glimmpse.constants.matrixCovariateDescription());
    	protected Grid rowMDGrid;
    	
    	// list of per group sample sizes
     protected ListEntryPanel perGroupNListPanel =
     	new ListEntryPanel(Glimmpse.constants.perGroupSampleSizeTableColumn(), this);
-   	
+    // panel containing group sample size list
+    protected VerticalPanel perGroupSampleSizePanel = new VerticalPanel();
+    
 	public DesignPanel()
 	{
 		super(Glimmpse.constants.stepsLeftDesign());
@@ -40,55 +46,98 @@ implements SolvingForListener, MatrixResizeListener, CovariateListener, ListVali
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text
-        HTML header = new HTML("Specify your Design \"Essence\" Matrix");
-        HTML description = new HTML("your design matrix and stuff");
-		// create the fixed and covariate matrices
-		essenceFixed = new ResizableMatrix(GlimmpseConstants.MATRIX_DESIGN_FIXED,
-				GlimmpseConstants.DEFAULT_N, 
-				GlimmpseConstants.DEFAULT_Q, "0", "Fixed Effects");
-		essenceCovariate = 
-			new ResizableMatrix(GlimmpseConstants.MATRIX_DESIGN_RANDOM,
-					GlimmpseConstants.DEFAULT_N,1,"1", "Random Effects");
+        HTML header = new HTML(Glimmpse.constants.matrixDesignTitle());
+        HTML description = new HTML(Glimmpse.constants.matrixDesignDescription());
+        
+        // build the per group sample size panel
+        buildPerGroupSampleSizePanel();
+        
+        // layout the overall panel
+        panel.add(header);
+        panel.add(description);
+        panel.add(createEssenceMatrixPanel());
+        panel.add(covariatePanel);
+        panel.add(perGroupSampleSizePanel);
+        
+        // set style
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
 
-      // build the row meta data panel
-      VerticalPanel rowMDPanel = new VerticalPanel();
-      rowMDPanel.add(new HTML("Relative<br>Group<br>Size"));
-      rowMDGrid = new Grid(GlimmpseConstants.DEFAULT_N, 1);
-      for(int r = 0; r < GlimmpseConstants.DEFAULT_N; r++)
-      {
-      	rowMDGrid.setWidget(r, 0, createRowMDTextBox());
-      }
-      rowMDPanel.add(rowMDGrid);
-      // layout the matrices and row meta data
-      Grid layoutGrid = new Grid(1,3);
-      layoutGrid.setWidget(0, 0, rowMDPanel);
-      layoutGrid.setWidget(0, 1, essenceFixed);
-      layoutGrid.setWidget(0, 2, essenceCovariate);
-      layoutGrid.getRowFormatter().setVerticalAlign(0, HasVerticalAlignment.ALIGN_BOTTOM);
-      // add listeners
-      covariatePanel.addCovariateListener(this);
-      essenceFixed.addMatrixResizeListener(this);
-      
-      // layout the overall panel
-      panel.add(header);
-      panel.add(description);
-      panel.add(covariatePanel);
-      panel.add(layoutGrid);
-      panel.add(perGroupNListPanel);
-      essenceCovariate.setVisible(false);
-      
-      // add style
-      initWidget(panel);
+        // add style
+        initWidget(panel);
 	}
 	
+	/**
+	 * Create a drop down list with relative group size entries
+	 * 
+	 * @return listbox widget
+	 */
     private ListBox createRowMDTextBox()
     {
     	ListBox list = new ListBox();
+    	list.setStyleName(GlimmpseConstants.STYLE_MATRIX_CELL);
     	for(int i = 1; i <= MAX_RATIO; i++)
     	{
     		list.addItem(Integer.toString(i));
     	}		
     	return list;
+    }
+    
+    private VerticalPanel createEssenceMatrixPanel()
+    {
+    	VerticalPanel panel = new VerticalPanel();			
+
+    	// build the row meta data panel
+    	VerticalPanel rowMDPanel = new VerticalPanel();
+    	rowMDPanel.add(new HTML(Glimmpse.constants.relativeGroupSizeTableColumn()));
+    	rowMDGrid = new Grid(GlimmpseConstants.DEFAULT_N, 1);
+    	for(int r = 0; r < GlimmpseConstants.DEFAULT_N; r++)
+    	{
+    		rowMDGrid.setWidget(r, 0, createRowMDTextBox());
+    	}
+    	rowMDPanel.add(rowMDGrid);
+    	// layout the matrices and row meta data
+    	Grid layoutGrid = new Grid(1,3);
+    	layoutGrid.setWidget(0, 0, rowMDPanel);
+    	layoutGrid.setWidget(0, 1, essenceFixed);
+    	layoutGrid.setWidget(0, 2, essenceCovariate);
+    	layoutGrid.getRowFormatter().setVerticalAlign(0, HasVerticalAlignment.ALIGN_BOTTOM);
+    	// add listeners
+    	covariatePanel.addCovariateListener(this);
+    	essenceFixed.addMatrixResizeListener(this);
+
+        // layout the overall panel
+        panel.add(layoutGrid);
+        essenceCovariate.setVisible(false);
+    	
+        // set style
+    	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+    	panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+    	rowMDPanel.setStyleName(GlimmpseConstants.STYLE_MATRIX_PANEL);
+    	rowMDGrid.setStyleName(GlimmpseConstants.STYLE_MATRIX_DATA);
+    	return panel;
+    }
+    
+    /**
+     * Layout the widgets in the per group sample size panel
+     */
+    private void buildPerGroupSampleSizePanel()
+    {
+        HTML header = new HTML(Glimmpse.constants.perGroupSampleSizeTitle());
+        HTML description = new HTML(Glimmpse.constants.perGroupSampleSizeDescription());
+        
+    	perGroupSampleSizePanel.add(header);
+    	perGroupSampleSizePanel.add(description);
+    	perGroupSampleSizePanel.add(perGroupNListPanel);
+    	
+    	perGroupSampleSizePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+    	perGroupSampleSizePanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+
     }
     
 	public void reset()
@@ -203,5 +252,12 @@ implements SolvingForListener, MatrixResizeListener, CovariateListener, ListVali
 		{
 			notifyComplete();
 		}
+	}
+
+	@Override
+	public void loadFromNode(Node node)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }
