@@ -1,7 +1,9 @@
 /*
- * .NAME SOFTWARE, one line about what it does
+ * User Interface for the GLIMMPSE Software System.  Allows
+ * users to perform power, sample size, and detectable difference
+ * calculations. 
  * 
- * Copyright (C) 2010 Regents of the University of Colorado.
+ * Copyright (C) 2010 Regents of the University of Colorado.  
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,20 +14,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- *
- * Please contact Sarah Kreidler (sarah.kreidler@ucdenver.edu) for more information
- * about this software.  Or visit the website at <>
  */
-
 package edu.cudenver.bios.glimmpse.client.panels;
 
 import java.util.ArrayList;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -38,26 +35,19 @@ import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Hyperlink;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
-import com.google.gwt.xml.client.DOMException;
-import com.google.gwt.xml.client.Document;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.XMLParser;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.StartListener;
 
 /**
- * Welcome / start panel in the input wizard for the power calculator 
- * site.  Allows the user to select the method for study design input
- * and the statistical model
+ * Welcome / start panel which allows the user to select the method for 
+ * study design input (guided or matrix), or upload an existing design
  * 
- * @author Owner
+ * @author Sarah Kreidler
  *
  */
 public class StartPanel extends Composite implements SubmitCompleteHandler
@@ -77,6 +67,9 @@ public class StartPanel extends Composite implements SubmitCompleteHandler
     // listeners for start events
     protected ArrayList<StartListener> startListeners = new ArrayList<StartListener>();
     
+    /**
+     * Constructor
+     */
     public StartPanel()
     {
         VerticalPanel panel = new VerticalPanel();
@@ -181,12 +174,18 @@ public class StartPanel extends Composite implements SubmitCompleteHandler
         initWidget(panel);
     }
     
+    /**
+     * Notify any listeners when a study design file has been uploaded
+     */
     public void onSubmitComplete(SubmitCompleteEvent event) 
     {
         String results = event.getResults();
         for(StartListener listener: startListeners) listener.onStudyUpload(results);
     }
     
+    /**
+     * Reset the upload form panel
+     */
     public void reset()
     {
         formPanel.reset();
