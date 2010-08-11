@@ -24,7 +24,6 @@ package edu.cudenver.bios.glimmpse.client.panels;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.DOMException;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Node;
@@ -37,6 +36,8 @@ import edu.cudenver.bios.glimmpse.client.listener.StartListener;
 
 /**
  * Main application panel for Glimmpse. 
+ * 
+ * @author Sarah Kreidler
  */
 public class GlimmpsePanel extends Composite
 implements StartListener, CancelListener
@@ -50,6 +51,14 @@ implements StartListener, CancelListener
 	protected MatrixWizardPanel matrixWizardPanel = new MatrixWizardPanel();
 	protected GuidedWizardPanel guidedWizardPanel = new GuidedWizardPanel();
 	
+	/**
+	 * Constructor.  The main panel has a deck with three entries:
+	 * <ul>
+	 * <li>Start panel - main entry screen for user to select either guided/matrix mode</li>
+	 * <li>Guided panel - wizard panel for guided mode</li>
+	 * <li>Matrix panel - wizard panel for matrix mode</li>
+	 * </ul>
+	 */
 	public GlimmpsePanel()
 	{
 		// add the start panel and wizard panels to the deck
@@ -70,17 +79,31 @@ implements StartListener, CancelListener
 		
 	}
 	
-    
+	/**
+	 * Display the guided mode wizard
+	 * @see StartListener
+	 */
+	@Override
 	public void onGuidedMode()
 	{
 		deckPanel.showWidget(GUIDED_INDEX);
 	}
 	
+	/**
+	 * Display the matrix mode wizard
+	 * @see StartListener
+	 */
+	@Override
 	public void onMatrixMode()
 	{
 		deckPanel.showWidget(MATRIX_INDEX);
 	}
 	
+	/**
+	 * Parse the uploaded file to determine whether the user was
+	 * using matrix or guided mode, then load the appropriate 
+	 * wizard from the XML document
+	 */
     public void onStudyUpload(String uploadedStudy)
     {
         if (uploadedStudy != null)
@@ -88,10 +111,10 @@ implements StartListener, CancelListener
         	try
         	{
            		Document doc = XMLParser.parse(uploadedStudy);
-        		Node studyNode = doc.getElementsByTagName("study").item(0);
+        		Node studyNode = doc.getElementsByTagName(GlimmpseConstants.TAG_STUDY).item(0);
         		if (studyNode == null) throw new DOMException(DOMException.SYNTAX_ERR, "no study tag specified");
-        		Node mode = studyNode.getAttributes().getNamedItem("mode");
-        		if (mode != null && mode.equals(GlimmpseConstants.MODE_MATRIX))
+        		Node mode = studyNode.getAttributes().getNamedItem(GlimmpseConstants.ATTR_MODE);
+        		if (mode != null && GlimmpseConstants.MODE_MATRIX.equals(mode.getNodeValue()))
         		{
         			matrixWizardPanel.reset();
         			matrixWizardPanel.loadFromXML(doc);
@@ -115,12 +138,16 @@ implements StartListener, CancelListener
         }
     }
 
-
+    /**
+     * Reset the panels when the user selects "Clear", "All" from one of the wizard
+     * toolbar menus
+     */
 	@Override
 	public void onCancel()
 	{
 		matrixWizardPanel.reset();
 		guidedWizardPanel.reset();
+		startPanel.reset();
 		deckPanel.showWidget(START_INDEX);
 	}
 }
