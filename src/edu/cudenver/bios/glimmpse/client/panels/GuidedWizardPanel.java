@@ -21,6 +21,7 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
@@ -99,10 +100,14 @@ implements StudyDesignManager, SaveListener
 		outcomesPanel.addOutcomesListener(studyGroupsPanel);
 		outcomesPanel.addOutcomesListener(hypothesisPanel);
 		outcomesPanel.addOutcomesListener(effectSizePanel);
+		outcomesPanel.addOutcomesListener(variabilityPanel);
 		predictorsPanel.addPredictorsListener(studyGroupsPanel);
 		predictorsPanel.addPredictorsListener(hypothesisPanel);
 		predictorsPanel.addPredictorsListener(effectSizePanel);
 		predictorsPanel.addCovariateListener(optionsPanel);
+		predictorsPanel.addCovariateListener(studyGroupsPanel);
+		predictorsPanel.addCovariateListener(effectSizePanel);
+
 		// initialize
 		initWidget(panel);
 	}
@@ -150,18 +155,15 @@ implements StudyDesignManager, SaveListener
 	public String getPowerRequestXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		
 		buffer.append("<" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
 		buffer.append(solvingForPanel.toRequestXML());
 		buffer.append(alphaPanel.toXML());
-//		buffer.append(designPanel.toXML());
-//		buffer.append(betaPanel.toXML());
-//		buffer.append(contrastPanel.toXML());
-//		buffer.append(thetaPanel.toXML());
-//		buffer.append(covariancePanel.toXML());
+		buffer.append(studyGroupsPanel.toRequestXML());
+		buffer.append(hypothesisPanel.toRequestXML());
+		buffer.append(effectSizePanel.toRequestXML());
+		buffer.append(variabilityPanel.toRequestXML());
 		buffer.append(optionsPanel.toRequestXML());
 		buffer.append("</" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
-		
 		return buffer.toString();
 	}
 

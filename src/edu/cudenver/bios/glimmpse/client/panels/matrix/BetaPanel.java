@@ -18,7 +18,7 @@ public class BetaPanel extends WizardStepPanel
 implements MatrixResizeListener, CovariateListener, ListValidator, SolvingForListener
 {
     protected ResizableMatrix betaFixed = 
-    	new ResizableMatrix(GlimmpseConstants.MATRIX_BETA_FIXED,
+    	new ResizableMatrix(GlimmpseConstants.MATRIX_BETA,
     			GlimmpseConstants.DEFAULT_Q, 
     			GlimmpseConstants.DEFAULT_P, "0", Glimmpse.constants.matrixBetaFixedMatrixName()); 
     protected ResizableMatrix betaRandom = 

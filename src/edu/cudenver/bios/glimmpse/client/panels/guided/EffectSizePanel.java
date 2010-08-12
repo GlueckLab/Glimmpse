@@ -3,37 +3,25 @@ package edu.cudenver.bios.glimmpse.client.panels.guided;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import com.google.gwt.core.client.JsArray;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.ListBox;
+
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.visualization.client.Selection;
-import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
-import com.google.gwt.visualization.client.visualizations.BarChart;
-import com.google.gwt.visualization.client.visualizations.Table;
-import com.google.gwt.visualization.client.visualizations.BarChart.Options;
 import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
-import edu.cudenver.bios.glimmpse.client.TextValidation;
+import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
-import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
-import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
 import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class EffectSizePanel extends WizardStepPanel
-implements OutcomesListener, PredictorsListener, ListValidator
+implements OutcomesListener, PredictorsListener, CovariateListener, ListValidator
 {
 	protected static final int MAX_RELATIVE_EFFECT_SIZE = 10;
 	
@@ -48,6 +36,11 @@ implements OutcomesListener, PredictorsListener, ListValidator
 	protected HashMap<String, ArrayList<String>> predictorMap;
 	protected DataTable groupData;
 	
+    // covariate information - mostly to make it easier to build the essence matrix xml
+    protected boolean hasCovariate = false;
+    protected double mean = Double.NaN;
+    protected double variance = Double.NaN;
+    
    	// list of per group sample sizes
     protected ListEntryPanel betaScaleListPanel =
     	new ListEntryPanel(Glimmpse.constants.effectSizeTableColumn(), this);
@@ -236,5 +229,114 @@ implements OutcomesListener, PredictorsListener, ListValidator
 	{
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public String toRequestXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		int rows = groupData.getNumberOfRows();
+		int cols = outcomesList.size(); // TODO: repeated MEASURES!!!!
+		
+		// convert the estimated means into a beta matrix
+		buffer.append("<");
+		buffer.append(GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX);
+		buffer.append(" ");
+		buffer.append(GlimmpseConstants.ATTR_NAME);
+		buffer.append("='");
+		buffer.append(GlimmpseConstants.MATRIX_BETA);
+		buffer.append("' combineHorizontal='false'>");
+		// fixed part of the beta matrix
+		buffer.append("<");
+		buffer.append(GlimmpseConstants.TAG_MATRIX);
+		buffer.append(" ");
+		buffer.append(GlimmpseConstants.ATTR_NAME);
+		buffer.append("='");
+		buffer.append(GlimmpseConstants.MATRIX_FIXED);
+		buffer.append("' ");
+		buffer.append(GlimmpseConstants.ATTR_ROWS);
+		buffer.append("='");
+		buffer.append(rows);
+		buffer.append("' ");
+		buffer.append(GlimmpseConstants.ATTR_COLUMNS);
+		buffer.append("='");
+		buffer.append(cols);
+		buffer.append("' ");
+		buffer.append(">");
+		for(int row = 0; row < rows; row++)
+		{
+			buffer.append("<r>");
+			for(int col = 0; col < cols; col++)
+			{
+				buffer.append("<c>");
+				
+				TextBox tb = (TextBox) effectSizeTable.getWidget(row+2, predictorMap.size() + col);
+				buffer.append(tb.getText());
+				
+				buffer.append("</c>");
+			}
+			buffer.append("</r>");
+		}
+		buffer.append("</");
+		buffer.append(GlimmpseConstants.TAG_MATRIX);
+		buffer.append(">");
+		// random part of the beta matrix
+		if (hasCovariate)
+		{
+			buffer.append("<");
+			buffer.append(GlimmpseConstants.TAG_MATRIX);
+			buffer.append(" ");
+			buffer.append(GlimmpseConstants.ATTR_NAME);
+			buffer.append("='");
+			buffer.append(GlimmpseConstants.MATRIX_RANDOM);
+			buffer.append("' ");
+			buffer.append(GlimmpseConstants.ATTR_ROWS);
+			buffer.append("='");
+			buffer.append(rows);
+			buffer.append("' ");
+			buffer.append(GlimmpseConstants.ATTR_COLUMNS);
+			buffer.append("='");
+			buffer.append(cols);
+			buffer.append("' ");
+			buffer.append(">");
+			
+			buffer.append("<r>");
+			for(int col = 0; col < cols; col++)
+			{
+				buffer.append("<c>1</c>");
+			}
+			buffer.append("<r>");
+			
+			buffer.append("</");
+			buffer.append(GlimmpseConstants.TAG_MATRIX);
+			buffer.append(">");
+		}
+		
+		// close the fixed/rand beta matrix
+		buffer.append("</");
+		buffer.append(GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX);
+		buffer.append(">");
+		
+		// add the beta scale information
+		buffer.append(betaScaleListPanel.toXML(GlimmpseConstants.TAG_BETA_SCALE_LIST));
+		
+		return buffer.toString();
+	}
+
+	@Override
+	public void onHasCovariate(boolean hasCovariate)
+	{
+		this.hasCovariate = hasCovariate;
+	}
+
+	@Override
+	public void onMean(double mean)
+	{
+		this.mean = mean;
+	}
+
+	@Override
+	public void onVariance(double variance)
+	{
+		this.variance = variance;
 	}
 }

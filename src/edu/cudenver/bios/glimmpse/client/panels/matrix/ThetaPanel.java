@@ -62,7 +62,7 @@ implements MatrixResizeListener
 	@Override
 	public void onRows(String name, int newRows)
 	{
-		if (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST_FIXED.equals(name))
+		if (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST.equals(name))
 		{
 			theta.setRowDimension(newRows);
 		}

@@ -34,6 +34,7 @@ implements OutcomesListener, PredictorsListener, ClickHandler
 	// independent groups widgets
 	protected FlexTable independentMainEffectsTable = new FlexTable();
 	protected FlexTable independentInteractionsTable = new FlexTable();
+	protected FlexTable independentOutcomesTable = new FlexTable();
 
 	
     public HypothesisPanel()
@@ -67,12 +68,31 @@ implements OutcomesListener, PredictorsListener, ClickHandler
 
         panel.add(createIndependentMainEffectsPanel());
         panel.add(createIndependentInteractionsPanel());
-
+        panel.add(createIndependentOutcomesPanel());
+        
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
 
         
         return panel;
     	
+    }
+    
+    private VerticalPanel createIndependentOutcomesPanel()
+    {
+    	VerticalPanel panel = new VerticalPanel();
+    	
+    	HTML header = new HTML("Test the Selected Hypotheses for");
+
+    	panel.add(header);
+    	panel.add(this.independentOutcomesTable);
+    	
+        // set style
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+        panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        
+    	return panel;
     }
     
     private VerticalPanel createIndependentMainEffectsPanel()
@@ -122,6 +142,7 @@ implements OutcomesListener, PredictorsListener, ClickHandler
     {
     	independentInteractionsTable.removeAllRows();
     	independentMainEffectsTable.removeAllRows();
+    	independentOutcomesTable.removeAllRows();
     }
 
 	@Override
@@ -152,6 +173,7 @@ implements OutcomesListener, PredictorsListener, ClickHandler
 	@Override
 	public void onEnter()
 	{
+		// TODO: check if repeated mesures
 		Object[] predictorArray = (Object[]) predictorMap.keySet().toArray();
 		reset();
 		int i = 0;
@@ -160,19 +182,30 @@ implements OutcomesListener, PredictorsListener, ClickHandler
 			addMainEffect((String) predictor);
 			addInteractions((String) predictor, ++i, predictorArray);
 		}
+		
+		for(String outcome: outcomes)
+		{
+			addOutcome(outcome);
+		}
+	}
+	
+	private void addOutcome(String outcome)
+	{
+		int startRow = independentOutcomesTable.getRowCount();
+		CheckBox cb = new CheckBox();
+		cb.addClickHandler(this);
+		independentOutcomesTable.setWidget(startRow, 0, cb);
+		independentOutcomesTable.setWidget(startRow, 1, new HTML(outcome));
 	}
 	
 	private void addMainEffect(String predictor)
 	{
 		int startRow = independentMainEffectsTable.getRowCount();
-		for(String outcome: outcomes)
-		{
-			CheckBox cb = new CheckBox();
-			cb.addClickHandler(this);
-			independentMainEffectsTable.setWidget(startRow, 0, cb);
-			independentMainEffectsTable.setWidget(startRow, 1, new HTML(predictor + " main effect on " + outcome));
-			startRow++;
-		}
+		CheckBox cb = new CheckBox();
+		cb.addClickHandler(this);
+		independentMainEffectsTable.setWidget(startRow, 0, cb);
+		independentMainEffectsTable.setWidget(startRow, 1, 
+				new HTML("The outcomes will differ by " + predictor));
 	}
 	
 	private void addInteractions(String predictor, int startIndex, Object[] predictorArray)
@@ -180,15 +213,12 @@ implements OutcomesListener, PredictorsListener, ClickHandler
 		int startRow = independentInteractionsTable.getRowCount();
 		for(int i = startIndex; i < predictorArray.length; i++)
 		{
-			for(String outcome: outcomes)
-			{
 				CheckBox cb = new CheckBox();
 				cb.addClickHandler(this);
 				independentInteractionsTable.setWidget(startRow, 0, cb);
 				independentInteractionsTable.setWidget(startRow, 1, 
-						new HTML(predictor + " x  " + (String) predictorArray[i] + " interaction effect on " + outcome));
+						new HTML("The effect of " + predictor + " on the outcomes will be different depending on the value of " + (String) predictorArray[i] ));
 				startRow++;
-			}
 		}
 	}
 
@@ -238,5 +268,29 @@ implements OutcomesListener, PredictorsListener, ClickHandler
 	{
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public String toRequestXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+
+		if (deckPanel.getVisibleWidget() == INDEPENDENT_GROUPS_INDEX)
+		{
+
+		}
+		else
+		{
+			
+		}
+		
+		return buffer.toString();
+	}
+	
+	public String toStudyXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		
+		
+		return buffer.toString();
 	}
 }

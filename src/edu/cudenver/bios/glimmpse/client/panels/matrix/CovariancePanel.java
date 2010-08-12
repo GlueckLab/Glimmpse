@@ -131,7 +131,7 @@ implements CovariateListener, MatrixResizeListener, ListValidator
 	@Override
 	public void onColumns(String name, int newCols)
 	{
-		if (GlimmpseConstants.MATRIX_BETA_FIXED.equals(name))
+		if (GlimmpseConstants.MATRIX_BETA.equals(name))
 		{
 			sigmaError.setRowDimension(newCols);
 		}		

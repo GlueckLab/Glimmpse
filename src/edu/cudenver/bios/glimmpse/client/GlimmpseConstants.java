@@ -1,5 +1,9 @@
 package edu.cudenver.bios.glimmpse.client;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import com.google.gwt.i18n.client.Constants;
 
 import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener.SolutionType;
@@ -47,15 +51,17 @@ public interface GlimmpseConstants extends Constants
     public static final String TAG_POWER_LIST = "powerList";
     public static final String TAG_ALPHA_LIST = "alphaList";
     public static final String TAG_OPTIONS = "options";
-//    public static final String TAG_STUDY = "study";
-//    public static final String TAG_STUDY = "study";
-//    public static final String TAG_STUDY = "study";
-//    public static final String TAG_STUDY = "study";
-//    public static final String TAG_STUDY = "study";
-//    public static final String TAG_STUDY = "study";
-
+    public static final String TAG_SAMPLE_SIZE_LIST = "sampleSizeList";
+    public static final String TAG_MATRIX = "matrix";
+    public static final String TAG_ROW_META_DATA = "rowMetaData";
+    public static final String TAG_ESSENCE_MATRIX = "essenceMatrix";
+    public static final String TAG_FIXED_RANDOM_MATRIX = "fixedRandomMatrix";
+    public static final String TAG_BETA_SCALE_LIST = "betaScaleList";
     public static final String ATTR_MODE = "mode";
     public static final String ATTR_TYPE = "type";
+    public static final String ATTR_NAME = "name";
+    public static final String ATTR_ROWS = "rows";
+    public static final String ATTR_COLUMNS = "columns";
     
     // mode names
     public static final String MODE_MATRIX = "matrix";
@@ -66,9 +72,9 @@ public interface GlimmpseConstants extends Constants
     public static final String MATRIX_RANDOM = "random";
     public static final String MATRIX_DESIGN_FIXED = "design";
     public static final String MATRIX_DESIGN_RANDOM = "designRandom";
-    public static final String MATRIX_BETA_FIXED = "beta";
+    public static final String MATRIX_BETA = "beta";
     public static final String MATRIX_BETA_RANDOM = "betaRandom";
-    public static final String MATRIX_BETWEEN_CONTRAST_FIXED = "betweenSubjectContrast";
+    public static final String MATRIX_BETWEEN_CONTRAST = "betweenSubjectContrast";
     public static final String MATRIX_BETWEEN_CONTRAST_RANDOM = "betweenSubjectContrastRandom";
     public static final String MATRIX_WITHIN_CONTRAST = "withinSubjectContrast";
     public static final String MATRIX_SIGMA_ERROR = "sigmaError";
@@ -211,6 +217,10 @@ public interface GlimmpseConstants extends Constants
     public String effectSizeScalingDescription();
     public String effectSizeTableColumn();
 
+    // variability panel
+    public String variabilityTitle();
+    public String variabilityDescription();
+    
     // options panel constants
     public String optionsTitle();
     public String optionsDescription();

@@ -210,7 +210,7 @@ implements SolvingForListener, MatrixResizeListener, CovariateListener, ListVali
 		
 		if (perGroupNListPanel.isVisible())
 		{
-			buffer.append(perGroupNListPanel.toXML("sampleSizeList"));
+			buffer.append(perGroupNListPanel.toXML(GlimmpseConstants.TAG_SAMPLE_SIZE_LIST));
 		}
 		
 		buffer.append("<essenceMatrix>");

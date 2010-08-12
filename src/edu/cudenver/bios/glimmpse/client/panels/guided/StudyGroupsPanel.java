@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ListBox;
@@ -14,6 +15,8 @@ import com.google.gwt.xml.client.Node;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
+import edu.cudenver.bios.glimmpse.client.XMLUtilities;
+import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
@@ -22,7 +25,8 @@ import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class StudyGroupsPanel extends WizardStepPanel
-implements SolvingForListener, PredictorsListener, OutcomesListener, ListValidator
+implements SolvingForListener, PredictorsListener, 
+OutcomesListener, CovariateListener, ListValidator
 {
 	protected static final int MAX_RELATIVE_SIZE = 10;
    	// list of per group sample sizes
@@ -33,6 +37,11 @@ implements SolvingForListener, PredictorsListener, OutcomesListener, ListValidat
     
     // data table to display possible groups
     protected FlexTable groupSizesTable = new FlexTable();
+    
+    // covariate information - mostly to make it easier to build the essence matrix xml
+    protected boolean hasCovariate = false;
+    protected double mean = Double.NaN;
+    protected double variance = Double.NaN;
     
     public StudyGroupsPanel()
     {
@@ -197,4 +206,102 @@ implements SolvingForListener, PredictorsListener, OutcomesListener, ListValidat
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public String toRequestXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		
+		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_ESSENCE_MATRIX);
+
+		// build the "fixed" cell means matrix.  Essentially, this is an identity matrix
+		// with rows & columns equal to the number of study sub groups
+		int size = groupSizesTable.getRowCount() -1;  // skip header
+
+		XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_FIXED, size, size);
+
+		// identity matrix
+		for(int row = 0; row < size; row++)
+		{
+			buffer.append("<r>");
+			for(int col = 0; col < size; col++)
+			{
+				buffer.append("<c>");
+				if (row == col)
+					buffer.append(1);
+				else
+					buffer.append(0);
+				buffer.append("</c>");
+			}
+			buffer.append("</r>");
+		}
+		
+		// close tag
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
+		
+		// build row meta data list
+		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_ROW_META_DATA);
+
+		for(int row = 1; row <= size; row++)
+		{
+			ListBox lb = (ListBox) groupSizesTable.getWidget(row, 0);
+			if (lb != null) buffer.append("<r ratio='" + lb.getItemText(lb.getSelectedIndex()) + "' />");
+		}
+
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ROW_META_DATA);
+		
+		// check if there is a random matrix
+		if (hasCovariate)
+		{
+			// list random column meta data
+			buffer.append("<randomColumnMetaData>");
+			buffer.append("<c mean='");
+			buffer.append(mean);
+			buffer.append("' variance='");
+			buffer.append(variance);
+			buffer.append("'></c></randomColumnMetaData>");
+
+			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_RANDOM, size, 1);
+			for(int row = 0; row < size; row++)
+			{
+				buffer.append("<r><c>1</c></r>");
+			}
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
+			
+		}
+		
+		// close tag for essence matrix
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ESSENCE_MATRIX);
+		
+		// add sample size list information
+		buffer.append(perGroupNListPanel.toXML(GlimmpseConstants.TAG_SAMPLE_SIZE_LIST));
+		
+		return buffer.toString();
+	}
+	
+	public String toStudyXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		
+		this.perGroupNListPanel.toXML(GlimmpseConstants.TAG_SAMPLE_SIZE_LIST);
+		return buffer.toString();
+	}
+
+	@Override
+	public void onHasCovariate(boolean hasCovariate)
+	{
+		this.hasCovariate = hasCovariate;
+	}
+
+	@Override
+	public void onMean(double mean)
+	{
+		this.mean = mean;
+	}
+
+	@Override
+	public void onVariance(double variance)
+	{
+		this.variance = variance;
+	}
+	
 }

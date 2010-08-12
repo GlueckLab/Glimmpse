@@ -15,7 +15,7 @@ public class ContrastPanel extends WizardStepPanel
 implements CovariateListener, MatrixResizeListener
 {    
     protected ResizableMatrix betweenSubjectFixed = 
-    	new ResizableMatrix(GlimmpseConstants.MATRIX_BETWEEN_CONTRAST_FIXED,
+    	new ResizableMatrix(GlimmpseConstants.MATRIX_BETWEEN_CONTRAST,
     			GlimmpseConstants.DEFAULT_A, 
     			GlimmpseConstants.DEFAULT_Q, "0", "Between Subject (C)<br>Fixed"); 
     protected ResizableMatrix betweenSubjectRandom = 
@@ -99,7 +99,7 @@ implements CovariateListener, MatrixResizeListener
 			betweenSubjectFixed.setColumnDimension(newCols);
 			betweenSubjectFixed.notifyOnColumns(newCols);
 		}
-		else if (GlimmpseConstants.MATRIX_BETA_FIXED.equals(name))
+		else if (GlimmpseConstants.MATRIX_BETA.equals(name))
 		{
 			withinSubject.setRowDimension(newCols);
 			withinSubject.notifyOnRows(newCols);
