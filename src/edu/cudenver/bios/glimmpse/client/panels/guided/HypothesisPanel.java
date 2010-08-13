@@ -266,7 +266,12 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 		int startRow = independentInteractionsTable.getRowCount();
 		for(int i = startIndex; i < predictorArray.length; i++)
 		{
-			ContrastCountCheckBox cb = new ContrastCountCheckBox(1);
+			String interaction = (String) predictorArray[i];
+			List<String> predictorCategories = predictorMap.get(predictor);
+			List<String> interactionCategories = predictorMap.get(interaction);
+
+			int numContrasts = predictorCategories.size() * (interactionCategories.size()-1);
+			ContrastCountCheckBox cb = new ContrastCountCheckBox(numContrasts);
 			cb.addClickHandler(this);
 			cb.addClickHandler(new ClickHandler() {
 				@Override
@@ -281,12 +286,13 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 			});
 			independentInteractionsTable.setWidget(startRow, CHECKBOX_COLUMN, cb);
 			independentInteractionsTable.setWidget(startRow, LABEL_COLUMN, 
-					new HTML("The effect of " + predictor + " on the outcomes will be different depending on the value of " + (String) predictorArray[i] ));
+					new HTML("The effect of " + predictor + 
+							" on the outcomes will be different depending on the value of " + interaction));
 			Hidden predictorHidden = new Hidden("predictor");
 			predictorHidden.setValue(predictor);
 			independentInteractionsTable.setWidget(startRow, PREDICTOR_COLUMN, predictorHidden);
 			Hidden interactionHidden = new Hidden("interaction");
-			interactionHidden.setValue((String) predictorArray[i]);
+			interactionHidden.setValue(interaction);
 			independentInteractionsTable.setWidget(startRow, INTERACTION_PREDICTOR_COLUMN, 
 					interactionHidden);
 
@@ -374,7 +380,16 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 			}
 
 			// add the contrasts for interactions
-			
+			for(int i = 0; i < independentInteractionsTable.getRowCount(); i++)
+			{
+				CheckBox cb = (CheckBox) independentInteractionsTable.getWidget(i, CHECKBOX_COLUMN);
+				if (cb.getValue())
+				{
+					String predictor = ((Hidden) independentInteractionsTable.getWidget(i, PREDICTOR_COLUMN)).getDefaultValue();
+					String interaction = ((Hidden) independentInteractionsTable.getWidget(i, INTERACTION_PREDICTOR_COLUMN)).getDefaultValue();
+					buildInteractionContrastXML(buffer, predictor, interaction);
+				}
+			}
 			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
 		}
 		else
@@ -400,7 +415,65 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX);
 	}
 	
-	public void buildMainEffectsContrastXML(StringBuffer buffer, String predictor)
+	private void buildInteractionContrastXML(StringBuffer buffer, String predictor, String interaction)
+	{
+		List<String> predictorCategories = predictorMap.get(predictor);
+		int predictorColumn =groupColumnLookup.get(predictor);
+		List<String> interactionCategories = predictorMap.get(interaction);
+		int interactionColumn =groupColumnLookup.get(interaction);
+
+		List<String[]> predictorPairs = ListUtilities.getPairs(predictorCategories);
+		List<String[]> interactionPairs = ListUtilities.getPairs(interactionCategories);
+		int predictorPairCount = 0;
+		
+		for(String[] predictorPair: predictorPairs)
+		{
+			if (predictorPairs.size() > 1 && predictorPairCount >= predictorPairs.size() - 1)
+				break;
+			else
+				predictorPairCount++;
+			
+			HashMap<String,Double> predictorCoefficients = new HashMap<String,Double>();
+			predictorCoefficients.put(predictorPair[0], 1.0);
+			predictorCoefficients.put(predictorPair[1], -1.0);
+
+			int pairCount = 0;
+			for(String[] pair: interactionPairs)
+			{
+				if (interactionPairs.size() > 1 && pairCount >= interactionPairs.size() - 1)
+					break;
+				else
+					pairCount++;
+				
+				HashMap<String,Double> interactionCoefficients = new HashMap<String,Double>();
+				interactionCoefficients.put(pair[0], 1.0);
+				interactionCoefficients.put(pair[1], -1.0);
+				
+				// okay, now we can finally bust out some XML
+				XMLUtilities.openTag(buffer, "r");
+				for(int c = 0; c < groups.getNumberOfRows(); c++)
+				{
+					XMLUtilities.openTag(buffer, "c");
+					Double interactionCoefficient = 
+						interactionCoefficients.get(groups.getValueString(c, interactionColumn));
+					Double predictorCoefficient = 
+						predictorCoefficients.get(groups.getValueString(c, predictorColumn));
+					if (interactionCoefficient != null && predictorCoefficient != null)
+					{
+						buffer.append(interactionCoefficient * predictorCoefficient);
+					}
+					else
+					{
+						buffer.append(0);
+					}
+					XMLUtilities.closeTag(buffer, "c");
+				}			
+				XMLUtilities.closeTag(buffer, "r");
+			}			
+		}
+	}
+	
+	private void buildMainEffectsContrastXML(StringBuffer buffer, String predictor)
 	{
 		Window.alert(predictor);
 		List<String> categories = predictorMap.get(predictor);
@@ -423,7 +496,7 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 		int pairCount = 0;
 		for(String[] pair: categoryPairs)
 		{
-			if (pairCount >= categoryPairs.size() - 1)
+			if (categoryPairs.size() > 1 && pairCount >= categoryPairs.size() - 1)
 				break;
 			else
 				pairCount++;

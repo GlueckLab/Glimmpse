@@ -13,6 +13,7 @@ import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
+import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
@@ -151,7 +152,7 @@ implements OutcomesListener, PredictorsListener, CovariateListener, ListValidato
     		{
         		// for non-repeated measures, we display all outcomes at once.
     			int startCol = groupData.getNumberOfColumns();
-    			effectSizeTable.setWidget(0, startCol, new HTML("Estimated Means"));
+    			effectSizeTable.setWidget(0, 1, new HTML("Estimated Means"));
     			effectSizeTable.getFlexCellFormatter().setColSpan(0, startCol, 
     					outcomesList.size());
     			int col = startCol;
@@ -246,22 +247,8 @@ implements OutcomesListener, PredictorsListener, CovariateListener, ListValidato
 		buffer.append(GlimmpseConstants.MATRIX_BETA);
 		buffer.append("' combineHorizontal='false'>");
 		// fixed part of the beta matrix
-		buffer.append("<");
-		buffer.append(GlimmpseConstants.TAG_MATRIX);
-		buffer.append(" ");
-		buffer.append(GlimmpseConstants.ATTR_NAME);
-		buffer.append("='");
-		buffer.append(GlimmpseConstants.MATRIX_FIXED);
-		buffer.append("' ");
-		buffer.append(GlimmpseConstants.ATTR_ROWS);
-		buffer.append("='");
-		buffer.append(rows);
-		buffer.append("' ");
-		buffer.append(GlimmpseConstants.ATTR_COLUMNS);
-		buffer.append("='");
-		buffer.append(cols);
-		buffer.append("' ");
-		buffer.append(">");
+		XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_FIXED, rows, cols);
+
 		for(int row = 0; row < rows; row++)
 		{
 			buffer.append("<r>");
@@ -276,28 +263,12 @@ implements OutcomesListener, PredictorsListener, CovariateListener, ListValidato
 			}
 			buffer.append("</r>");
 		}
-		buffer.append("</");
-		buffer.append(GlimmpseConstants.TAG_MATRIX);
-		buffer.append(">");
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
+
 		// random part of the beta matrix
 		if (hasCovariate)
 		{
-			buffer.append("<");
-			buffer.append(GlimmpseConstants.TAG_MATRIX);
-			buffer.append(" ");
-			buffer.append(GlimmpseConstants.ATTR_NAME);
-			buffer.append("='");
-			buffer.append(GlimmpseConstants.MATRIX_RANDOM);
-			buffer.append("' ");
-			buffer.append(GlimmpseConstants.ATTR_ROWS);
-			buffer.append("='");
-			buffer.append(rows);
-			buffer.append("' ");
-			buffer.append(GlimmpseConstants.ATTR_COLUMNS);
-			buffer.append("='");
-			buffer.append(cols);
-			buffer.append("' ");
-			buffer.append(">");
+			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_RANDOM, rows, cols);
 			
 			buffer.append("<r>");
 			for(int col = 0; col < cols; col++)
@@ -306,15 +277,11 @@ implements OutcomesListener, PredictorsListener, CovariateListener, ListValidato
 			}
 			buffer.append("<r>");
 			
-			buffer.append("</");
-			buffer.append(GlimmpseConstants.TAG_MATRIX);
-			buffer.append(">");
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
 		}
 		
 		// close the fixed/rand beta matrix
-		buffer.append("</");
-		buffer.append(GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX);
-		buffer.append(">");
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX);
 		
 		// add the beta scale information
 		buffer.append(betaScaleListPanel.toXML(GlimmpseConstants.TAG_BETA_SCALE_LIST));
