@@ -110,6 +110,15 @@ implements StartListener, CancelListener
         {
         	try
         	{
+        		// for debug only - removes
+        		uploadedStudy = uploadedStudy.replaceFirst("<pre>", "");
+        		uploadedStudy = uploadedStudy.replaceFirst("</pre>", "");
+        		uploadedStudy = uploadedStudy.replaceAll("&lt;", "<");
+        		uploadedStudy = uploadedStudy.replaceAll("&gt;", ">");
+        		Window.alert("["+uploadedStudy+"]");
+        		// TODO: REMOVE TO HERE
+
+        		
            		Document doc = XMLParser.parse(uploadedStudy);
         		Node studyNode = doc.getElementsByTagName(GlimmpseConstants.TAG_STUDY).item(0);
         		if (studyNode == null) throw new DOMException(DOMException.SYNTAX_ERR, "no study tag specified");

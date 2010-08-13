@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -353,6 +351,7 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 		StringBuffer buffer = new StringBuffer();
 		buildBetweenSubjectContrastXML(buffer);
 		buildWithinSubjectContrastXML(buffer);
+		buildThetaNullMatrixXML(buffer);
 		return buffer.toString();
 	}
 	
@@ -365,9 +364,8 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 		if (deckPanel.getVisibleWidget() == INDEPENDENT_GROUPS_INDEX)
 		{
 			int columns = groups.getNumberOfRows();
-			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_RANDOM, rows, columns);
+			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_FIXED, rows, columns);
 
-			int startIndex = 0;
 			// add the contrasts for main effects
 			for(int i = 0; i < independentMainEffectsTable.getRowCount(); i++)
 			{
@@ -475,7 +473,6 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 	
 	private void buildMainEffectsContrastXML(StringBuffer buffer, String predictor)
 	{
-		Window.alert(predictor);
 		List<String> categories = predictorMap.get(predictor);
 		int groupColumn = groupColumnLookup.get(predictor);
 		// calculate the standardizing denominator values
@@ -562,7 +559,7 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 		}
 	}
 	
-	private void buildThetaMatrixXML(StringBuffer buffer)
+	private void buildThetaNullMatrixXML(StringBuffer buffer)
 	{
 		int rows = 0;
 		int cols = 0;

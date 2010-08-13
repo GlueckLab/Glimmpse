@@ -57,6 +57,8 @@ public interface GlimmpseConstants extends Constants
     public static final String TAG_ESSENCE_MATRIX = "essenceMatrix";
     public static final String TAG_FIXED_RANDOM_MATRIX = "fixedRandomMatrix";
     public static final String TAG_BETA_SCALE_LIST = "betaScaleList";
+    public static final String TAG_SIGMA_SCALE_LIST = "sigmaScaleList";
+    
     public static final String ATTR_MODE = "mode";
     public static final String ATTR_TYPE = "type";
     public static final String ATTR_NAME = "name";

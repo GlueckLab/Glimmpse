@@ -2,17 +2,21 @@ package edu.cudenver.bios.glimmpse.client.panels;
 
 import java.util.HashMap;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.NamedFrame;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
@@ -58,8 +62,22 @@ implements OptionsListener, SolvingForListener
 	// curve display
 	protected VerticalPanel resultsCurvePanel = new VerticalPanel();
 	protected HashMap<String,StringBuffer> curveXMLByColumn = new HashMap<String,StringBuffer>();
-	//	protected Table resultsCurveTable; 
+	
+	// error display
+	protected VerticalPanel errorPanel = new VerticalPanel();
+	protected HTML errorHTML = new HTML();
 
+	// matrix popup panel - allows users to view the actual matrices produced for the calculations
+	// and hey, it sure is nice for debugging
+	protected PopupPanel matrixPopup = new PopupPanel();
+	protected MatrixDisplayPanel matrixDisplayPanel = new MatrixDisplayPanel();
+	protected Button showMatrixPopupButton = new Button("View Matrices used for these results", 
+			new ClickHandler() {
+		public void onClick(ClickEvent event)
+		{
+			matrixPopup.center();
+		}
+	});
 	// we have to use a form submission to display image data
 	// I tried to build the curves with Google Chart Api, but the scatter chart
 	// didn't have enough control over line types, etc.  Thus, I rolled my own
@@ -95,17 +113,57 @@ implements OptionsListener, SolvingForListener
 		buildWaitDialog();
 		// build the data table 
 		buildDataTable();
+		// build the display panels
+		buildErrorPanel();
+		buildCurvePanel();
+		buildTablePanel();
+		buildMatrixPopup();
 		
+		// layout the panel
+		panel.add(errorPanel);
+		panel.add(resultsCurvePanel);
+		panel.add(resultsTablePanel);
+		panel.add(showMatrixPopupButton);
+
+		// set style
+		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+
+		// initialize
+		initWidget(panel);
+	}
+
+	private void buildErrorPanel()
+	{
+		errorPanel.add(errorHTML);
+		errorPanel.setVisible(false);
+	}
+	
+	private void buildMatrixPopup()
+	{
+		VerticalPanel panel = new VerticalPanel();
+		panel.add(matrixDisplayPanel);
+		panel.add(new Button("Close", new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				matrixPopup.hide();
+			}
+		}));
+		matrixPopup.add(panel);
+	}
+	
+	private void buildCurvePanel()
+	{
+    	VerticalPanel panel = new VerticalPanel();
+
+    	HTML header = new HTML("Power Curve");
+    	HTML description = new HTML("");
+
 		// build the display panels
 		/* WARNING: this named frame must have a unique name or the curve will not display */
 		imageFrame = new NamedFrame(manager.getModeName() + IMAGE_FRAME_NAME_SUFFIX);
 		curveForm = new FormPanel(imageFrame);
 		
-		resultsTablePanel.add(new HTML("Results"));
-		resultsTablePanel.add(resultsTable);
-		resultsCurvePanel.add(new HTML("Curves"));
-		resultsCurvePanel.add(imageFrame);
-
 		// setup the form for submitting curve requests to the target IFrame
 		curveForm.setAction(CURVE_URL);
 		curveForm.setMethod(FormPanel.METHOD_POST);
@@ -121,27 +179,53 @@ implements OptionsListener, SolvingForListener
 		formContainer.add(saveEntityBodyHidden);
 		formContainer.add(saveHidden);
 		saveForm.add(saveFormContainer);
-		
-		// layout the panel
-		panel.add(resultsCurvePanel);
-		panel.add(resultsTablePanel);        
+    	
+    	// layout the sub panel
+    	panel.add(header);
+    	panel.add(description);
+    	panel.add(imageFrame);
 		panel.add(curveForm);
-		panel.add(saveForm);
-
-		// set style
-		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+		panel.add(saveForm);		
+		
+        // set style
 		imageFrame.setStyleName(STYLE_POWER_CURVE_FRAME);
-
-		initWidget(panel);
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+        panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 	}
-
+	
+	private void buildTablePanel()
+	{
+    	HTML header = new HTML("Power Results");
+    	HTML description = new HTML("");
+    	
+    	// layout the sub panel
+    	resultsTablePanel.add(header);
+    	resultsTablePanel.add(description);
+    	resultsTablePanel.add(resultsTable);
+		
+        // set style
+		imageFrame.setStyleName(STYLE_POWER_CURVE_FRAME);
+		resultsTablePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+		resultsTablePanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+	}
+	
 	@Override
 	public void reset()
 	{
 		curveXMLByColumn.clear();
+		matrixDisplayPanel.reset();
 		resultsData.removeRows(0, resultsData.getNumberOfRows());
 		resultsTablePanel.setVisible(false);
 		resultsCurvePanel.setVisible(false);
+		errorPanel.setVisible(false);
 	}
 
 	@Override
@@ -187,7 +271,8 @@ implements OptionsListener, SolvingForListener
 
 	private void showError(String message)
 	{
-		Window.alert("ERROR: " + message);
+		errorHTML.setHTML(message);
+		errorPanel.setVisible(true);
 	}
 
 	private void showResults(String resultXML)
@@ -403,6 +488,7 @@ implements OptionsListener, SolvingForListener
 		//showWorkingDialog();
 		String requestEntityBody = manager.getPowerRequestXML();
 		Window.alert(requestEntityBody);
+		matrixDisplayPanel.loadFromXML(requestEntityBody);
 		RequestBuilder builder = null;
 		switch(solutionType)
 		{

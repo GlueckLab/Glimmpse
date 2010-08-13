@@ -18,10 +18,12 @@ import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
+import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
+import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class VariabilityPanel extends WizardStepPanel
-implements OutcomesListener, PredictorsListener, CovariateListener
+implements OutcomesListener, PredictorsListener, CovariateListener, ListValidator
 {
 	protected static final int INDEPENDENT_GROUPS_INDEX = 0;
 	protected static final int REPEATED_MEASURES_INDEX = 0;
@@ -31,6 +33,10 @@ implements OutcomesListener, PredictorsListener, CovariateListener
 
 	protected boolean hasRepeatedMeasures = false;
 	protected List<String> outcomes = null;
+	
+    // list of sigma scale factors
+    protected ListEntryPanel sigmaScaleListPanel = 
+    	new ListEntryPanel(Glimmpse.constants.sigmaScaleTableColumn(), this);
 	
 	protected DeckPanel deckPanel = new DeckPanel();
     public VariabilityPanel()
@@ -49,6 +55,7 @@ implements OutcomesListener, PredictorsListener, CovariateListener
         panel.add(header);
         panel.add(description);
         panel.add(deckPanel);
+        panel.add(createSigmaScalePanel());
         
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -112,7 +119,29 @@ implements OutcomesListener, PredictorsListener, CovariateListener
     	return panel;
     }
     
-    public VerticalPanel createRepeatedMeasuresPanel()
+    private VerticalPanel createSigmaScalePanel()
+    {
+    	VerticalPanel panel = new VerticalPanel();
+
+    	HTML header = new HTML("Adjustable Variance");
+    	HTML description = new HTML("If you are uncertain of your estimates you may enter scale factors below.  To use the exact values above, simple enter a 1 in the list below");
+
+    	panel.add(header);
+    	panel.add(description);
+    	panel.add(sigmaScaleListPanel);
+    	
+        // set style
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+        panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        
+    	return panel;
+    }
+    
+    private VerticalPanel createRepeatedMeasuresPanel()
     {
     	VerticalPanel panel = new VerticalPanel();
     	
@@ -180,7 +209,8 @@ implements OutcomesListener, PredictorsListener, CovariateListener
 			
 		}
 		
-		
+		// append the sigma scale list
+		buffer.append(sigmaScaleListPanel.toXML(GlimmpseConstants.TAG_SIGMA_SCALE_LIST));
 		return buffer.toString();
 	}
 	
@@ -252,6 +282,20 @@ implements OutcomesListener, PredictorsListener, CovariateListener
 
 	@Override
 	public void onVariance(double variance)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onValidRowCount(int validRowCount)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void validate(String value) throws IllegalArgumentException
 	{
 		// TODO Auto-generated method stub
 		
