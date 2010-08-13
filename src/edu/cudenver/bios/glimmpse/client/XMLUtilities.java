@@ -1,5 +1,7 @@
 package edu.cudenver.bios.glimmpse.client;
 
+import java.util.Properties;
+
 public class XMLUtilities
 {
 	public static void matrixOpenTag(StringBuffer buffer, String name, int rows, int columns)
@@ -35,4 +37,21 @@ public class XMLUtilities
 		buffer.append(tagName);
 		buffer.append(">");
 	}
+//	
+//	public static void openTag(StringBuffer buffer, String tagName, 
+//			Properties props)
+//	{
+//		buffer.append("<");
+//		buffer.append(tagName);
+//		for(String k)
+//		for(int i = 0; i < attributeNames.length && i < attributeValues.length; i++)
+//		{
+//			buffer.append(" ");
+//			buffer.append(attributeNames[i]);
+//			buffer.append("='");
+//			buffer.append(attributeValues[i]);
+//			buffer.append("'");
+//		}
+//		buffer.append(">");
+//	}
 }

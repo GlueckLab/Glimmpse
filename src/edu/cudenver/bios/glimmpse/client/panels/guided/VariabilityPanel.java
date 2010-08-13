@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -20,7 +18,6 @@ import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
-import edu.cudenver.bios.glimmpse.client.panels.LearCovariancePanel;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class VariabilityPanel extends WizardStepPanel
@@ -142,11 +139,12 @@ implements OutcomesListener, PredictorsListener, CovariateListener
 		{
 			// TODO: baseline covariate
 			int size = indepGroupsOutcomesTable.getRowCount();
+			int upperTriangleCorrelatinIndex = 0;
 			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_SIGMA_ERROR, size, size);
 			for(int row = 0; row < size; row++)
 			{
+				int lowerTriangleCorrelatinIndex = row - 1;
 				XMLUtilities.openTag(buffer, "r");
-				int correlationIndex = 0;
 				for(int col = 0; col < size; col++)
 				{
 					XMLUtilities.openTag(buffer, "c");
@@ -156,12 +154,18 @@ implements OutcomesListener, PredictorsListener, CovariateListener
 						TextBox tb = (TextBox) indepGroupsOutcomesTable.getWidget(row, 1);
 						value = tb.getText();
 					}
+					else if (col > row)
+					{
+						// filling in upper triangle of covariance matrix
+						TextBox tb = (TextBox) indepGroupsOutcomeCorrelationsTable.getWidget(upperTriangleCorrelatinIndex++, 1);
+						value = tb.getText();
+					}
 					else
 					{
-						// TODO: enter the correlation value
-						TextBox tb = (TextBox) indepGroupsOutcomeCorrelationsTable.getWidget(correlationIndex, 1);
+						// filling lower triangle of covariance matrix
+						TextBox tb = (TextBox) indepGroupsOutcomeCorrelationsTable.getWidget(lowerTriangleCorrelatinIndex, 1);
 						value = tb.getText();
-						correlationIndex++;
+						lowerTriangleCorrelatinIndex += (size-col-2); // trust me, this works
 					}
 					buffer.append(value);
 					XMLUtilities.closeTag(buffer, "c");
@@ -191,6 +195,8 @@ implements OutcomesListener, PredictorsListener, CovariateListener
 	public void onOutcomes(List<String> outcomes)
 	{
 		int i = 0;
+		indepGroupsOutcomesTable.removeAllRows();
+		indepGroupsOutcomeCorrelationsTable.removeAllRows();
 		for(String outcome: outcomes)
 		{
 			addOutcome(outcome);

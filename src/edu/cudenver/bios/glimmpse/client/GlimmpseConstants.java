@@ -62,7 +62,8 @@ public interface GlimmpseConstants extends Constants
     public static final String ATTR_NAME = "name";
     public static final String ATTR_ROWS = "rows";
     public static final String ATTR_COLUMNS = "columns";
-    
+    public static final String ATTR_COMBINE_HORIZONTAL = "combineHorizontal";
+
     // mode names
     public static final String MODE_MATRIX = "matrix";
     public static final String MODE_GUIDED = "guided";
