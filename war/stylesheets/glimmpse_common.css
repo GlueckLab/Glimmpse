@@ -114,3 +114,15 @@ div#horizontal-navbar a {
 div#horizontal-navbar a:hover {
 	color:#fff;
 }
+
+ div.contentList {
+ 	margin-left: 20px;
+ }
+ 
+ div.contents1 {
+ 	margin-left: 40px;
+ }
+ 
+  div.contents2 {
+ 	margin-left: 60px;
+ }

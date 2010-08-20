@@ -105,17 +105,8 @@
 	margin-left: 64%;
 }
 
-.wizardToolBarButtonSave {
-	/*
-	height: 32px;
-	background: #fff url(../images/save.png) no-repeat;
-	border: none;*/
-}
-
-.wizardToolBarButtonCancel {
-	/*height: 32px;
-	border: none;
-	background: #fff url(../images/cancel.png) no-repeat;*/
+.gwt-MenuItem-disabled {
+	color: #ccc;
 }
 
 /* container for user input (around forms, etc) */
@@ -245,11 +236,12 @@
 }
 
 .matrixPanel {
+	border: 1px outset
 }
 
-.matrix {
-	/*margin-bottom: 10px;*/
-	/*padding: 10px;*/
+.matrixPanel {
+	border: 1px outset #14f;
+	background: #E0ECF8;
 }
 
 .gwt-PopupPanel {
@@ -260,12 +252,12 @@
 
 .matrixData {
 	margin-top: 10px;
+	border-collapse: collapse;
 }
 
 .matrixData td {
 	background: white;
-	border: 1px solid #000000;
-	border-spacing: 0px;
+	border: 1px solid #000;
 	height: 24px;
 }
 
