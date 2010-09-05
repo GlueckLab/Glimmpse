@@ -154,8 +154,6 @@ implements OptionsListener, SolvingForListener
 	
 	private void buildCurvePanel()
 	{
-    	VerticalPanel panel = new VerticalPanel();
-
     	HTML header = new HTML("Power Curve");
     	HTML description = new HTML("");
 
@@ -179,18 +177,18 @@ implements OptionsListener, SolvingForListener
 		formContainer.add(saveEntityBodyHidden);
 		formContainer.add(saveHidden);
 		saveForm.add(saveFormContainer);
-    	
+    
     	// layout the sub panel
-    	panel.add(header);
-    	panel.add(description);
-    	panel.add(imageFrame);
-		panel.add(curveForm);
-		panel.add(saveForm);		
+    	resultsCurvePanel.add(header);
+    	resultsCurvePanel.add(description);
+    	resultsCurvePanel.add(imageFrame);
+    	resultsCurvePanel.add(curveForm);
+    	resultsCurvePanel.add(saveForm);		
 		
         // set style
-		imageFrame.setStyleName(STYLE_POWER_CURVE_FRAME);
-        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-        panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+		//imageFrame.setStyleName(STYLE_POWER_CURVE_FRAME);
+    	resultsCurvePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+    	resultsCurvePanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
@@ -273,6 +271,7 @@ implements OptionsListener, SolvingForListener
 	{
 		errorHTML.setHTML(message);
 		errorPanel.setVisible(true);
+		hideWorkingDialog();
 	}
 
 	private void showResults(String resultXML)
@@ -444,6 +443,7 @@ implements OptionsListener, SolvingForListener
 				resultsTable.draw(resultsData);
 				resultsTablePanel.setVisible(true);
 			}
+			hideWorkingDialog();
 		}
 		catch (Exception e)
 		{
@@ -510,13 +510,11 @@ implements OptionsListener, SolvingForListener
 
 				public void onError(Request request, Throwable exception) 
 				{
-					hideWorkingDialog();
 					showError("Calculation failed: " + exception.getMessage());	
 				}
 
 				public void onResponseReceived(Request request, Response response) 
 				{
-					hideWorkingDialog();
 					if (STATUS_CODE_OK == response.getStatusCode() ||
 							STATUS_CODE_CREATED == response.getStatusCode()) 
 					{
@@ -532,7 +530,6 @@ implements OptionsListener, SolvingForListener
 		} 
 		catch (Exception e) 
 		{
-			hideWorkingDialog();
 			showError("Failed to send the request: " + e.getMessage());
 		}
 	}
