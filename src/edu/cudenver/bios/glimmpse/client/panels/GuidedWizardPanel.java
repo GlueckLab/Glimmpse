@@ -108,6 +108,7 @@ implements StudyDesignManager, SaveListener
 		predictorsPanel.addCovariateListener(studyGroupsPanel);
 		predictorsPanel.addCovariateListener(effectSizePanel);
 		studyGroupsPanel.addRelativeGroupSizeListener(hypothesisPanel);
+		optionsPanel.addOptionsListener(resultsPanel);
 		// initialize
 		initWidget(panel);
 	}
