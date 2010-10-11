@@ -126,3 +126,20 @@ div#horizontal-navbar a:hover {
   div.contents2 {
  	margin-left: 60px;
  }
+ 
+ div#content-container {
+	background: #fff;	
+	margin: 5px 5px;
+	padding: 5px;
+	border: 1px solid black;
+}
+
+div#content-container h1, h2, h3, h4 {
+	margin: 5px 20px;
+}
+
+
+div#content-container p {
+	margin-left: 20px;
+	text-align: left;
+}
