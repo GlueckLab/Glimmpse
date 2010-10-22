@@ -23,7 +23,7 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_STEP_EVEN = "even";
     public static final String STYLE_WIZARD_STEP_ODD = "odd";
     public static final String STYLE_WIZARD_STEP_BUTTON = "wizardStepButton";
-    
+    public static final String STYLE_WIZARD_STEP_LINK = "wizardStepLink";
     public static final String STYLE_WIZARD_STEP_TABLE_PANEL = "wizardStepTablePanel";
     public static final String STYLE_WIZARD_STEP_TABLE = "wizardStepTable";
     public static final String STYLE_WIZARD_STEP_TABLE_HEADER = "wizardStepTableHeader";
@@ -113,34 +113,23 @@ public interface GlimmpseConstants extends Constants
     public static final String SOLUTION_TYPE_POWER = "power";
     public static final String SOLUTION_TYPE_SAMPLE_SIZE = "sampleSize";
     public static final String SOLUTION_TYPE_EFFECT_SIZE = "effectSize";
-
-    // toolbar buttons
-    public String buttonSaveStudy();
-    public String buttonCancel();
     
     // navigation buttons
     public String buttonNext();
     public String buttonPrevious();
-    
-    // start panel constants
-    public String startTitle();
-    public String startDescription();
-    public String startGoButton();
-    public String startMatrixTitle();
-    public String startMatrixDescription();
-    public String startGuidedTitle();
-    public String startGuidedDescription();
-    public String startUploadTitle();
-    public String startUploadDescription();
+    // toolbar action buttons
+    public String buttonSave();
+    public String buttonClear();
+    public String buttonHelp();
     
     // left navigation / steps left panel
-    public String stepsLeftOutcomes();
-    public String stepsLeftPredictors();
-    public String stepsLeftGroups();
-    public String stepsLeftHypotheses();
-    public String stepsLeftEffectSize();
-    public String stepsLeftVariability();
+    public String stepsLeftStart();
     public String stepsLeftAlpha();
+    public String stepsLeftPredictors();
+    public String stepsLeftResponses();
+    public String stepsLeftHypotheses();
+    public String stepsLeftMeanDifferences();
+    public String stepsLeftVariability();
     public String stepsLeftOptions();
     public String stepsLeftResults();
     public String stepsLeftDesign();
@@ -148,19 +137,22 @@ public interface GlimmpseConstants extends Constants
     public String stepsLeftBeta();
     public String stepsLeftTheta();
     public String stepsLeftSigma();
-    public String stepsLeftSolvingFor();
     
-    // tool bar menus / items
-    public String toolBarSaveMenu();
-    public String toolBarSaveStudyMenuItem();
-    public String toolBarSaveResultsMenuItem();
-    public String toolBarSaveCurveMenuItem();
-    public String toolBarClearMenu();
-    public String toolBarClearAllMenuItem();
-    public String toolBarClearScreenMenuItem();
-    public String toolBarHelpMenu();
-    public String toolBarHelpManualMenuItem();
+    // mode selection panel constants
+    public String modeSelectionTitle();
+    public String modeSelectionDescription();
+    public String modeSelectionGoButton();
+    public String modeSelectionMatrixTitle();
+    public String modeSelectionMatrixDescription();
+    public String modeSelectionGuidedTitle();
+    public String modeSelectionGuidedDescription();
+    public String modeSelectionUploadTitle();
+    public String modeSelectionUploadDescription();
     
+    /*  start group - navigation intro screen and solving for selection */
+    // start panel constants
+    public String startTitle();
+    public String startDescription();
     // "solving for" panel constants
     public String solvingForTitle();
     public String solvingForDescription();
@@ -169,13 +161,21 @@ public interface GlimmpseConstants extends Constants
     public String solvingForEffectSizeLabel();
     public String solvingForNominalPowerTitle();
     public String solvingForNominalPowerDescription();
+    public String solvingForNominalPowerInstructions();
     public String solvingForNominalPowerTableColumn();
     
+    /* type I error section */
+    public String alphaIntroTitle();
+    public String alphaIntroDescription();
     // alpha panel constants
     public String alphaTitle();
     public String alphaDescription();
     public String alphaTableColumn();
     
+    /* predictors section */
+    public String predictorsIntroTitle();
+    public String predictorsIntroDescription();
+
     // outcomes panel constants
     public String outcomesTitle();
     public String outcomesDescription();

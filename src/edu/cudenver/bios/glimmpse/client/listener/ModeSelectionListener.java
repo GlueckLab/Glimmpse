@@ -1,8 +1,6 @@
 package edu.cudenver.bios.glimmpse.client.listener;
 
-import com.google.gwt.xml.client.Document;
-
-public interface StartListener
+public interface ModeSelectionListener
 {
 	public void onGuidedMode();
 	

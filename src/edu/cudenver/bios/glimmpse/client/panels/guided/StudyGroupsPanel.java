@@ -48,7 +48,7 @@ OutcomesListener, CovariateListener, ListValidator
     
     public StudyGroupsPanel()
     {
-    	super(Glimmpse.constants.stepsLeftGroups());
+    	super("StudyGroupsPanel");
     	complete = true;
         VerticalPanel panel = new VerticalPanel();
         

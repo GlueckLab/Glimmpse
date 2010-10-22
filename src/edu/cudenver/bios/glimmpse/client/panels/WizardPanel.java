@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -41,6 +42,7 @@ import edu.cudenver.bios.glimmpse.client.listener.NavigationListener;
 import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
 import edu.cudenver.bios.glimmpse.client.listener.StepStatusListener;
 import edu.cudenver.bios.glimmpse.client.listener.SaveListener.SaveType;
+import edu.cudenver.bios.glimmpse.client.listener.ToolbarActionListener;
 
 /**
  * Abstract base class for "wizard" input panels.  Manages navigation,
@@ -50,10 +52,10 @@ import edu.cudenver.bios.glimmpse.client.listener.SaveListener.SaveType;
  *
  */
 public class WizardPanel extends Composite
-implements NavigationListener, StepStatusListener
+implements ToolbarActionListener, NavigationListener, StepStatusListener
 {
-	// style
-	protected static final String STYLE_TOOLBAR = "wizardToolBar";
+	// separator name 
+	protected static final String SEPARATOR = "__SEPARATOR__";
 	// uri for help manual
 	protected static final String HELP_URL = "/help/manual.pdf";
 	// url for file save web service
@@ -72,57 +74,63 @@ implements NavigationListener, StepStatusListener
 	protected HorizontalPanel panel = new HorizontalPanel();
 	// left navigation / "steps left" panel
     protected StepsLeftPanel stepsLeftPanel;
+    // nav panel
+    protected NavigationPanel navPanel = new NavigationPanel();
 	// index of currently visible step
     protected int currentStep = 0;    
+    // toolbar 
+    protected ToolBarPanel toolBar = new ToolBarPanel();
     // deck panel containing all steps in the input wizard
     protected DeckPanel wizardDeck = new DeckPanel();
-	// save results, curve menu items - these are enabled at the end
-    protected MenuItem saveResultsMenuItem = 
-    	new MenuItem(Glimmpse.constants.toolBarSaveResultsMenuItem(), true, (Command) null);
-    protected Command saveResultsCommand = new Command() {
-		@Override
-		public void execute()
-		{
-			notifyOnSave(SaveType.RESULTS);
-		}
-    };
-    protected MenuItem saveCurveMenuItem = 
-    	new MenuItem(Glimmpse.constants.toolBarSaveCurveMenuItem(), true, (Command) null);
-    protected Command saveCurveCommand = new Command() {
-		@Override
-		public void execute()
-		{
-			notifyOnSave(SaveType.CURVE);
-		}
-    };
-	// navigation buttons
-    protected NavigationPanel navPanel = new NavigationPanel();
 	
+    /* 
+     * Panel that is not actually displayed, but indicates that we are 
+     * at the end of the current panel group
+     */
+    private class GroupSeparatorPanel extends WizardStepPanel
+    {
+    	public GroupSeparatorPanel() 
+    	{ 
+    		super(SEPARATOR); 
+    		VerticalPanel panel = new VerticalPanel();
+    		initWidget(panel);
+    	}
+		@Override
+		public void reset() {}
+		@Override
+		public void loadFromNode(Node node) {}    	
+    }
+    
 	/**
 	 * Create an empty matrix panel
 	 */
-	public WizardPanel(WizardStepPanel[] stepPanels)
+	public WizardPanel(WizardStepPanel[][] stepPanels, String[] stepGroupLabels)
 	{		
 		VerticalPanel contentPanel = new VerticalPanel();
 		
 		// initialize the steps left panel
-		stepsLeftPanel = new StepsLeftPanel(stepPanels);
+		stepsLeftPanel = new StepsLeftPanel(stepGroupLabels);
 		
 		// add the content panels to the deck
-		for(WizardStepPanel stepPanel: stepPanels)
+		int count = 0;
+		for(WizardStepPanel[] stepPanelGroup: stepPanels)
 		{
-			wizardDeck.add(stepPanel);
-			stepPanel.addStepStatusListener(this);
+			for(WizardStepPanel stepPanel: stepPanelGroup)
+			{
+				wizardDeck.add(stepPanel);
+				stepPanel.addStepStatusListener(this);
+			}
+			count++;
+			if (count < stepPanels.length) wizardDeck.add(new GroupSeparatorPanel());
 		}
 		
-		// add navigation callbacks
+		// add navigation and  toolbar action callbacks
+		toolBar.addToolbarActionListener(this);
 		navPanel.addNavigationListener(this);
-		stepsLeftPanel.addNavigationListener(this);
-		navPanel.addNavigationListener(stepsLeftPanel);
 		enterStep();
 		
 		// layout the wizard panel
-		contentPanel.add(createToolBar());
+		contentPanel.add(toolBar);
 		contentPanel.add(wizardDeck);
 		contentPanel.add(navPanel);
 		panel.add(stepsLeftPanel);		
@@ -142,6 +150,30 @@ implements NavigationListener, StepStatusListener
     	{
     		exitStep();
     		currentStep++;
+    		if (SEPARATOR.equals(((WizardStepPanel) wizardDeck.getWidget(currentStep)).getName()))
+    		{
+    			currentStep++;
+    			stepsLeftPanel.onNext();
+    		}
+    		enterStep();
+    	}
+    }
+    
+    /**
+     * Call back when "previous" navigation button is clicked
+     * Does nothing if already at start of step list
+     */
+    public void onPrevious()
+    {
+    	if (currentStep > 0)
+    	{
+    		exitStep();
+    		currentStep--;
+    		if (SEPARATOR.equals(((WizardStepPanel) wizardDeck.getWidget(currentStep)).getName()))
+    		{
+    			currentStep--;
+    			stepsLeftPanel.onPrevious();
+    		}
     		enterStep();
     	}
     }
@@ -209,146 +241,8 @@ implements NavigationListener, StepStatusListener
     	w.onEnter();
     	
     	boolean lastPanel = (currentStep == wizardDeck.getWidgetCount() - 1);
-    	navPanel.setVisible(!lastPanel);
-    	
-    	// enable the save menu items if we're on the last step.  Note, I'm not crazy about this
-    	// since it assumes that results are only shown on the last step, but I didn't have time
-    	// to make it all robust and stuff.  Bad programmer, no biscuit for you.
-    	if (lastPanel)
-    	{    		
-    	    saveResultsMenuItem.removeStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
-    	    saveCurveMenuItem.removeStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
-    	    // add save command
-    	    saveResultsMenuItem.setCommand(saveResultsCommand);
-    	    saveCurveMenuItem.setCommand(saveCurveCommand);
-    	}
-    	else
-    	{
-    	    saveResultsMenuItem.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
-    	    saveCurveMenuItem.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
-    	    // clear the commands
-    	    saveResultsMenuItem.setCommand(null);
-    	    saveCurveMenuItem.setCommand(null);
-    	}
+    	navPanel.setPrevious(currentStep != 0);
     }
-    
-    /**
-     * Create the save, clear, help toolbar. 
-     * (there's probably a way to make this more generic, but this works for now)
-     * 
-     * @return HorizontalPanel widget
-     */
-    private HorizontalPanel createToolBar()
-    {
-		HorizontalPanel panel = new HorizontalPanel();
-		
-	    MenuBar menu = new MenuBar();
-		// set options on the menu bar
-	    menu.setAutoOpen(true);
-	    menu.setAnimationEnabled(true);
-	    
-	    // build the submenus
-	    menu.addItem(Glimmpse.constants.toolBarSaveMenu(), true, createSaveMenu());
-	    menu.addSeparator();
-	    menu.addItem(Glimmpse.constants.toolBarClearMenu(), true, createClearMenu());
-	    menu.addSeparator();
-	    menu.addItem(Glimmpse.constants.toolBarHelpMenu(), true, createHelpMenu());
-	    
-		// add the save study link and associated form
-		saveForm.setAction(SAVEAS_URL);
-		saveForm.setMethod(FormPanel.METHOD_POST);
-		VerticalPanel formContainer = new VerticalPanel();
-		formContainer.add(dataHidden);
-		formContainer.add(filenameHidden);
-		saveForm.add(formContainer);
-		
-		// layout the panel
-		panel.add(menu);
-		panel.add(saveForm);
-
-		// set style 
-		panel.setStyleName(STYLE_TOOLBAR);
-		
-		return panel;
-    }
-
-    /**
-     * Create a menubar to save either the study design or results
-     * @return "save" menubar
-     */
-	private MenuBar createSaveMenu()
-	{
-	    MenuBar saveMenu = new MenuBar(true);
-	    MenuItem saveDesignMenuItem = 
-	    	new MenuItem(Glimmpse.constants.toolBarSaveStudyMenuItem(), true, 
-	    			new Command() {
-			@Override
-			public void execute()
-			{
-				notifyOnSave(SaveType.STUDY);
-			}
-	    });
-	    
-	    saveMenu.addItem(saveDesignMenuItem);
-	    saveMenu.addSeparator();
-	    saveMenu.addItem(saveResultsMenuItem);
-	    saveMenu.addItem(saveCurveMenuItem);
-	    
-	    // add disabled style to the results, curve
-	    // GWT doesn't provide enable/disable of menu items, so css is the workaround
-	    saveResultsMenuItem.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
-	    saveCurveMenuItem.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
-
-	    return saveMenu;
-	}
-	
-	/**
-	 * Create a menubar for clearing the all or the current screen
-	 * @return "Clear" menubar
-	 */
-	private MenuBar createClearMenu()
-	{
-		MenuBar clearMenu = new MenuBar(true);
-
-		clearMenu.addItem(Glimmpse.constants.toolBarClearScreenMenuItem(), new Command() {
-			public void execute()
-			{
-				if (Window.confirm(Glimmpse.constants.confirmClearScreen()))
-				{
-					WizardStepPanel wsp = (WizardStepPanel) wizardDeck.getWidget(currentStep);
-					wsp.reset();
-				}
-			}
-		});
-		clearMenu.addItem(Glimmpse.constants.toolBarClearAllMenuItem(), new Command() {
-			public void execute()
-			{
-				if (Window.confirm(Glimmpse.constants.confirmClearAll()))
-				{
-					notifyOnCancel();
-				}
-			}
-		});
-		
-		return clearMenu;
-	}
-    
-	/**
-	 * Create a menu bar for accessing the help manual
-	 * @return "Help" menubar
-	 */
-	private MenuBar createHelpMenu()
-	{
-		MenuBar helpMenu = new MenuBar(true);
-		helpMenu.addItem(Glimmpse.constants.toolBarHelpManualMenuItem(), new Command() {
-			public void execute()
-			{
-				Window.open(HELP_URL, "", "");
-			}
-		});
-
-		return helpMenu;
-	}
     
 	/**
 	 * Notify cancel listeners of cancel event
@@ -399,5 +293,26 @@ implements NavigationListener, StepStatusListener
     	Window.alert(dataHidden.getValue());
     	saveForm.submit();
     }
+
+	@Override
+	public void onSave()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onClear()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onHelp()
+	{
+		// TODO Auto-generated method stub
+		
+	}
     
 }

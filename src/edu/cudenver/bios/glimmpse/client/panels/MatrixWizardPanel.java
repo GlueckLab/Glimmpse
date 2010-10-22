@@ -64,16 +64,28 @@ implements StudyDesignManager, SaveListener
     //protected ResultsPanel resultsPanel = new ResultsPanel(this);
 	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
     // list of panels for the wizard
-	WizardStepPanel[] panelList = {
-			solvingForPanel,
-			alphaPanel, 
-			designPanel, 
-			betaPanel, 
-			contrastPanel, 
-			thetaPanel,
-			covariancePanel,
-			optionsPanel,
-			resultsPanel
+	WizardStepPanel[][] panelList = {
+			{solvingForPanel},
+			{alphaPanel},
+			{designPanel},
+			{betaPanel},
+			{contrastPanel},
+			{thetaPanel},
+			{covariancePanel},
+			{optionsPanel},
+			{resultsPanel}
+	};
+	
+	String[] groupLabels = {
+		Glimmpse.constants.stepsLeftStart(),
+		Glimmpse.constants.stepsLeftAlpha(),
+		Glimmpse.constants.stepsLeftDesign(),
+		Glimmpse.constants.stepsLeftBeta(),
+		Glimmpse.constants.stepsLeftContrast(),
+		Glimmpse.constants.stepsLeftTheta(),
+		Glimmpse.constants.stepsLeftVariability(),
+		Glimmpse.constants.stepsLeftOptions(),
+		Glimmpse.constants.stepsLeftResults()
 	};
 	
 	// wizard navigation panel
@@ -86,7 +98,7 @@ implements StudyDesignManager, SaveListener
 	{	
 		VerticalPanel panel = new VerticalPanel();
 		
-		wizardPanel = new WizardPanel(panelList);
+		wizardPanel = new WizardPanel(panelList, groupLabels);
 		wizardPanel.addSaveListener(this);
 		panel.add(wizardPanel);
 

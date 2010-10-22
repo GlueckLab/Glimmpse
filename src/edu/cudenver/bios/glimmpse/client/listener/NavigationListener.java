@@ -3,6 +3,5 @@ package edu.cudenver.bios.glimmpse.client.listener;
 public interface NavigationListener
 {
     public void onNext();
-        
-    public void onStep(int stepIndex);
+    public void onPrevious();    
 }

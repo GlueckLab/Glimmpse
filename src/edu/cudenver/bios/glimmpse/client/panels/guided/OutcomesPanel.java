@@ -111,7 +111,7 @@ public class OutcomesPanel extends WizardStepPanel
 
     public OutcomesPanel()
     {
-    	super(Glimmpse.constants.stepsLeftOutcomes());
+    	super("OutcomesPanel");
         VerticalPanel panel = new VerticalPanel();
         
         // create header/instruction text

@@ -18,6 +18,7 @@ public class NavigationPanel extends Composite
 {
     ArrayList<NavigationListener> listeners = new ArrayList<NavigationListener>();
     protected Button next;
+    protected Button previous;
     
     public NavigationPanel()
     {
@@ -28,10 +29,17 @@ public class NavigationPanel extends Composite
                 notifyOnNext();
             }
         });
+        previous = new Button(Glimmpse.constants.buttonPrevious(), new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                notifyOnPrevious();
+            }
+        });
 
+        panel.add(previous);
         panel.add(next);
         
         // add style
+        previous.setStyleName("wizardNavigationPanelButton");
         next.setStyleName("wizardNavigationPanelButton");
         panel.setStyleName("wizardNavigationPanel");
                 
@@ -44,9 +52,20 @@ public class NavigationPanel extends Composite
             listener.onNext();
     }
     
+    protected void notifyOnPrevious()
+    {
+        for(NavigationListener listener: listeners)
+            listener.onPrevious();
+    }
+    
     public void setNext(boolean enabled)
     {
         next.setEnabled(enabled);
+    }
+    
+    public void setPrevious(boolean enabled)
+    {
+        previous.setEnabled(enabled);
     }
 
     public void addNavigationListener(NavigationListener listener)

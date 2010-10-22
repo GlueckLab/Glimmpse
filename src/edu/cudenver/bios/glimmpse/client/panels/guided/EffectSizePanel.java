@@ -48,7 +48,7 @@ implements OutcomesListener, PredictorsListener, CovariateListener, ListValidato
     
     public EffectSizePanel()
     {
-    	super(Glimmpse.constants.stepsLeftEffectSize());
+    	super("EffectSizePanel");
         VerticalPanel panel = new VerticalPanel();
 
         // create header/instruction text

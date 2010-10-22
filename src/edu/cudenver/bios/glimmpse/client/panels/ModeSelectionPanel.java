@@ -41,7 +41,7 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
-import edu.cudenver.bios.glimmpse.client.listener.StartListener;
+import edu.cudenver.bios.glimmpse.client.listener.ModeSelectionListener;
 
 /**
  * Welcome / start panel which allows the user to select the method for 
@@ -50,11 +50,13 @@ import edu.cudenver.bios.glimmpse.client.listener.StartListener;
  * @author Sarah Kreidler
  *
  */
-public class StartPanel extends Composite implements SubmitCompleteHandler
+public class ModeSelectionPanel extends Composite implements SubmitCompleteHandler
 {
-	private static final String STYLE_GO_BUTTON = "startPanelGoButton";
-	private static final String STYLE_CONTAINER = "startPanelContainer";
-	private static final String STYLE_CONTAINER_TITLE = "startPanelContainerTitle";
+	private static final String STYLE_HEADER = "modeSelectionPanelHeader";
+	private static final String STYLE_DESCRIPTION = "modeSelectionPanelDescription";
+	private static final String STYLE_GO_BUTTON = "modeSelectionPanelGoButton";
+	private static final String STYLE_CONTAINER = "modeSelectionPanelContainer";
+	private static final String STYLE_CONTAINER_TITLE = "modeSelectionPanelContainerTitle";
 	
     // uri of file upload service
     private static final String UPLOAD_URI = "/webapps/file/upload";
@@ -65,19 +67,19 @@ public class StartPanel extends Composite implements SubmitCompleteHandler
     protected FileUpload uploader = new FileUpload();
     
     // listeners for start events
-    protected ArrayList<StartListener> startListeners = new ArrayList<StartListener>();
+    protected ArrayList<ModeSelectionListener> startListeners = new ArrayList<ModeSelectionListener>();
     
     /**
      * Constructor
      */
-    public StartPanel()
+    public ModeSelectionPanel()
     {
         VerticalPanel panel = new VerticalPanel();
 
         // layout the widgets        
         // add introductory text
-        HTML header = new HTML(Glimmpse.constants.startTitle());
-        HTML description = new HTML(Glimmpse.constants.startDescription());
+        HTML header = new HTML(Glimmpse.constants.modeSelectionTitle());
+        HTML description = new HTML(Glimmpse.constants.modeSelectionDescription());
         panel.add(header);
         panel.add(description);
         
@@ -87,14 +89,14 @@ public class StartPanel extends Composite implements SubmitCompleteHandler
         // guided study design mode
         Grid guidedModeContainer = new Grid(1,2);
         VerticalPanel guidedTextContainer = new VerticalPanel();
-        HTML guidedTitle = new HTML(Glimmpse.constants.startGuidedTitle());
+        HTML guidedTitle = new HTML(Glimmpse.constants.modeSelectionGuidedTitle());
         guidedTextContainer.add(guidedTitle);
-        guidedTextContainer.add(new HTML(Glimmpse.constants.startGuidedDescription()));
+        guidedTextContainer.add(new HTML(Glimmpse.constants.modeSelectionGuidedDescription()));
         guidedModeContainer.setWidget(0, 0, guidedTextContainer);
-        Button guidedGoButton = new Button(Glimmpse.constants.startGoButton(), new ClickHandler() {
+        Button guidedGoButton = new Button(Glimmpse.constants.modeSelectionGoButton(), new ClickHandler() {
             public void onClick(ClickEvent e)
             {
-                for(StartListener listener: startListeners) listener.onGuidedMode();
+                for(ModeSelectionListener listener: startListeners) listener.onGuidedMode();
             }
         });
         guidedModeContainer.setWidget(0, 1, guidedGoButton);
@@ -102,23 +104,23 @@ public class StartPanel extends Composite implements SubmitCompleteHandler
         // matrix entry mode
         Grid matrixModeContainer = new Grid(1,2);
         VerticalPanel matrixTextContainer = new VerticalPanel();
-        HTML matrixTitle = new HTML(Glimmpse.constants.startMatrixTitle());
+        HTML matrixTitle = new HTML(Glimmpse.constants.modeSelectionMatrixTitle());
         matrixTextContainer.add(matrixTitle);
-        matrixTextContainer.add(new HTML(Glimmpse.constants.startMatrixDescription()));
+        matrixTextContainer.add(new HTML(Glimmpse.constants.modeSelectionMatrixDescription()));
         matrixModeContainer.setWidget(0, 0, matrixTextContainer);
-        Button matrixGoButton = new Button(Glimmpse.constants.startGoButton(), new ClickHandler() {
+        Button matrixGoButton = new Button(Glimmpse.constants.modeSelectionGoButton(), new ClickHandler() {
             public void onClick(ClickEvent e)
             {
-                for(StartListener listener: startListeners) listener.onMatrixMode();
+                for(ModeSelectionListener listener: startListeners) listener.onMatrixMode();
             }
         });
         matrixModeContainer.setWidget(0, 1, matrixGoButton);
         
         // upload an existing study        
         VerticalPanel uploadContainer = new VerticalPanel();
-        HTML uploadTitle = new HTML(Glimmpse.constants.startUploadTitle());
+        HTML uploadTitle = new HTML(Glimmpse.constants.modeSelectionUploadTitle());
         uploadContainer.add(uploadTitle);
-        uploadContainer.add(new HTML(Glimmpse.constants.startUploadDescription()));
+        uploadContainer.add(new HTML(Glimmpse.constants.modeSelectionUploadDescription()));
         // build the upload form
         // for file upload, we need to use the POST method, and multipart MIME encoding.
         formPanel.setEncoding(FormPanel.ENCODING_MULTIPART);
@@ -154,8 +156,8 @@ public class StartPanel extends Composite implements SubmitCompleteHandler
         panel.add(inputContainer);
         
         // add style
-        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        header.setStyleName(STYLE_HEADER);
+        description.setStyleName(STYLE_DESCRIPTION);
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         inputContainer.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_INPUT_CONTAINER);
         // guided subpanel style
@@ -180,7 +182,7 @@ public class StartPanel extends Composite implements SubmitCompleteHandler
     public void onSubmitComplete(SubmitCompleteEvent event) 
     {
         String results = event.getResults();
-        for(StartListener listener: startListeners) listener.onStudyUpload(results);
+        for(ModeSelectionListener listener: startListeners) listener.onStudyUpload(results);
     }
     
     /**
@@ -197,7 +199,7 @@ public class StartPanel extends Composite implements SubmitCompleteHandler
      * 
      * @param listener 
      */
-    public void addStartListener(StartListener listener)
+    public void addStartListener(ModeSelectionListener listener)
     {
     	startListeners.add(listener);
     }  

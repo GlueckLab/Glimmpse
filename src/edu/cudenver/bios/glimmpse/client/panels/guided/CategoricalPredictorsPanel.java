@@ -7,7 +7,6 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -21,13 +20,11 @@ import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
-import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
-import edu.cudenver.bios.glimmpse.client.panels.CovariatePanel;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
-public class PredictorsPanel extends WizardStepPanel
-{        
+public class CategoricalPredictorsPanel extends WizardStepPanel
+{
     // listeners for outcome events
     protected ArrayList<PredictorsListener> listeners = new ArrayList<PredictorsListener>();
 
@@ -44,14 +41,14 @@ public class PredictorsPanel extends WizardStepPanel
     protected HashMap<String,ArrayList<String>> predictorCategoryMap = 
     	new HashMap<String,ArrayList<String>>();
     
-    public PredictorsPanel()
+    public CategoricalPredictorsPanel()
     {
-    	super(Glimmpse.constants.stepsLeftPredictors());
+    	super("CategoricalPredictorsPanel");
         VerticalPanel panel = new VerticalPanel();
         
         // create header/instruction text
-        HTML header = new HTML(Glimmpse.constants.predictorsTitle());
-        HTML description = new HTML(Glimmpse.constants.predictorsDescription());        
+        HTML header = new HTML(Glimmpse.constants.categoricalTitle());
+        HTML description = new HTML(Glimmpse.constants.categoricalDescription());        
 
 
         // disable category text box and delete buttons
@@ -62,7 +59,7 @@ public class PredictorsPanel extends WizardStepPanel
         // layout the overall panel
         panel.add(header);
         panel.add(description);
-        panel.add(buildCategoricalPanel());
+        panel.add(buildCascadingList());
         
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -71,29 +68,7 @@ public class PredictorsPanel extends WizardStepPanel
 
         initWidget(panel);
     }    
-    
-    private VerticalPanel buildCategoricalPanel()
-    {
-    	VerticalPanel panel = new VerticalPanel();
-
-        HTML header = new HTML(Glimmpse.constants.categoricalTitle());
-        HTML description = new HTML(Glimmpse.constants.categoricalDescription());
         
-        panel.add(header);
-        panel.add(description);
-        panel.add(buildCascadingList());
-        
-        // set style
-        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-        panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-    	
-    	return panel;
-    }
-    
     private VerticalPanel buildCascadingList()
     {
     	VerticalPanel panel = new VerticalPanel();
@@ -360,4 +335,5 @@ public class PredictorsPanel extends WizardStepPanel
 		// TODO Auto-generated method stub
 		
 	}
+
 }

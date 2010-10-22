@@ -70,7 +70,7 @@ implements ClickHandler, ListValidator
 	 */
 	public SolvingForPanel(String radioGroupPrefix)
 	{
-		super(Glimmpse.constants.stepsLeftSolvingFor());
+		super("SolvingForPanel-" +  radioGroupPrefix);
 		// since one of the radio buttons will always be checked, this wizardsteppanel
 		// is always considered complete (complete member var is from superclass WizardStepPanel)
 		complete = true;
@@ -90,14 +90,14 @@ implements ClickHandler, ListValidator
 			new RadioButton(group, Glimmpse.constants.solvingForPowerLabel());
 		solvingForSampleSizeRadioButton = 
 			new RadioButton(group, Glimmpse.constants.solvingForSampleSizeLabel());
-		solvingForEffectSizeRadioButton = 
-			new RadioButton(group, Glimmpse.constants.solvingForEffectSizeLabel());
+		/*solvingForEffectSizeRadioButton = 
+			new RadioButton(group, Glimmpse.constants.solvingForEffectSizeLabel());*/
 		
 		// layout the radio buttons
-		Grid grid = new Grid(3,1);
+		Grid grid = new Grid(2,1);
 		grid.setWidget(0, 0, solvingForPowerRadioButton);
 		grid.setWidget(1, 0, solvingForSampleSizeRadioButton);
-		grid.setWidget(2, 0, solvingForEffectSizeRadioButton);
+		//grid.setWidget(2, 0, solvingForEffectSizeRadioButton);
 		// select power by default
 		solvingForPowerRadioButton.setValue(true);
 		nominalPowerPanel.setVisible(false);
@@ -105,7 +105,7 @@ implements ClickHandler, ListValidator
 		// notify the listeners when a radio button is selected
 		solvingForPowerRadioButton.addClickHandler(this);
 		solvingForSampleSizeRadioButton.addClickHandler(this);
-		solvingForEffectSizeRadioButton.addClickHandler(this);
+		//solvingForEffectSizeRadioButton.addClickHandler(this);
 		
 		// layout the panel
 		panel.add(header);
@@ -131,9 +131,11 @@ implements ClickHandler, ListValidator
     	// TODO: constants
 		HTML header = new HTML(Glimmpse.constants.solvingForNominalPowerTitle());
 		HTML description = new HTML(Glimmpse.constants.solvingForNominalPowerDescription());
-		
+		HTML instructions = new HTML(Glimmpse.constants.solvingForNominalPowerInstructions());
+
 		nominalPowerPanel.add(header);
 		nominalPowerPanel.add(description);
+		nominalPowerPanel.add(instructions);
 		nominalPowerPanel.add(nominalPowerListPanel);
 		
 		// set style
@@ -141,6 +143,8 @@ implements ClickHandler, ListValidator
 		header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
 		description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+		instructions.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+		instructions.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 		nominalPowerPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
 		nominalPowerPanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 

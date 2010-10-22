@@ -32,7 +32,7 @@ import com.google.gwt.xml.client.XMLParser;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
-import edu.cudenver.bios.glimmpse.client.listener.StartListener;
+import edu.cudenver.bios.glimmpse.client.listener.ModeSelectionListener;
 
 /**
  * Main application panel for Glimmpse. 
@@ -40,14 +40,14 @@ import edu.cudenver.bios.glimmpse.client.listener.StartListener;
  * @author Sarah Kreidler
  */
 public class GlimmpsePanel extends Composite
-implements StartListener, CancelListener
+implements ModeSelectionListener, CancelListener
 {
 	private static final int START_INDEX = 0;
 	private static final int GUIDED_INDEX = 1;
 	private static final int MATRIX_INDEX = 2;
 	
 	protected DeckPanel deckPanel = new DeckPanel();
-	protected StartPanel startPanel = new StartPanel();
+	protected ModeSelectionPanel modeSelectionPanel = new ModeSelectionPanel();
 	protected MatrixWizardPanel matrixWizardPanel = new MatrixWizardPanel();
 	protected GuidedWizardPanel guidedWizardPanel = new GuidedWizardPanel();
 	
@@ -62,7 +62,7 @@ implements StartListener, CancelListener
 	public GlimmpsePanel()
 	{
 		// add the start panel and wizard panels to the deck
-		deckPanel.add(startPanel);
+		deckPanel.add(modeSelectionPanel);
 		deckPanel.add(guidedWizardPanel);
 		deckPanel.add(matrixWizardPanel);
 		// show start screen first
@@ -71,7 +71,7 @@ implements StartListener, CancelListener
 		deckPanel.setStyleName(GlimmpseConstants.STYLE_GLIMMPSE_PANEL);
 		
 		// set up listener relationships
-		startPanel.addStartListener(this);
+		modeSelectionPanel.addStartListener(this);
 		guidedWizardPanel.addCancelListener(this);
 		matrixWizardPanel.addCancelListener(this);
 		// initialize
@@ -81,7 +81,7 @@ implements StartListener, CancelListener
 	
 	/**
 	 * Display the guided mode wizard
-	 * @see StartListener
+	 * @see ModeSelectionListener
 	 */
 	@Override
 	public void onGuidedMode()
@@ -91,7 +91,7 @@ implements StartListener, CancelListener
 	
 	/**
 	 * Display the matrix mode wizard
-	 * @see StartListener
+	 * @see ModeSelectionListener
 	 */
 	@Override
 	public void onMatrixMode()
@@ -156,7 +156,7 @@ implements StartListener, CancelListener
 	{
 		matrixWizardPanel.reset();
 		guidedWizardPanel.reset();
-		startPanel.reset();
+		modeSelectionPanel.reset();
 		deckPanel.showWidget(START_INDEX);
 	}
 }

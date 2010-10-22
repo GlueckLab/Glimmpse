@@ -28,10 +28,12 @@ import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 
+import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
+import edu.cudenver.bios.glimmpse.client.panels.guided.CategoricalPredictorsPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.EffectSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.OutcomesPanel;
@@ -56,11 +58,19 @@ implements StudyDesignManager, SaveListener
 	protected static final String DEFAULT_CURVE_FILENAME = "powerCurve.jpg";
 	
 	// content panels 
+	protected IntroPanel startIntroPanel = new IntroPanel(Glimmpse.constants.startTitle(),
+			Glimmpse.constants.startDescription());
 	protected SolvingForPanel solvingForPanel = new SolvingForPanel(getModeName());
+	protected IntroPanel alphaIntroPanel = new IntroPanel(Glimmpse.constants.alphaIntroTitle(),
+			Glimmpse.constants.alphaIntroDescription());
 	protected AlphaPanel alphaPanel = new AlphaPanel();
+	protected IntroPanel predictorIntroPanel = new IntroPanel(Glimmpse.constants.predictorsIntroTitle(),
+			Glimmpse.constants.predictorsIntroDescription());
+	protected CategoricalPredictorsPanel catPredictorsPanel = new CategoricalPredictorsPanel();
 	protected OutcomesPanel outcomesPanel = new OutcomesPanel();
 	protected PredictorsPanel predictorsPanel = new PredictorsPanel();
 	protected StudyGroupsPanel studyGroupsPanel = new StudyGroupsPanel();
+	protected BaselineCovariatePanel covariatePanel = new BaselineCovariatePanel();
 	protected HypothesisPanel hypothesisPanel = new HypothesisPanel();
 	protected EffectSizePanel effectSizePanel = new EffectSizePanel();
 	protected VariabilityPanel variabilityPanel = new VariabilityPanel();
@@ -68,18 +78,29 @@ implements StudyDesignManager, SaveListener
 	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
 	
     // list of panels for the wizard
-	WizardStepPanel[] panelList = {
-			solvingForPanel,
-			alphaPanel, 
-			predictorsPanel, 
-			studyGroupsPanel, 
-			outcomesPanel, 
-			hypothesisPanel,
-			effectSizePanel,
-			variabilityPanel,
-			optionsPanel,
-			resultsPanel};
-	
+	WizardStepPanel[][] panelList = {
+			{startIntroPanel, solvingForPanel},
+			{alphaIntroPanel, alphaPanel}, 
+			{predictorIntroPanel, catPredictorsPanel, studyGroupsPanel, covariatePanel}, 
+			{outcomesPanel}, 
+			{hypothesisPanel},
+			{effectSizePanel},
+			{variabilityPanel},
+			{optionsPanel},
+			{resultsPanel}
+	};
+	// labels for each group of panels
+	String[] groupLabels = {
+		Glimmpse.constants.stepsLeftStart(),
+		Glimmpse.constants.stepsLeftAlpha(),
+		Glimmpse.constants.stepsLeftPredictors(),
+		Glimmpse.constants.stepsLeftResponses(),
+		Glimmpse.constants.stepsLeftHypotheses(),
+		Glimmpse.constants.stepsLeftMeanDifferences(),
+		Glimmpse.constants.stepsLeftVariability(),
+		Glimmpse.constants.stepsLeftOptions(),
+		Glimmpse.constants.stepsLeftResults()
+	};
 	// wizard navigation panel
 	WizardPanel wizardPanel;
 	
@@ -90,7 +111,7 @@ implements StudyDesignManager, SaveListener
 	{	
 		VerticalPanel panel = new VerticalPanel();
 		
-		wizardPanel = new WizardPanel(panelList);
+		wizardPanel = new WizardPanel(panelList, groupLabels);
 		wizardPanel.addSaveListener(this);
 		panel.add(wizardPanel);
 
@@ -104,9 +125,9 @@ implements StudyDesignManager, SaveListener
 		predictorsPanel.addPredictorsListener(studyGroupsPanel);
 		predictorsPanel.addPredictorsListener(hypothesisPanel);
 		predictorsPanel.addPredictorsListener(effectSizePanel);
-		predictorsPanel.addCovariateListener(optionsPanel);
-		predictorsPanel.addCovariateListener(studyGroupsPanel);
-		predictorsPanel.addCovariateListener(effectSizePanel);
+		covariatePanel.addCovariateListener(optionsPanel);
+		covariatePanel.addCovariateListener(studyGroupsPanel);
+		covariatePanel.addCovariateListener(effectSizePanel);
 		studyGroupsPanel.addRelativeGroupSizeListener(hypothesisPanel);
 		optionsPanel.addOptionsListener(resultsPanel);
 		// initialize

@@ -2,55 +2,38 @@ package edu.cudenver.bios.glimmpse.client.panels;
 
 import java.util.ArrayList;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.NavigationListener;
-import edu.cudenver.bios.glimmpse.client.listener.StepStatusListener;
 
 public class StepsLeftPanel extends Composite 
-implements NavigationListener, StepStatusListener
+implements NavigationListener
 {
-	protected static final String STYLE = "stepsLeftLabel";
+	protected static final String STYLE_LABEL = "stepsLeftLabel";
 	protected static final String STYLE_PANEL = "stepsLeftPanel";
     protected static final String STYLE_COMPLETE = "complete";
-    protected static final String STYLE_IN_PROGRESS = "inprogress";
     VerticalPanel panel = new VerticalPanel();
 
     protected ArrayList<HTML> stepList = new ArrayList<HTML>();
-    protected WizardStepPanel[] stepPanels;
+    protected String[] stepNames;
     private int currentStep = 0;
-    
-    protected ArrayList<NavigationListener> navigationListeners = new ArrayList<NavigationListener>();
-    
-    public StepsLeftPanel(WizardStepPanel[] stepPanels)
-    {               
-    	this.stepPanels = stepPanels;
-        for(WizardStepPanel step: stepPanels) addStep(step.getName());
         
-        // select the first step
-        Widget step = stepList.get(0);
-        step.removeStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_DESELECTED);
-        step.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SELECTED);
-        
-        // add style
-        panel.setStyleName(STYLE_PANEL);
-
-        initWidget(panel);
-    }
-    
     public StepsLeftPanel(String[] stepNames)
-    {               
-        for(String step: stepNames) addStep(step);
-        
-        // select the first step
-        Widget step = stepList.get(0);
-        step.removeStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_DESELECTED);
-        step.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SELECTED);
+    {            
+    	// add the steps to the display, selecting the first one
+    	int count = 0;
+        for(String step: stepNames) 
+        {
+        	if (count == 0)
+        		addStep(step, GlimmpseConstants.STYLE_WIZARD_STEP_SELECTED);
+        	else
+        		addStep(step, GlimmpseConstants.STYLE_WIZARD_STEP_DESELECTED);
+        	count++;
+        }
         
         // add style
         panel.setStyleName(STYLE_PANEL);
@@ -58,41 +41,11 @@ implements NavigationListener, StepStatusListener
         initWidget(panel);
     }
     
-    private void addStep(String stepLabel)
+    private void addStep(String stepLabel, String dependentStyle)
     {
         HTML stepHTML = new HTML(stepLabel);
-        stepHTML.setStyleName(STYLE);
-        stepHTML.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_DESELECTED);
-        stepHTML.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent e)
-            {
-                HTML source = (HTML) e.getSource();
-                HTML newStep = null;
-                int stepIdx = 0;
-                boolean allEarlierStepsComplete = true;
-                for(HTML step: stepList)
-                {
-                    if (step == source)
-                    {
-                    	// you can only navigate to this step if all previous steps are valid
-                        if (allEarlierStepsComplete) newStep = step;
-                        break;
-                    }
-                    else
-                    {
-                    	if (!stepPanels[stepIdx].complete) allEarlierStepsComplete = false;
-                    }
-                    stepIdx++;
-                }
-                    
-                if (newStep != null) 
-                {
-                    updateStep(stepList.get(currentStep), newStep);
-                    currentStep = stepIdx;
-                    for(NavigationListener listener: navigationListeners) listener.onStep(currentStep);
-                }
-            }
-        });
+        stepHTML.setStyleName(STYLE_LABEL);
+        stepHTML.addStyleDependentName(dependentStyle);
         stepList.add(stepHTML);
         panel.add(stepHTML);
     }
@@ -106,12 +59,12 @@ implements NavigationListener, StepStatusListener
      * @param newIndex
      * @param prevIndex
      */
-    protected void updateStep(Widget oldStep,Widget newStep)
+    protected void updateStep(Widget oldStep, String styleNameForOldStep, Widget newStep)
     {       
 
         // deselect the old widgets
         oldStep.removeStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SELECTED);
-        oldStep.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_DESELECTED);
+        oldStep.addStyleDependentName(styleNameForOldStep);
         
         // select the new widgets
         newStep.removeStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_DESELECTED);
@@ -125,61 +78,50 @@ implements NavigationListener, StepStatusListener
     public void onNext()
     {
         if (currentStep < stepList.size()-1)
-            updateStep(stepList.get(currentStep), stepList.get(++currentStep));
-        //wizard.showWidget(currentStep);
+        {
+        	Widget oldStep = stepList.get(currentStep);
+        	Widget newStep = stepList.get(++currentStep);
+            // deselect the old widgets
+            oldStep.removeStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SELECTED);
+            oldStep.addStyleDependentName(STYLE_COMPLETE);
+            // select the new widgets
+            newStep.removeStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_DESELECTED);
+            newStep.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SELECTED);
+        }
     }
     
-    public void onStep(int stepIndex)
+    /**
+     * Call back when "next" navigation button is clicked
+     * Does nothing if already at end of step list
+     */
+    public void onPrevious()
     {
-    	if (stepIndex >= 0 && stepIndex < stepList.size())
-    	{
-    		updateStep(stepList.get(currentStep), stepList.get(stepIndex));
-    		currentStep = stepIndex;
-    	}
-    }
-    
-    public void onStepComplete()
-    {
-//    	if (stepName != null && !stepName.isEmpty())
-//    	{
-//    		for(HTML step: stepList)
-//    		{
-//    			if (stepName.equals(step.getHTML()))
-//    			{
-//    				// TODO
-////    				step.removeStyleDependentName(STYLE_IN_PROGRESS);
-////    				step.addStyleDependentName(STYLE_COMPLETE);
-//    				break;
-//    			}
-//    		}
-//    	}
-    }
-    
-    public void onStepInProgress()
-    {
-//    	if (stepName != null && !stepName.isEmpty())
-//    	{
-//    		for(HTML step: stepList)
-//    		{
-//    			if (stepName.equals(step.getHTML()))
-//    			{
-//    				
-//    			}
-//    		}
-//    	}
-    }
-    
-    public void addNavigationListener(NavigationListener listener)
-    {
-    	navigationListeners.add(listener);
+        if (currentStep > 0)
+        {
+        	Widget oldStep = stepList.get(currentStep);
+        	Widget newStep = stepList.get(--currentStep);
+            // deselect the old widgets
+            oldStep.removeStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SELECTED);
+            oldStep.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_DESELECTED);
+            // select the new widgets
+            newStep.removeStyleDependentName(STYLE_COMPLETE);
+            newStep.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SELECTED);
+        }
     }
     
     public void reset()
     {
         if (currentStep > 0)
         {
-            updateStep(stepList.get(currentStep), stepList.get(0));
-            currentStep = 0;
+        	Widget oldStep = stepList.get(currentStep);
+        	currentStep = 0;
+        	Widget newStep = stepList.get(currentStep);
+            // deselect the old widgets
+            oldStep.removeStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SELECTED);
+            oldStep.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_DESELECTED);
+            // select the new widgets
+            newStep.removeStyleDependentName(STYLE_COMPLETE);
+            newStep.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SELECTED);
         }
     }
 }
