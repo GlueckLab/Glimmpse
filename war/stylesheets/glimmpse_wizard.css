@@ -30,7 +30,7 @@
 	background-repeat:repeat-x;
 }
 
-.startPanelHeader {
+.modeSelectionPanelHeader {
 	margin-left: 20px;
 	margin-top: 10px;
 	font-weight: bold;
@@ -38,13 +38,13 @@
 	width: 80%;
 }
 
-.startPanelDescription {
+.modeSelectionPanelDescription {
 	margin: 10px 20px;
 	width: 80%;
 	font-size: larger;
 }
 
-.startPanelContainer {
+.modeSelectionPanelContainer {
 	/*border: 1px solid #14f;*/
 	padding: 5px;
 	background-color: #E0ECF8;
@@ -58,12 +58,12 @@
 	border-radius: 5px;
 }
 
-.startPanelContainerTitle {
+.modeSelectionPanelContainerTitle {
 	font-weight: bold;
 	font-size: larger;
 }
 
-.startPanelGoButton {
+.modeSelectionPanelGoButton {
 	font-weight: bold;
 	color: #000;
 	border: 1px solid #fff;
@@ -75,7 +75,7 @@
 	border-radius: 5px;
 }
 
-.startPanelGoButton:hover {
+.modeSelectionPanelGoButton:hover {
 	border: 1px solid #000;
 }
 
@@ -101,41 +101,28 @@
 
 .stepsLeftLabel {
 	text-align: center;
-	padding: 10px 0px;
-	font-size: 14px;
-    line-height: 18px;
+	padding: 5px 5px;
+	font-size: larger;
     width: 120px;
-    height: 14px;
-    background-color: #fff;
-    /*background-image: url(../images/stepBgDeselected.png);
-    background-repeat: no-repeat;
-    background-position: 0% 100%;*/
+}
+
+.stepsLeftLabel-complete {
+	color: gray;
+	background: #fff;
+	font-weight: normal;
 }
 
 .stepsLeftLabel-selected {
-	color: black; /*#22A45E;*/
+	color: black; 
 	font-weight: bold;
 	background: #E0ECF8;
-	/*background-image: url(../images/stepBgSelected.png);*/
 }
 
 .stepsLeftLabel-deselected {
 	color: gray;
 	font-weight: normal;
 	background: #fff;
-	/* background-image: url(../images/stepBgDeselected.png);*/
 }
-
-/* top toolbar */
-.wizardToolBar {
-	margin-left: 64%;
-}
-
-.gwt-MenuItem-disabled {
-	color: #ccc;
-}
-
-/* container for user input (around forms, etc) */
 
 /* style for main wizard input panel (GWT class) */
 .wizardPanel {
@@ -207,6 +194,19 @@
 }
 
 /* style for subpanels in a wizard step */
+.wizardToolBar {
+	float: right;
+}
+
+.wizardToolBarSave {
+}
+
+.wizardToolBarClear {
+}
+
+.wizardToolBarHelp {
+}
+
 .wizardNavigationPanel {
 	margin-top: 20px;
 }
@@ -215,7 +215,7 @@
 .wizardNavigationPanelButton {
 	background: #005C84;
 	color: #F9FCFF;
-	width: 75px;
+	width: 100px;
 	height: 30px;
 	margin: 5px 5px;
 	border: 1px solid #ccc;
@@ -224,8 +224,8 @@
 }
 
 .wizardNavigationPanelButton:hover {
-	background: #005C84;
-	color: #ccc;
+	background: #E0ECF8;
+	color: #005C84;
 }
 
 .wizardNavigationPanelButton[disabled] {
