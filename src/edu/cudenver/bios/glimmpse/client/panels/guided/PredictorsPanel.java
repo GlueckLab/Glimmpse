@@ -46,7 +46,7 @@ public class PredictorsPanel extends WizardStepPanel
     
     public PredictorsPanel()
     {
-    	super(Glimmpse.constants.stepsLeftPredictors());
+    	super();
         VerticalPanel panel = new VerticalPanel();
         
         // create header/instruction text

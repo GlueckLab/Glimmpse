@@ -54,7 +54,7 @@ public class BaselineCovariatePanel extends WizardStepPanel
     
     public BaselineCovariatePanel()
     {
-    	super("baseline covariate");
+    	super();
     	// build covariate panel
         VerticalPanel panel = new VerticalPanel();
         

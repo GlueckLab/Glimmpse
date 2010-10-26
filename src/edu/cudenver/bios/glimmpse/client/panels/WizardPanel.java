@@ -23,20 +23,15 @@ package edu.cudenver.bios.glimmpse.client.panels;
 
 import java.util.ArrayList;
 
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
 
-import edu.cudenver.bios.glimmpse.client.Glimmpse;
-import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.NavigationListener;
 import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
@@ -45,7 +40,7 @@ import edu.cudenver.bios.glimmpse.client.listener.SaveListener.SaveType;
 import edu.cudenver.bios.glimmpse.client.listener.ToolbarActionListener;
 
 /**
- * Abstract base class for "wizard" input panels.  Manages navigation,
+ * Abstract base class for "wizard" panels.  Manages navigation,
  * basic toolbars, etc.
  * 
  * @author Sarah Kreidler
@@ -54,8 +49,6 @@ import edu.cudenver.bios.glimmpse.client.listener.ToolbarActionListener;
 public class WizardPanel extends Composite
 implements ToolbarActionListener, NavigationListener, StepStatusListener
 {
-	// separator name 
-	protected static final String SEPARATOR = "__SEPARATOR__";
 	// uri for help manual
 	protected static final String HELP_URL = "/help/manual.pdf";
 	// url for file save web service
@@ -91,7 +84,9 @@ implements ToolbarActionListener, NavigationListener, StepStatusListener
     {
     	public GroupSeparatorPanel() 
     	{ 
-    		super(SEPARATOR); 
+    		super(); 
+    		skip = true;
+    		separator = true;
     		VerticalPanel panel = new VerticalPanel();
     		initWidget(panel);
     	}
@@ -149,12 +144,16 @@ implements ToolbarActionListener, NavigationListener, StepStatusListener
     	if (currentStep < wizardDeck.getWidgetCount()-1)
     	{
     		exitStep();
-    		currentStep++;
-    		if (SEPARATOR.equals(((WizardStepPanel) wizardDeck.getWidget(currentStep)).getName()))
+			// find the next panel which is not skipped, and is not a separator panel
+    		WizardStepPanel w;
+    		do
     		{
     			currentStep++;
-    			stepsLeftPanel.onNext();
-    		}
+    			w = ((WizardStepPanel) wizardDeck.getWidget(currentStep));
+    			if (w.isSeparator()) stepsLeftPanel.onNext();
+    		} 
+    		while ((w.isSkipped() || w.isSeparator()) && 
+    				currentStep < wizardDeck.getWidgetCount()-1);
     		enterStep();
     	}
     }
@@ -168,12 +167,16 @@ implements ToolbarActionListener, NavigationListener, StepStatusListener
     	if (currentStep > 0)
     	{
     		exitStep();
-    		currentStep--;
-    		if (SEPARATOR.equals(((WizardStepPanel) wizardDeck.getWidget(currentStep)).getName()))
+			// find the next panel which is not skipped, and is not a separator panel
+    		WizardStepPanel w;
+    		do
     		{
     			currentStep--;
-    			stepsLeftPanel.onPrevious();
-    		}
+    			w = ((WizardStepPanel) wizardDeck.getWidget(currentStep));
+    			if (w.isSeparator()) stepsLeftPanel.onPrevious();
+    		} 
+    		while ((w.isSkipped() || w.isSeparator()) && 
+    				currentStep > 0);
     		enterStep();
     	}
     }

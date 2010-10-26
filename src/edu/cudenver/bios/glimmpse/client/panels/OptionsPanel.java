@@ -128,7 +128,7 @@ implements CovariateListener, ClickHandler
      */
     public OptionsPanel(String mode)
 	{
-		super(Glimmpse.constants.stepsLeftOptions());
+		super();
 		VerticalPanel panel = new VerticalPanel();
 
 		// create header, description

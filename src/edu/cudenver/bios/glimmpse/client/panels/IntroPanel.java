@@ -11,7 +11,7 @@ public class IntroPanel extends WizardStepPanel
 
 	public IntroPanel(String title, String description)
 	{
-		super("IntroPanel" + title);
+		super();
 		complete = true;
 		VerticalPanel panel = new VerticalPanel();
 		

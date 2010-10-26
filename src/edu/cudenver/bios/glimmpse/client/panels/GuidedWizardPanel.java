@@ -38,6 +38,7 @@ import edu.cudenver.bios.glimmpse.client.panels.guided.EffectSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.OutcomesPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.PredictorsPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.RelativeGroupSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.StudyGroupsPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityPanel;
 
@@ -61,16 +62,24 @@ implements StudyDesignManager, SaveListener
 	protected IntroPanel startIntroPanel = new IntroPanel(Glimmpse.constants.startTitle(),
 			Glimmpse.constants.startDescription());
 	protected SolvingForPanel solvingForPanel = new SolvingForPanel(getModeName());
+	protected PowerPanel powerPanel = new PowerPanel();
+	// type I error
 	protected IntroPanel alphaIntroPanel = new IntroPanel(Glimmpse.constants.alphaIntroTitle(),
 			Glimmpse.constants.alphaIntroDescription());
 	protected AlphaPanel alphaPanel = new AlphaPanel();
+	// predictors
 	protected IntroPanel predictorIntroPanel = new IntroPanel(Glimmpse.constants.predictorsIntroTitle(),
 			Glimmpse.constants.predictorsIntroDescription());
 	protected CategoricalPredictorsPanel catPredictorsPanel = new CategoricalPredictorsPanel();
+	protected BaselineCovariatePanel covariatePanel = new BaselineCovariatePanel();
+	protected RelativeGroupSizePanel relativeGroupSizePanel = new RelativeGroupSizePanel();
+	// outcomes
+	protected IntroPanel outcomesIntroPanel = new IntroPanel(Glimmpse.constants.outcomesIntroTitle(),
+			Glimmpse.constants.outcomesIntroDescription());
 	protected OutcomesPanel outcomesPanel = new OutcomesPanel();
 	protected PredictorsPanel predictorsPanel = new PredictorsPanel();
 	protected StudyGroupsPanel studyGroupsPanel = new StudyGroupsPanel();
-	protected BaselineCovariatePanel covariatePanel = new BaselineCovariatePanel();
+
 	protected HypothesisPanel hypothesisPanel = new HypothesisPanel();
 	protected EffectSizePanel effectSizePanel = new EffectSizePanel();
 	protected VariabilityPanel variabilityPanel = new VariabilityPanel();
@@ -79,9 +88,9 @@ implements StudyDesignManager, SaveListener
 	
     // list of panels for the wizard
 	WizardStepPanel[][] panelList = {
-			{startIntroPanel, solvingForPanel},
+			{startIntroPanel, solvingForPanel, powerPanel},
 			{alphaIntroPanel, alphaPanel}, 
-			{predictorIntroPanel, catPredictorsPanel, studyGroupsPanel, covariatePanel}, 
+			{predictorIntroPanel, catPredictorsPanel, covariatePanel, studyGroupsPanel}, 
 			{outcomesPanel}, 
 			{hypothesisPanel},
 			{effectSizePanel},
@@ -116,6 +125,7 @@ implements StudyDesignManager, SaveListener
 		panel.add(wizardPanel);
 
 		// set up listener relationships
+		solvingForPanel.addSolvingForListener(powerPanel);
 		solvingForPanel.addSolvingForListener(studyGroupsPanel);
 		solvingForPanel.addSolvingForListener(resultsPanel);
 		outcomesPanel.addOutcomesListener(studyGroupsPanel);

@@ -68,7 +68,7 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 	
     public HypothesisPanel()
     {
-    	super(Glimmpse.constants.stepsLeftHypotheses());
+    	super();
     	complete = true;
         VerticalPanel panel = new VerticalPanel();
         

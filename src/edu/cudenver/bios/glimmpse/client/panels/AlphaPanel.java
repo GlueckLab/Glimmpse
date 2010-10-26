@@ -49,7 +49,7 @@ implements ListValidator
      */
     public AlphaPanel()
     {
-    	super(Glimmpse.constants.stepsLeftAlpha());
+    	super();
         VerticalPanel panel = new VerticalPanel();
 
         // create header/instruction text

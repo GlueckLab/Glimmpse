@@ -46,19 +46,13 @@ import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
  *
  */
 public class SolvingForPanel extends WizardStepPanel
-implements ClickHandler, ListValidator
+implements ClickHandler
 {
 	protected static final String SOLVE_FOR_RADIO_GROUP = "SolvingFor";
 	
 	// "solving for" check boxes
 	protected RadioButton solvingForPowerRadioButton; 
 	protected RadioButton solvingForSampleSizeRadioButton;
-	protected RadioButton solvingForEffectSizeRadioButton;
-	
-	// list of nominal power values.  Only displayed when solving for effect size or sample size
-	protected VerticalPanel nominalPowerPanel = new VerticalPanel();
-    protected ListEntryPanel nominalPowerListPanel = 
-    	new ListEntryPanel(Glimmpse.constants.solvingForNominalPowerTableColumn(), this);
     
 	// listeners for changes to the solution type
 	protected ArrayList<SolvingForListener> listeners = new ArrayList<SolvingForListener>();
@@ -70,7 +64,7 @@ implements ClickHandler, ListValidator
 	 */
 	public SolvingForPanel(String radioGroupPrefix)
 	{
-		super("SolvingForPanel-" +  radioGroupPrefix);
+		super();
 		// since one of the radio buttons will always be checked, this wizardsteppanel
 		// is always considered complete (complete member var is from superclass WizardStepPanel)
 		complete = true;
@@ -79,9 +73,6 @@ implements ClickHandler, ListValidator
 		
 		HTML header = new HTML(Glimmpse.constants.solvingForTitle());
 		HTML description = new HTML(Glimmpse.constants.solvingForDescription());
-
-		// build the nominal power subpanel
-		buildNominalPowerPanel();
 		
 		// create the radio buttons - note, we add a prefix to the radio group name since multiple
 		// instances of this class are created for matrix and guided mode
@@ -100,7 +91,6 @@ implements ClickHandler, ListValidator
 		//grid.setWidget(2, 0, solvingForEffectSizeRadioButton);
 		// select power by default
 		solvingForPowerRadioButton.setValue(true);
-		nominalPowerPanel.setVisible(false);
 		
 		// notify the listeners when a radio button is selected
 		solvingForPowerRadioButton.addClickHandler(this);
@@ -111,7 +101,6 @@ implements ClickHandler, ListValidator
 		panel.add(header);
 		panel.add(description);
 		panel.add(grid);
-		panel.add(nominalPowerPanel);
 		
 		// set style
 		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
@@ -123,42 +112,12 @@ implements ClickHandler, ListValidator
 	}
 	
 	/**
-	 * Build the panel for entering nominal power values.  This panel is 
-	 * only used when solving for effect size or sample size
-	 */
-	public void buildNominalPowerPanel()
-	{
-    	// TODO: constants
-		HTML header = new HTML(Glimmpse.constants.solvingForNominalPowerTitle());
-		HTML description = new HTML(Glimmpse.constants.solvingForNominalPowerDescription());
-		HTML instructions = new HTML(Glimmpse.constants.solvingForNominalPowerInstructions());
-
-		nominalPowerPanel.add(header);
-		nominalPowerPanel.add(description);
-		nominalPowerPanel.add(instructions);
-		nominalPowerPanel.add(nominalPowerListPanel);
-		
-		// set style
-		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-		header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-		instructions.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		instructions.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-		nominalPowerPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-		nominalPowerPanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-
-	}
-	
-	/**
 	 * Reset the panel to the default (solve for power), and clear the nominal 
 	 * power list
 	 */
 	public void reset()
 	{
 		solvingForPowerRadioButton.setValue(true);
-		nominalPowerListPanel.reset();
-		nominalPowerPanel.setVisible(false);
 		notifyComplete();
 	}
 	
@@ -180,9 +139,7 @@ implements ClickHandler, ListValidator
 	 */
 	@Override
 	public void onClick(ClickEvent event)
-	{
-		nominalPowerPanel.setVisible(!solvingForPowerRadioButton.getValue());
-		
+	{		
 		SolvingForListener.SolutionType type = null;
 		if (solvingForPowerRadioButton.getValue())
 		{
@@ -192,12 +149,6 @@ implements ClickHandler, ListValidator
 		else if (solvingForSampleSizeRadioButton.getValue())
 		{
 			type = SolvingForListener.SolutionType.TOTAL_N;
-			onValidRowCount(nominalPowerListPanel.getValidRowCount());
-		}
-		else if (solvingForEffectSizeRadioButton.getValue())
-		{
-			type = SolvingForListener.SolutionType.EFFECT_SIZE;
-			onValidRowCount(nominalPowerListPanel.getValidRowCount());
 		}
 		if (type != null)
 		{
@@ -205,35 +156,7 @@ implements ClickHandler, ListValidator
 		}
 	}
 	
-	/**
-	 * Validate new entries in the alpha list
-	 * @see DynamicListValidator
-	 */
-	public void validate(String value) throws IllegalArgumentException
-	{
-		try
-		{
-			TextValidation.parseDouble(value, 0, 1, false);
-		}
-		catch (NumberFormatException nfe)
-		{
-			throw new IllegalArgumentException(Glimmpse.constants.errorInvalidPower());
-		}
-	}
 
-    /**
-     * Callback when the number of valid entries in the list of
-     * alpha values changes
-     * 
-     * @see DynamicListValidator
-     */
-    public void onValidRowCount(int validRowCount)
-    {
-    	if (validRowCount > 0)
-    		notifyComplete();
-    	else
-    		notifyInProgress();
-    }
     
     /**
      * Return an XML representation of this panel for saving the study design
@@ -277,9 +200,6 @@ implements ClickHandler, ListValidator
      */
     public String toRequestXML()
     {
-    	if (!solvingForPowerRadioButton.getValue())
-    		return nominalPowerListPanel.toXML(GlimmpseConstants.TAG_POWER_LIST);
-    	else
     		return "";
     }
     
@@ -293,35 +213,10 @@ implements ClickHandler, ListValidator
 			if (typeNode != null)
 			{
 				String value = typeNode.getNodeValue();
-				if (GlimmpseConstants.SOLUTION_TYPE_EFFECT_SIZE.equals(value))
-					solvingForEffectSizeRadioButton.setValue(true);
-				else if (GlimmpseConstants.SOLUTION_TYPE_SAMPLE_SIZE.equals(value))
+				if (GlimmpseConstants.SOLUTION_TYPE_SAMPLE_SIZE.equals(value))
 					solvingForSampleSizeRadioButton.setValue(true);
 				else
 					solvingForPowerRadioButton.setValue(true);
-			}
-			
-			// get the power list
-			NodeList children = node.getChildNodes();
-			for(int i = 0; i < children.getLength(); i++)
-			{
-				Node child = children.item(i);
-				if (GlimmpseConstants.TAG_POWER_LIST.equals(child.getNodeName()))
-				{
-					nominalPowerListPanel.loadFromNode(child);
-				}
-			}
-			
-			// make sure the right panels are visible
-			if (solvingForPowerRadioButton.getValue())
-			{
-				nominalPowerPanel.setVisible(false);
-				notifyComplete();
-			}
-			else
-			{
-				nominalPowerPanel.setVisible(true);
-				onValidRowCount(nominalPowerListPanel.getValidRowCount());
 			}
 		}
 	}

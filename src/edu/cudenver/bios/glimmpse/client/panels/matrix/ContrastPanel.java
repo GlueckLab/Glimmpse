@@ -30,7 +30,7 @@ implements CovariateListener, MatrixResizeListener
     protected int betweenSubjectMaxRows = GlimmpseConstants.DEFAULT_A;
 	public ContrastPanel()
 	{
-		super(Glimmpse.constants.stepsLeftContrast());
+		super();
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text

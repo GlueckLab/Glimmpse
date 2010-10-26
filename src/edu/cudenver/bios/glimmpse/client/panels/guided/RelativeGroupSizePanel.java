@@ -4,10 +4,10 @@ import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
-public class MeanDifferencesPatternPanel extends WizardStepPanel
+public class RelativeGroupSizePanel extends WizardStepPanel
 {
 
-	public MeanDifferencesPatternPanel(String name)
+	public RelativeGroupSizePanel()
 	{
 		super();
 		// TODO Auto-generated constructor stub

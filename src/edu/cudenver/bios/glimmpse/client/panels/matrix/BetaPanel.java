@@ -32,7 +32,7 @@ implements MatrixResizeListener, CovariateListener, ListValidator, SolvingForLis
 
 	public BetaPanel()
 	{
-		super(Glimmpse.constants.stepsLeftBeta());
+		super();
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text
@@ -192,7 +192,7 @@ implements MatrixResizeListener, CovariateListener, ListValidator, SolvingForLis
 	@Override
 	public void onSolvingFor(SolutionType solutionType)
 	{
-		betaScaleListPanel.setVisible(solutionType != SolutionType.EFFECT_SIZE);
+		//betaScaleListPanel.setVisible(solutionType != SolutionType.EFFECT_SIZE);
 	}
 
 	@Override

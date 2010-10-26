@@ -104,7 +104,7 @@ implements OptionsListener, SolvingForListener
 
 	public ResultsDisplayPanel(StudyDesignManager manager)
 	{
-		super(Glimmpse.constants.stepsLeftResults());
+		super();
 		this.manager = manager;
 		complete = true;
 		VerticalPanel panel = new VerticalPanel();
@@ -497,9 +497,6 @@ implements OptionsListener, SolvingForListener
 			break;
 		case TOTAL_N:
 			builder = new RequestBuilder(RequestBuilder.POST, SAMPLE_SIZE_URL);
-			break;
-		case EFFECT_SIZE:
-			builder = new RequestBuilder(RequestBuilder.POST, EFFECT_SIZE_URL);
 			break;
 		}
 

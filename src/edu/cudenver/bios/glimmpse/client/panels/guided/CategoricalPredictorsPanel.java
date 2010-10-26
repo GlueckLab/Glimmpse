@@ -43,7 +43,7 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     
     public CategoricalPredictorsPanel()
     {
-    	super("CategoricalPredictorsPanel");
+    	super();
         VerticalPanel panel = new VerticalPanel();
         
         // create header/instruction text

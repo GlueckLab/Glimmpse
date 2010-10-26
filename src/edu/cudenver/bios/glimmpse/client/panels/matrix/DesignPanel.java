@@ -41,7 +41,7 @@ implements SolvingForListener, MatrixResizeListener, CovariateListener, ListVali
     
 	public DesignPanel()
 	{
-		super(Glimmpse.constants.stepsLeftDesign());
+		super();
 		
 		VerticalPanel panel = new VerticalPanel();
 		

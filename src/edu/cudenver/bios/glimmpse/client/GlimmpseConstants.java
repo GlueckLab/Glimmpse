@@ -175,29 +175,34 @@ public interface GlimmpseConstants extends Constants
     /* predictors section */
     public String predictorsIntroTitle();
     public String predictorsIntroDescription();
-
-    // outcomes panel constants
-    public String outcomesTitle();
-    public String outcomesDescription();
-    public String outcomesTableColumn();
-    public String repeatedMeasuresTitle();
-    public String repeatedMeasuresDescription();
-    public String repeatedOverTableColumn();
-    public String repetitionsTableColumn();
-    
-    // predictors panel constants
+    // categorical predictors panel constants
     public String predictorsTitle();
     public String predictorsDescription();
     public String predictorsTableColumn();
     public String categoriesTableColumn();
     public String categoricalTitle();
     public String categoricalDescription();
+    // covariate panel constants
     public String covariateTitle();
     public String predictorsCovariateDescription();
     public String matrixCovariateDescription();
     public String covariateCheckBoxLabel();
     public String covariateMeanLabel();
     public String covariateStandardDeviationLabel();
+    /* outcomes section */
+    public String outcomesIntroTitle();
+    public String outcomesIntroDescription();
+    // outcome variables panel
+    public String outcomesTitle();
+    public String outcomesDescription();
+    public String outcomesTableColumn();
+    // repeated measures panel
+    public String repeatedMeasuresTitle();
+    public String repeatedMeasuresDescription();
+    public String repeatedOverTableColumn();
+    public String repetitionsTableColumn();
+    
+
 
     // study groups panel constants
     public String studyGroupsTitle();

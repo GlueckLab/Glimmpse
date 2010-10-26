@@ -48,7 +48,7 @@ implements OutcomesListener, PredictorsListener, CovariateListener, ListValidato
     
     public EffectSizePanel()
     {
-    	super("EffectSizePanel");
+    	super();
         VerticalPanel panel = new VerticalPanel();
 
         // create header/instruction text

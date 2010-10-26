@@ -9,7 +9,7 @@ public class MeanDifferencesScalePanel extends WizardStepPanel
 
 	public MeanDifferencesScalePanel(String name)
 	{
-		super(name);
+		super();
 		// TODO Auto-generated constructor stub
 	}
 

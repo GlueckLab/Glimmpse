@@ -48,7 +48,7 @@ OutcomesListener, CovariateListener, ListValidator
     
     public StudyGroupsPanel()
     {
-    	super("StudyGroupsPanel");
+    	super();
     	complete = true;
         VerticalPanel panel = new VerticalPanel();
         

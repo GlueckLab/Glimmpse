@@ -44,7 +44,7 @@ implements CovariateListener, MatrixResizeListener, ListValidator
 	
 	public CovariancePanel()
 	{
-		super(Glimmpse.constants.stepsLeftSigma());
+		super();
 		// regardless of input, forward navigation is allowed from this panel
 		complete = true;
 		

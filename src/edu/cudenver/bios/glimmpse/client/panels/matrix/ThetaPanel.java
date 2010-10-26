@@ -1,15 +1,11 @@
 package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
 
-import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
-import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
-import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class ThetaPanel extends WizardStepPanel
@@ -23,7 +19,7 @@ implements MatrixResizeListener
     
 	public ThetaPanel()
 	{
-		super(Glimmpse.constants.stepsLeftTheta());
+		super();
 		// regardless of user input, this panel allows forward navigation
 		complete = true;
 		

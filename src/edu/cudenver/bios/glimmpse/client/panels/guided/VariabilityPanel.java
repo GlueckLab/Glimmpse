@@ -41,7 +41,7 @@ implements OutcomesListener, PredictorsListener, CovariateListener, ListValidato
 	protected DeckPanel deckPanel = new DeckPanel();
     public VariabilityPanel()
     {
-    	super(Glimmpse.constants.stepsLeftVariability());
+    	super();
     	complete = true;
         VerticalPanel panel = new VerticalPanel();
         
