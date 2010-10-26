@@ -180,7 +180,7 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 		this.outcomes = outcomes;
 	}
 
-	@Override
+	//@Override
 	public void onRepeatedMeasures(List<RepeatedMeasure> repeatedMeasures)
 	{
 		if (repeatedMeasures == null || repeatedMeasures.size() <= 0)

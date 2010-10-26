@@ -18,12 +18,14 @@ import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
+import edu.cudenver.bios.glimmpse.client.listener.RepeatedMeasuresListener;
 import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
 import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class VariabilityPanel extends WizardStepPanel
-implements OutcomesListener, PredictorsListener, CovariateListener, ListValidator
+implements OutcomesListener, RepeatedMeasuresListener,
+PredictorsListener, CovariateListener, ListValidator
 {
 	protected static final int INDEPENDENT_GROUPS_INDEX = 0;
 	protected static final int REPEATED_MEASURES_INDEX = 0;

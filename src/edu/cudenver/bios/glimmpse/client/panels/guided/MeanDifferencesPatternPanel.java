@@ -1,5 +1,6 @@
 package edu.cudenver.bios.glimmpse.client.panels.guided;
 
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
@@ -7,9 +8,12 @@ import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 public class MeanDifferencesPatternPanel extends WizardStepPanel
 {
 
-	public MeanDifferencesPatternPanel(String name)
+	public MeanDifferencesPatternPanel()
 	{
 		super();
+		VerticalPanel panel = new VerticalPanel();
+		
+		initWidget(panel);
 		// TODO Auto-generated constructor stub
 	}
 

@@ -21,7 +21,6 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
@@ -34,12 +33,13 @@ import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
 import edu.cudenver.bios.glimmpse.client.panels.guided.CategoricalPredictorsPanel;
-import edu.cudenver.bios.glimmpse.client.panels.guided.EffectSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesPatternPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesScalePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.OutcomesPanel;
-import edu.cudenver.bios.glimmpse.client.panels.guided.PredictorsPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.PerGroupSampleSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.RelativeGroupSizePanel;
-import edu.cudenver.bios.glimmpse.client.panels.guided.StudyGroupsPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.RepeatedMeasuresPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityPanel;
 
 /**
@@ -73,27 +73,40 @@ implements StudyDesignManager, SaveListener
 	protected CategoricalPredictorsPanel catPredictorsPanel = new CategoricalPredictorsPanel();
 	protected BaselineCovariatePanel covariatePanel = new BaselineCovariatePanel();
 	protected RelativeGroupSizePanel relativeGroupSizePanel = new RelativeGroupSizePanel();
+	protected PerGroupSampleSizePanel perGroupSampleSizePanel = new PerGroupSampleSizePanel();
 	// outcomes
 	protected IntroPanel outcomesIntroPanel = new IntroPanel(Glimmpse.constants.outcomesIntroTitle(),
 			Glimmpse.constants.outcomesIntroDescription());
 	protected OutcomesPanel outcomesPanel = new OutcomesPanel();
-	protected PredictorsPanel predictorsPanel = new PredictorsPanel();
-	protected StudyGroupsPanel studyGroupsPanel = new StudyGroupsPanel();
-
+	protected RepeatedMeasuresPanel repeatedMeasuresPanel = new RepeatedMeasuresPanel();
+	// hypotheses
+	protected IntroPanel hypothesisIntroPanel = new IntroPanel(Glimmpse.constants.hypothesisIntroTitle(),
+			Glimmpse.constants.hypothesisIntroDescription());
 	protected HypothesisPanel hypothesisPanel = new HypothesisPanel();
-	protected EffectSizePanel effectSizePanel = new EffectSizePanel();
+	// mean differences
+	protected IntroPanel meanDifferencesIntroPanel = new IntroPanel(Glimmpse.constants.meanDifferenceIntroTitle(),
+			Glimmpse.constants.meanDifferenceIntroDescription());
+	protected MeanDifferencesPatternPanel meanDifferencesPatternPanel =
+		new MeanDifferencesPatternPanel();
+	protected MeanDifferencesScalePanel meanDifferencesScalePanel =
+		new MeanDifferencesScalePanel();
+	// variability
 	protected VariabilityPanel variabilityPanel = new VariabilityPanel();
+	// options
 	protected OptionsPanel optionsPanel = new OptionsPanel(getModeName());
+	// results
 	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
 	
     // list of panels for the wizard
 	WizardStepPanel[][] panelList = {
 			{startIntroPanel, solvingForPanel, powerPanel},
 			{alphaIntroPanel, alphaPanel}, 
-			{predictorIntroPanel, catPredictorsPanel, covariatePanel, studyGroupsPanel}, 
-			{outcomesPanel}, 
-			{hypothesisPanel},
-			{effectSizePanel},
+			{predictorIntroPanel, catPredictorsPanel, covariatePanel, 
+				relativeGroupSizePanel, perGroupSampleSizePanel}, 
+			{outcomesIntroPanel, outcomesPanel, repeatedMeasuresPanel}, 
+			{hypothesisIntroPanel, hypothesisPanel},
+			{meanDifferencesIntroPanel, meanDifferencesPatternPanel,
+				meanDifferencesScalePanel},
 			{variabilityPanel},
 			{optionsPanel},
 			{resultsPanel}
@@ -126,19 +139,18 @@ implements StudyDesignManager, SaveListener
 
 		// set up listener relationships
 		solvingForPanel.addSolvingForListener(powerPanel);
-		solvingForPanel.addSolvingForListener(studyGroupsPanel);
+		solvingForPanel.addSolvingForListener(perGroupSampleSizePanel);
 		solvingForPanel.addSolvingForListener(resultsPanel);
-		outcomesPanel.addOutcomesListener(studyGroupsPanel);
 		outcomesPanel.addOutcomesListener(hypothesisPanel);
-		outcomesPanel.addOutcomesListener(effectSizePanel);
+		// TODO: outcomesPanel.addOutcomesListener(effectSizePanel);
 		outcomesPanel.addOutcomesListener(variabilityPanel);
-		predictorsPanel.addPredictorsListener(studyGroupsPanel);
-		predictorsPanel.addPredictorsListener(hypothesisPanel);
-		predictorsPanel.addPredictorsListener(effectSizePanel);
+		catPredictorsPanel.addPredictorsListener(relativeGroupSizePanel);
+		catPredictorsPanel.addPredictorsListener(hypothesisPanel);
+		// TODO: catPredictorsPanel.addPredictorsListener(effectSizePanel);
 		covariatePanel.addCovariateListener(optionsPanel);
-		covariatePanel.addCovariateListener(studyGroupsPanel);
-		covariatePanel.addCovariateListener(effectSizePanel);
-		studyGroupsPanel.addRelativeGroupSizeListener(hypothesisPanel);
+		covariatePanel.addCovariateListener(relativeGroupSizePanel);
+		// TODO: covariatePanel.addCovariateListener(effectSizePanel);
+		relativeGroupSizePanel.addRelativeGroupSizeListener(hypothesisPanel);
 		optionsPanel.addOptionsListener(resultsPanel);
 		// initialize
 		initWidget(panel);
@@ -190,9 +202,9 @@ implements StudyDesignManager, SaveListener
 		buffer.append("<" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
 		buffer.append(solvingForPanel.toRequestXML());
 		buffer.append(alphaPanel.toXML());
-		buffer.append(studyGroupsPanel.toRequestXML());
+		//TODO: buffer.append(studyGroupsPanel.toRequestXML());
 		buffer.append(hypothesisPanel.toRequestXML());
-		buffer.append(effectSizePanel.toRequestXML());
+		// TODO: buffer.append(effectSizePanel.toRequestXML());
 		buffer.append(variabilityPanel.toRequestXML());
 		buffer.append(optionsPanel.toRequestXML());
 		buffer.append("</" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");

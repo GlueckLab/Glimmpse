@@ -189,6 +189,14 @@ public interface GlimmpseConstants extends Constants
     public String covariateCheckBoxLabel();
     public String covariateMeanLabel();
     public String covariateStandardDeviationLabel();
+    // relative group size constants
+    public String relativeGroupSizeTitle();
+    public String relativeGroupSizeDescription();
+    public String relativeGroupSizeTableColumn();
+    public String perGroupSampleSizeTitle();
+    public String perGroupSampleSizeDescription();
+    public String perGroupSampleSizeTableColumn();
+    
     /* outcomes section */
     public String outcomesIntroTitle();
     public String outcomesIntroDescription();
@@ -202,28 +210,21 @@ public interface GlimmpseConstants extends Constants
     public String repeatedOverTableColumn();
     public String repetitionsTableColumn();
     
-
-
-    // study groups panel constants
-    public String studyGroupsTitle();
-    public String studyGroupsDescription();
-    public String relativeGroupSizeTitle();
-    public String relativeGroupSizeDescription();
-    public String relativeGroupSizeTableColumn();
-    public String perGroupSampleSizeTitle();
-    public String perGroupSampleSizeDescription();
-    public String perGroupSampleSizeTableColumn();
-
+    /* hypothesis section */
     // hypotheses panel constants
+    public String hypothesisIntroTitle();
+    public String hypothesisIntroDescription();
     public String hypothesisTitle();
     public String hypothesisDescription();
 
-    // effect size panel
-    public String effectSizeTitle();
-    public String effectSizeDescription();
-    public String effectSizeScalingTitle();
-    public String effectSizeScalingDescription();
-    public String effectSizeTableColumn();
+    /* mean differences section */
+    public String meanDifferenceIntroTitle();
+    public String meanDifferenceIntroDescription();
+    public String meanDifferenceTitle();
+    public String meanDifferenceDescription();
+    public String meanDifferenceScalingTitle();
+    public String meanDifferenceScalingDescription();
+    public String meanDifferenceTableColumn();
 
     // variability panel
     public String variabilityTitle();

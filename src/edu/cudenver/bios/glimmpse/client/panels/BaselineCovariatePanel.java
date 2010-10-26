@@ -84,11 +84,8 @@ public class BaselineCovariatePanel extends WizardStepPanel
         
         // add style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-        panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
   
         initWidget(panel);
     }

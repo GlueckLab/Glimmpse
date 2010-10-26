@@ -53,8 +53,8 @@ OutcomesListener, CovariateListener, ListValidator
         VerticalPanel panel = new VerticalPanel();
         
         // create header/instruction text
-        HTML header = new HTML(Glimmpse.constants.studyGroupsTitle());
-        HTML description = new HTML(Glimmpse.constants.studyGroupsDescription());
+        HTML header = new HTML("invalid panel");
+        HTML description = new HTML("invalid panel");
 
         // build the per group sample size list
         buildPerGroupSampleSizePanel();
@@ -135,7 +135,7 @@ OutcomesListener, CovariateListener, ListValidator
 		// TODO
 	}
 
-	@Override
+	//@Override
 	public void onRepeatedMeasures(List<RepeatedMeasure> repeatedMeasures)
 	{
 		// TODO Auto-generated method stub

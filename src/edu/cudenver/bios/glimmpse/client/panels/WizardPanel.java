@@ -75,6 +75,8 @@ implements ToolbarActionListener, NavigationListener, StepStatusListener
     protected ToolBarPanel toolBar = new ToolBarPanel();
     // deck panel containing all steps in the input wizard
     protected DeckPanel wizardDeck = new DeckPanel();
+    // clear dialog
+    
 	
     /* 
      * Panel that is not actually displayed, but indicates that we are 

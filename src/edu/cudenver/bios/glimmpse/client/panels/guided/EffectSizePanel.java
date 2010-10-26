@@ -44,7 +44,7 @@ implements OutcomesListener, PredictorsListener, CovariateListener, ListValidato
     
    	// list of per group sample sizes
     protected ListEntryPanel betaScaleListPanel =
-    	new ListEntryPanel(Glimmpse.constants.effectSizeTableColumn(), this);
+    	new ListEntryPanel(Glimmpse.constants.meanDifferenceTableColumn(), this);
     
     public EffectSizePanel()
     {
@@ -52,8 +52,8 @@ implements OutcomesListener, PredictorsListener, CovariateListener, ListValidato
         VerticalPanel panel = new VerticalPanel();
 
         // create header/instruction text
-        HTML header = new HTML(Glimmpse.constants.effectSizeTitle());
-        HTML description = new HTML(Glimmpse.constants.effectSizeDescription());
+        HTML header = new HTML(Glimmpse.constants.meanDifferenceTitle());
+        HTML description = new HTML(Glimmpse.constants.meanDifferenceDescription());
         
         // layout the overall panel
         panel.add(header);
@@ -189,7 +189,7 @@ implements OutcomesListener, PredictorsListener, CovariateListener, ListValidato
 		outcomesList = outcomes;
 	}
 
-	@Override
+	//@Override
 	public void onRepeatedMeasures(List<RepeatedMeasure> repeatedMeasures)
 	{
 		this.repeatedMeasuresList = repeatedMeasures;

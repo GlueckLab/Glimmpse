@@ -26,6 +26,5 @@ import edu.cudenver.bios.glimmpse.client.panels.guided.RepeatedMeasure;
 public interface OutcomesListener
 {
 	public void onOutcomes(List<String> outcomes);
-	
-	public void onRepeatedMeasures(List<RepeatedMeasure> repeatedMeasures);
+
 }
