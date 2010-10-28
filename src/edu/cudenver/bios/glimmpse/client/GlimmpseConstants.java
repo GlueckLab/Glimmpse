@@ -226,10 +226,22 @@ public interface GlimmpseConstants extends Constants
     public String meanDifferenceScalingDescription();
     public String meanDifferenceTableColumn();
 
-    // variability panel
-    public String variabilityTitle();
-    public String variabilityDescription();
-    
+    /* Variability section */
+    // intro panel
+    public String variabilityIntroTitle();
+    public String variabilityIntroDescription();
+    // sigma error panel
+    public String variabilityErrorTitle();
+    public String variabilityErrorDescription();  
+    // sigma covariate panel
+    public String variabilityCovariateTitle();
+    public String variabilityCovariateDescription();
+    // sigma outcome panel
+    public String variabilityOutcomeTitle();
+    public String variabilityOutcomeDescription();
+    // sigma covariate outcome panel
+    public String variabilityCovariateOutcomeTitle();
+    public String variabilityCovariateOutcomeDescription();
     // options panel constants
     public String optionsTitle();
     public String optionsDescription();

@@ -33,14 +33,18 @@ import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
 import edu.cudenver.bios.glimmpse.client.panels.guided.CategoricalPredictorsPanel;
-import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisIndependentMeasuresPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisRepeatedMeasuresPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesPatternPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesScalePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.OutcomesPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.PerGroupSampleSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.RelativeGroupSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.RepeatedMeasuresPanel;
-import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityCovariatePanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityErrorPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityOutcomeCovariatePanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityOutcomesPanel;
 
 /**
  * Wizard panel for "guided" input mode.  Contains panels to describe 
@@ -82,7 +86,10 @@ implements StudyDesignManager, SaveListener
 	// hypotheses
 	protected IntroPanel hypothesisIntroPanel = new IntroPanel(Glimmpse.constants.hypothesisIntroTitle(),
 			Glimmpse.constants.hypothesisIntroDescription());
-	protected HypothesisPanel hypothesisPanel = new HypothesisPanel();
+	protected HypothesisIndependentMeasuresPanel hypothesisIndependentPanel = 
+		new HypothesisIndependentMeasuresPanel();
+	protected HypothesisRepeatedMeasuresPanel hypothesisRepeatedPanel = 
+		new HypothesisRepeatedMeasuresPanel();
 	// mean differences
 	protected IntroPanel meanDifferencesIntroPanel = new IntroPanel(Glimmpse.constants.meanDifferenceIntroTitle(),
 			Glimmpse.constants.meanDifferenceIntroDescription());
@@ -91,7 +98,13 @@ implements StudyDesignManager, SaveListener
 	protected MeanDifferencesScalePanel meanDifferencesScalePanel =
 		new MeanDifferencesScalePanel();
 	// variability
-	protected VariabilityPanel variabilityPanel = new VariabilityPanel();
+	protected IntroPanel variabilityIntroPanel = new IntroPanel(Glimmpse.constants.variabilityIntroTitle(),
+			Glimmpse.constants.variabilityIntroDescription());
+	protected VariabilityErrorPanel variabilityErrorPanel = new VariabilityErrorPanel();
+	protected VariabilityCovariatePanel variabilityCovariatePanel = new VariabilityCovariatePanel();
+	protected VariabilityOutcomesPanel variabilityOutcomePanel = new VariabilityOutcomesPanel();
+	protected VariabilityOutcomeCovariatePanel variabilityOutcomeCovariatePanel = 
+		new VariabilityOutcomeCovariatePanel();
 	// options
 	protected OptionsPanel optionsPanel = new OptionsPanel(getModeName());
 	// results
@@ -104,10 +117,11 @@ implements StudyDesignManager, SaveListener
 			{predictorIntroPanel, catPredictorsPanel, covariatePanel, 
 				relativeGroupSizePanel, perGroupSampleSizePanel}, 
 			{outcomesIntroPanel, outcomesPanel, repeatedMeasuresPanel}, 
-			{hypothesisIntroPanel, hypothesisPanel},
+			{hypothesisIntroPanel, hypothesisIndependentPanel, hypothesisRepeatedPanel},
 			{meanDifferencesIntroPanel, meanDifferencesPatternPanel,
 				meanDifferencesScalePanel},
-			{variabilityPanel},
+			{variabilityIntroPanel, variabilityErrorPanel, variabilityCovariatePanel, 
+					variabilityOutcomePanel, variabilityOutcomeCovariatePanel},
 			{optionsPanel},
 			{resultsPanel}
 	};
@@ -141,16 +155,21 @@ implements StudyDesignManager, SaveListener
 		solvingForPanel.addSolvingForListener(powerPanel);
 		solvingForPanel.addSolvingForListener(perGroupSampleSizePanel);
 		solvingForPanel.addSolvingForListener(resultsPanel);
-		outcomesPanel.addOutcomesListener(hypothesisPanel);
+		outcomesPanel.addOutcomesListener(hypothesisIndependentPanel);
 		// TODO: outcomesPanel.addOutcomesListener(effectSizePanel);
-		outcomesPanel.addOutcomesListener(variabilityPanel);
+		//outcomesPanel.addOutcomesListener(variabilityOutcomePanel);
 		catPredictorsPanel.addPredictorsListener(relativeGroupSizePanel);
-		catPredictorsPanel.addPredictorsListener(hypothesisPanel);
+		catPredictorsPanel.addPredictorsListener(hypothesisIndependentPanel);
 		// TODO: catPredictorsPanel.addPredictorsListener(effectSizePanel);
 		covariatePanel.addCovariateListener(optionsPanel);
 		covariatePanel.addCovariateListener(relativeGroupSizePanel);
+		covariatePanel.addCovariateListener(variabilityErrorPanel);
+		covariatePanel.addCovariateListener(variabilityOutcomePanel);
+		covariatePanel.addCovariateListener(variabilityCovariatePanel);
+		covariatePanel.addCovariateListener(variabilityOutcomeCovariatePanel);
+
 		// TODO: covariatePanel.addCovariateListener(effectSizePanel);
-		relativeGroupSizePanel.addRelativeGroupSizeListener(hypothesisPanel);
+		relativeGroupSizePanel.addRelativeGroupSizeListener(hypothesisIndependentPanel);
 		optionsPanel.addOptionsListener(resultsPanel);
 		// initialize
 		initWidget(panel);
@@ -203,9 +222,13 @@ implements StudyDesignManager, SaveListener
 		buffer.append(solvingForPanel.toRequestXML());
 		buffer.append(alphaPanel.toXML());
 		//TODO: buffer.append(studyGroupsPanel.toRequestXML());
-		buffer.append(hypothesisPanel.toRequestXML());
+		buffer.append(hypothesisIndependentPanel.toRequestXML());
 		// TODO: buffer.append(effectSizePanel.toRequestXML());
-		buffer.append(variabilityPanel.toRequestXML());
+		buffer.append(variabilityErrorPanel.toRequestXML());
+		buffer.append(variabilityOutcomePanel.toRequestXML());
+		buffer.append(variabilityCovariatePanel.toRequestXML());
+		buffer.append(variabilityOutcomeCovariatePanel.toRequestXML());
+
 		buffer.append(optionsPanel.toRequestXML());
 		buffer.append("</" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
 		return buffer.toString();

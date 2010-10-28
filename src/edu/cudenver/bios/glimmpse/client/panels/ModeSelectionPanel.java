@@ -57,7 +57,8 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
 	private static final String STYLE_GO_BUTTON = "modeSelectionPanelGoButton";
 	private static final String STYLE_CONTAINER = "modeSelectionPanelContainer";
 	private static final String STYLE_CONTAINER_TITLE = "modeSelectionPanelContainerTitle";
-	
+	private static final String STYLE_CONTAINER_DESC = "modeSelectionPanelContainerDescription";
+
     // uri of file upload service
     private static final String UPLOAD_URI = "/webapps/file/upload";
     // form tag for file
@@ -90,8 +91,9 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
         Grid guidedModeContainer = new Grid(1,2);
         VerticalPanel guidedTextContainer = new VerticalPanel();
         HTML guidedTitle = new HTML(Glimmpse.constants.modeSelectionGuidedTitle());
+        HTML guidedDescription = new HTML(Glimmpse.constants.modeSelectionGuidedDescription());
         guidedTextContainer.add(guidedTitle);
-        guidedTextContainer.add(new HTML(Glimmpse.constants.modeSelectionGuidedDescription()));
+        guidedTextContainer.add(guidedDescription);
         guidedModeContainer.setWidget(0, 0, guidedTextContainer);
         Button guidedGoButton = new Button(Glimmpse.constants.modeSelectionGoButton(), new ClickHandler() {
             public void onClick(ClickEvent e)
@@ -105,8 +107,9 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
         Grid matrixModeContainer = new Grid(1,2);
         VerticalPanel matrixTextContainer = new VerticalPanel();
         HTML matrixTitle = new HTML(Glimmpse.constants.modeSelectionMatrixTitle());
+        HTML matrixDescription = new HTML(Glimmpse.constants.modeSelectionMatrixDescription());
         matrixTextContainer.add(matrixTitle);
-        matrixTextContainer.add(new HTML(Glimmpse.constants.modeSelectionMatrixDescription()));
+        matrixTextContainer.add(matrixDescription);
         matrixModeContainer.setWidget(0, 0, matrixTextContainer);
         Button matrixGoButton = new Button(Glimmpse.constants.modeSelectionGoButton(), new ClickHandler() {
             public void onClick(ClickEvent e)
@@ -119,8 +122,9 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
         // upload an existing study        
         VerticalPanel uploadContainer = new VerticalPanel();
         HTML uploadTitle = new HTML(Glimmpse.constants.modeSelectionUploadTitle());
+        HTML uploadDescription = new HTML(Glimmpse.constants.modeSelectionUploadDescription());
         uploadContainer.add(uploadTitle);
-        uploadContainer.add(new HTML(Glimmpse.constants.modeSelectionUploadDescription()));
+        uploadContainer.add(uploadDescription);
         // build the upload form
         // for file upload, we need to use the POST method, and multipart MIME encoding.
         formPanel.setEncoding(FormPanel.ENCODING_MULTIPART);
@@ -163,14 +167,17 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
         // guided subpanel style
         guidedModeContainer.setStyleName(STYLE_CONTAINER);
         guidedTitle.setStyleName(STYLE_CONTAINER_TITLE);
+        guidedDescription.setStyleName(STYLE_CONTAINER_DESC);
         guidedGoButton.setStyleName(STYLE_GO_BUTTON);
         // matrix subpanel style
         matrixModeContainer.setStyleName(STYLE_CONTAINER);
         matrixTitle.setStyleName(STYLE_CONTAINER_TITLE);
+        matrixDescription.setStyleName(STYLE_CONTAINER_DESC);
         matrixGoButton.setStyleName(STYLE_GO_BUTTON);
         // upload subpanel style
         uploadContainer.setStyleName(STYLE_CONTAINER);
         uploadTitle.setStyleName(STYLE_CONTAINER_TITLE);
+        uploadDescription.setStyleName(STYLE_CONTAINER_DESC);
 
         // initialize the panel
         initWidget(panel);
