@@ -60,6 +60,10 @@
 
 .modeSelectionPanelContainerTitle {
 	font-weight: bold;
+	font-size: large;
+}
+
+.modeSelectionPanelContainerDescription {
 	font-size: larger;
 }
 
