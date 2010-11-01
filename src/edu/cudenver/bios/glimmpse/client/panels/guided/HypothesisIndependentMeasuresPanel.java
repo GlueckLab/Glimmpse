@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RadioButton;
@@ -14,6 +16,7 @@ import com.google.gwt.xml.client.Node;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
+import edu.cudenver.bios.glimmpse.client.listener.HypothesisListener;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.listener.RelativeGroupSizeListener;
@@ -25,7 +28,8 @@ implements OutcomesListener, PredictorsListener, RepeatedMeasuresListener,
 RelativeGroupSizeListener, CovariateListener
 {
 	private static final String HYPOTHESIS_RADIO_GROUP = "hypothesisIndependentGroup";
-
+	protected ArrayList<HypothesisListener> listeners = new ArrayList<HypothesisListener>();
+	
 	private class HypothesisRadioButton extends RadioButton
 	{
 		public int contrastDF;
@@ -176,7 +180,15 @@ RelativeGroupSizeListener, CovariateListener
 			new HypothesisRadioButton(HYPOTHESIS_RADIO_GROUP, 
 					"The outcomes will differ by " + predictor,
 					numCategories - 1, predictor);
-
+		rb.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				HypothesisRadioButton source = (HypothesisRadioButton) event.getSource();
+				for(HypothesisListener listener: listeners)
+					listener.onMainEffectsHypothesis(source.predictor);
+			}
+		});
 		mainEffectsTable.setWidget(startRow, 0, rb);
 	}
 	
@@ -190,12 +202,20 @@ RelativeGroupSizeListener, CovariateListener
 			List<String> interactionCategories = predictorMap.get(interaction);
 
 			int df = predictorCategories.size() * (interactionCategories.size()-1);
-			HypothesisRadioButton cb = new HypothesisRadioButton(HYPOTHESIS_RADIO_GROUP, 
+			HypothesisRadioButton rb = new HypothesisRadioButton(HYPOTHESIS_RADIO_GROUP, 
 					"The effect of " + predictor + 
 					" on the outcomes will be different depending on the value of " + interaction,
 					df, predictor, interaction);
-
-			interactionsTable.setWidget(startRow, 0, cb);
+			rb.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event)
+				{
+					HypothesisRadioButton source = (HypothesisRadioButton) event.getSource();
+					for(HypothesisListener listener: listeners)
+						listener.onInteractionHypothesis(source.predictor, source.interactionPredictor);
+				}
+			});
+			interactionsTable.setWidget(startRow, 0, rb);
 			startRow++;
 		}
 	}
@@ -205,6 +225,11 @@ RelativeGroupSizeListener, CovariateListener
 		StringBuffer buffer = new StringBuffer();
 
 		return buffer.toString();
+	}
+	
+	public void addHypothesisListener(HypothesisListener listener)
+	{
+		listeners.add(listener);
 	}
 
 }

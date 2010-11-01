@@ -61,6 +61,9 @@ implements ListValidator
         panel.add(description);
         panel.add(alphaListPanel);
         
+        // specify the maximum rows in the listbox
+        alphaListPanel.setMaxRows(5);
+        
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);

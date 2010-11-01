@@ -52,8 +52,8 @@ implements OutcomesListener, PredictorsListener, CovariateListener, ListValidato
         VerticalPanel panel = new VerticalPanel();
 
         // create header/instruction text
-        HTML header = new HTML(Glimmpse.constants.meanDifferenceTitle());
-        HTML description = new HTML(Glimmpse.constants.meanDifferenceDescription());
+        HTML header = new HTML("old");
+        HTML description = new HTML("obsolete");
         
         // layout the overall panel
         panel.add(header);

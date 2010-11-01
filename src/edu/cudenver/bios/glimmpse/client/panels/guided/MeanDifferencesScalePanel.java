@@ -24,8 +24,8 @@ implements ListValidator
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text
-        HTML header = new HTML(Glimmpse.constants.meanDifferenceTitle());
-        HTML description = new HTML(Glimmpse.constants.meanDifferenceDescription());
+        HTML header = new HTML(Glimmpse.constants.meanDifferenceScaleTitle());
+        HTML description = new HTML(Glimmpse.constants.meanDifferenceScaleDescription());
         
         // layout the overall panel
         panel.add(header);

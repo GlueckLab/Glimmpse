@@ -220,10 +220,10 @@ public interface GlimmpseConstants extends Constants
     /* mean differences section */
     public String meanDifferenceIntroTitle();
     public String meanDifferenceIntroDescription();
-    public String meanDifferenceTitle();
-    public String meanDifferenceDescription();
-    public String meanDifferenceScalingTitle();
-    public String meanDifferenceScalingDescription();
+    public String meanDifferencePatternTitle();
+    public String meanDifferencePatternDescription();
+    public String meanDifferenceScaleTitle();
+    public String meanDifferenceScaleDescription();
     public String meanDifferenceTableColumn();
 
     /* Variability section */
@@ -301,6 +301,7 @@ public interface GlimmpseConstants extends Constants
     public String errorInvalidQuantile();
     public String errorInvalidPower();
     public String errorInvalidNumber();
+    public String errorMaxRows();
     
     // confirm messages
     public String confirmClearScreen();

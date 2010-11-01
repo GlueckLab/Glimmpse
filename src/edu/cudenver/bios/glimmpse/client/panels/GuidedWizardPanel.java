@@ -160,14 +160,14 @@ implements StudyDesignManager, SaveListener
 		//outcomesPanel.addOutcomesListener(variabilityOutcomePanel);
 		catPredictorsPanel.addPredictorsListener(relativeGroupSizePanel);
 		catPredictorsPanel.addPredictorsListener(hypothesisIndependentPanel);
-		// TODO: catPredictorsPanel.addPredictorsListener(effectSizePanel);
+		catPredictorsPanel.addPredictorsListener(meanDifferencesPatternPanel);
 		covariatePanel.addCovariateListener(optionsPanel);
 		covariatePanel.addCovariateListener(relativeGroupSizePanel);
 		covariatePanel.addCovariateListener(variabilityErrorPanel);
 		covariatePanel.addCovariateListener(variabilityOutcomePanel);
 		covariatePanel.addCovariateListener(variabilityCovariatePanel);
 		covariatePanel.addCovariateListener(variabilityOutcomeCovariatePanel);
-
+		hypothesisIndependentPanel.addHypothesisListener(meanDifferencesPatternPanel);
 		// TODO: covariatePanel.addCovariateListener(effectSizePanel);
 		relativeGroupSizePanel.addRelativeGroupSizeListener(hypothesisIndependentPanel);
 		optionsPanel.addOptionsListener(resultsPanel);

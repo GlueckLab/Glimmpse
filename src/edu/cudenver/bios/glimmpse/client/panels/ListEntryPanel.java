@@ -28,6 +28,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
@@ -39,6 +40,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 
+import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
 
@@ -66,7 +68,8 @@ public class ListEntryPanel extends Composite
     protected ListValidator validator;
     // counter of the number of valid rows in the table
     protected int validRowCount = 0;
-    
+    // optional maximum number of entries for list
+    protected int maxRows = -1;
     /**
      * Construct a new list entry panel
      * @param columnName title/label for list entry items
@@ -142,6 +145,8 @@ public class ListEntryPanel extends Composite
 		{
 			try
 			{
+				if (maxRows > 0 && listBox.getItemCount() >= maxRows)
+					throw new IllegalArgumentException(Glimmpse.constants.errorMaxRows());
 				validator.validate(value);
 				listBox.addItem(value);
 				TextValidation.displayOkay(errorHTML, "");
@@ -221,6 +226,11 @@ public class ListEntryPanel extends Composite
     public void reset()
     {
     	listBox.clear();
+    }
+    
+    public void setMaxRows(int maxRows)
+    {
+    	this.maxRows = maxRows;
     }
     
     /**
