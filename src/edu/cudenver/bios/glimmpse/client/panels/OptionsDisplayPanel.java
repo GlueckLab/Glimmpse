@@ -80,8 +80,8 @@ implements ClickHandler
 		VerticalPanel panel = new VerticalPanel();
 
 		// create header, description
-		HTML header = new HTML(Glimmpse.constants.optionsTitle());
-		HTML description = new HTML(Glimmpse.constants.optionsDescription());        
+		HTML header = new HTML(Glimmpse.constants.displayOptionsTitle());
+		HTML description = new HTML(Glimmpse.constants.displayOptionsDescription());        
 
 		String group = radioGroupPrefix + XAXIS_RADIO_GROUP;
 	    xaxisTotalNRadioButton = new RadioButton(group, Glimmpse.constants.displayOptionsXAxisSampleSizeLabel());

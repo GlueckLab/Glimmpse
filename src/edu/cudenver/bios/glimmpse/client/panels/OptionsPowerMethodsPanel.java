@@ -85,6 +85,7 @@ implements CovariateListener, ClickHandler
     public OptionsPowerMethodsPanel(String mode)
 	{
 		super();
+		skip = true;
 		VerticalPanel panel = new VerticalPanel();
 
 		// create header, description

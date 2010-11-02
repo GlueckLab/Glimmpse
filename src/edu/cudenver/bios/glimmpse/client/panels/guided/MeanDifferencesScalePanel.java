@@ -1,11 +1,13 @@
 package edu.cudenver.bios.glimmpse.client.panels.guided;
 
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
+import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
 import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
@@ -76,6 +78,16 @@ implements ListValidator
 		{
 			throw new IllegalArgumentException(Glimmpse.constants.errorInvalidNumber());
 		}
+	}
+	
+	public String toRequestXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+
+		// add the beta scale information
+		buffer.append(betaScaleListPanel.toXML(GlimmpseConstants.TAG_BETA_SCALE_LIST));
+		
+		return buffer.toString();
 	}
 
 }

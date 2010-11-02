@@ -1,13 +1,16 @@
 package edu.cudenver.bios.glimmpse.client.panels.guided;
 
+import java.util.List;
+
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
+import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class VariabilityOutcomeCovariatePanel extends WizardStepPanel
-implements CovariateListener
+implements CovariateListener, OutcomesListener
 {
 	public VariabilityOutcomeCovariatePanel()
 	{
@@ -57,5 +60,12 @@ implements CovariateListener
 		StringBuffer buffer = new StringBuffer();
 
 		return buffer.toString();
+	}
+
+	@Override
+	public void onOutcomes(List<String> outcomes)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

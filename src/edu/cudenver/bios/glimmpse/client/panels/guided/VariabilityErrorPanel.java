@@ -1,15 +1,15 @@
 package edu.cudenver.bios.glimmpse.client.panels.guided;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
@@ -17,15 +17,12 @@ import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
-import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.listener.RepeatedMeasuresListener;
-import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
-import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class VariabilityErrorPanel extends WizardStepPanel
 implements OutcomesListener, RepeatedMeasuresListener,
-PredictorsListener, CovariateListener, ListValidator
+CovariateListener
 {
 	protected static final int INDEPENDENT_GROUPS_INDEX = 0;
 	protected static final int REPEATED_MEASURES_INDEX = 0;
@@ -35,10 +32,6 @@ PredictorsListener, CovariateListener, ListValidator
 
 	protected boolean hasRepeatedMeasures = false;
 	protected List<String> outcomes = null;
-	
-    // list of sigma scale factors
-    protected ListEntryPanel sigmaScaleListPanel = 
-    	new ListEntryPanel(Glimmpse.constants.sigmaScaleTableColumn(), this);
 	
 	protected DeckPanel deckPanel = new DeckPanel();
     public VariabilityErrorPanel()
@@ -57,7 +50,6 @@ PredictorsListener, CovariateListener, ListValidator
         panel.add(header);
         panel.add(description);
         panel.add(deckPanel);
-        panel.add(createSigmaScalePanel());
         
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -73,76 +65,21 @@ PredictorsListener, CovariateListener, ListValidator
     	
     	VerticalPanel panel = new VerticalPanel();
 
-        panel.add(createIndependentOutcomesPanel());
-        panel.add(createIndependentCorrelationsPanel());
-        
-        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+    	Grid grid = new Grid(2,2);
+		grid.setWidget(0, 0, new HTML("Estimated standard deviation for each outcome: "));
+		grid.setWidget(0, 1, new TextBox());
+		grid.setWidget(1, 0, new HTML("Correlation between any pair of outcomes: "));
+		grid.setWidget(1, 1, new TextBox());
+		
+		HorizontalPanel adjustPanel = new HorizontalPanel();
+		adjustPanel.add(new CheckBox());
+		adjustPanel.add(new HTML("I would like to check power for half and twice these estimates"));
+		panel.add(grid);
+		panel.add(adjustPanel);		
 
         return panel;
     }
-    
-    private VerticalPanel createIndependentOutcomesPanel()
-    {
-    	VerticalPanel panel = new VerticalPanel();
-    	
-    	HTML header = new HTML("Estimated Standard Deviations");
-    	HTML description = new HTML("Enter hour stddev estimates below");
 
-    	panel.add(header);
-    	panel.add(description);
-    	panel.add(indepGroupsOutcomesTable);
-    	
-        // set style
-        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-        panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-
-    	return panel;
-    }
-    
-    private VerticalPanel createIndependentCorrelationsPanel()
-    {
-    	VerticalPanel panel = new VerticalPanel();
-    	
-    	HTML header = new HTML("Associations Between Outcome Measures");
-    	HTML description = new HTML("Enter covariance and stuff");
-
-    	panel.add(header);
-    	panel.add(description);
-    	panel.add(indepGroupsOutcomeCorrelationsTable);
-    	
-        // set style
-        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-        panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-
-    	return panel;
-    }
-    
-    private VerticalPanel createSigmaScalePanel()
-    {
-    	VerticalPanel panel = new VerticalPanel();
-
-    	HTML header = new HTML("Adjustable Variance");
-    	HTML description = new HTML("If you are uncertain of your estimates you may enter scale factors below.  To use the exact values above, simple enter a 1 in the list below");
-
-    	panel.add(header);
-    	panel.add(description);
-    	panel.add(sigmaScaleListPanel);
-    	
-        // set style
-        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-        panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        
-    	return panel;
-    }
-    
     private VerticalPanel createRepeatedMeasuresPanel()
     {
     	VerticalPanel panel = new VerticalPanel();
@@ -210,9 +147,7 @@ PredictorsListener, CovariateListener, ListValidator
 		{
 			
 		}
-		
-		// append the sigma scale list
-		buffer.append(sigmaScaleListPanel.toXML(GlimmpseConstants.TAG_SIGMA_SCALE_LIST));
+
 		return buffer.toString();
 	}
 	
@@ -263,12 +198,6 @@ PredictorsListener, CovariateListener, ListValidator
 	}
 
 	@Override
-	public void onPredictors(HashMap<String, ArrayList<String>> predictorMap,
-			DataTable groups)
-	{
-	}
-
-	@Override
 	public void onHasCovariate(boolean hasCovariate)
 	{
 		skip = hasCovariate;
@@ -277,28 +206,13 @@ PredictorsListener, CovariateListener, ListValidator
 	@Override
 	public void onMean(double mean)
 	{
-		// TODO Auto-generated method stub
-		
+		// no action
 	}
 
 	@Override
 	public void onVariance(double variance)
 	{
-		// TODO Auto-generated method stub
-		
+		// no action
 	}
 
-	@Override
-	public void onValidRowCount(int validRowCount)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void validate(String value) throws IllegalArgumentException
-	{
-		// TODO Auto-generated method stub
-		
-	}
 }

@@ -106,7 +106,10 @@ implements StudyDesignManager, SaveListener
 	protected VariabilityOutcomeCovariatePanel variabilityOutcomeCovariatePanel = 
 		new VariabilityOutcomeCovariatePanel();
 	// options
-	protected OptionsPanel optionsPanel = new OptionsPanel(getModeName());
+	protected OptionsTestsPanel optionsTestsPanel = new OptionsTestsPanel(getModeName());
+	protected OptionsPowerMethodsPanel optionsPowerMethodsPanel = 
+		new OptionsPowerMethodsPanel(getModeName());
+	protected OptionsDisplayPanel optionsDisplayPanel = new OptionsDisplayPanel(getModeName());
 	// results
 	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
 	
@@ -122,7 +125,7 @@ implements StudyDesignManager, SaveListener
 				meanDifferencesScalePanel},
 			{variabilityIntroPanel, variabilityErrorPanel, variabilityCovariatePanel, 
 					variabilityOutcomePanel, variabilityOutcomeCovariatePanel},
-			{optionsPanel},
+			{optionsTestsPanel, optionsPowerMethodsPanel, optionsDisplayPanel},
 			{resultsPanel}
 	};
 	// labels for each group of panels
@@ -155,22 +158,35 @@ implements StudyDesignManager, SaveListener
 		solvingForPanel.addSolvingForListener(powerPanel);
 		solvingForPanel.addSolvingForListener(perGroupSampleSizePanel);
 		solvingForPanel.addSolvingForListener(resultsPanel);
+		// listeners for outcome measures
 		outcomesPanel.addOutcomesListener(hypothesisIndependentPanel);
-		// TODO: outcomesPanel.addOutcomesListener(effectSizePanel);
-		//outcomesPanel.addOutcomesListener(variabilityOutcomePanel);
+		outcomesPanel.addOutcomesListener(hypothesisRepeatedPanel);
+		outcomesPanel.addOutcomesListener(variabilityErrorPanel);
+		outcomesPanel.addOutcomesListener(variabilityOutcomePanel);
+		outcomesPanel.addOutcomesListener(variabilityOutcomeCovariatePanel);
+		// listeners for predictor information
 		catPredictorsPanel.addPredictorsListener(relativeGroupSizePanel);
 		catPredictorsPanel.addPredictorsListener(hypothesisIndependentPanel);
+		catPredictorsPanel.addPredictorsListener(hypothesisRepeatedPanel);
 		catPredictorsPanel.addPredictorsListener(meanDifferencesPatternPanel);
-		covariatePanel.addCovariateListener(optionsPanel);
+		// listeners for baseline covariates
+		covariatePanel.addCovariateListener(hypothesisIndependentPanel);
+		covariatePanel.addCovariateListener(hypothesisRepeatedPanel);
+		covariatePanel.addCovariateListener(meanDifferencesPatternPanel);
 		covariatePanel.addCovariateListener(relativeGroupSizePanel);
 		covariatePanel.addCovariateListener(variabilityErrorPanel);
 		covariatePanel.addCovariateListener(variabilityOutcomePanel);
 		covariatePanel.addCovariateListener(variabilityCovariatePanel);
 		covariatePanel.addCovariateListener(variabilityOutcomeCovariatePanel);
+		covariatePanel.addCovariateListener(optionsTestsPanel);
+		covariatePanel.addCovariateListener(optionsPowerMethodsPanel);
+		// listeners for hypotheses
 		hypothesisIndependentPanel.addHypothesisListener(meanDifferencesPatternPanel);
+		hypothesisRepeatedPanel.addHypothesisListener(meanDifferencesPatternPanel);
 		// TODO: covariatePanel.addCovariateListener(effectSizePanel);
 		relativeGroupSizePanel.addRelativeGroupSizeListener(hypothesisIndependentPanel);
-		optionsPanel.addOptionsListener(resultsPanel);
+		optionsDisplayPanel.addOptionsListener(resultsPanel);
+
 		// initialize
 		initWidget(panel);
 	}
@@ -192,13 +208,12 @@ implements StudyDesignManager, SaveListener
 					solvingForPanel.loadFromNode(child);
 				else if (GlimmpseConstants.TAG_ALPHA_LIST.equals(childName))
 					alphaPanel.loadFromNode(child);
-				
-				
-				
-				
-				else if (GlimmpseConstants.TAG_OPTIONS.equals(childName))
-					optionsPanel.loadFromNode(child);
-					
+				else if (GlimmpseConstants.TAG_TEST_LIST.equals(childName))
+					optionsTestsPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_TEST_LIST.equals(childName))
+					optionsTestsPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_QUANTILE_LIST.equals(childName))
+					optionsPowerMethodsPanel.loadFromNode(child);				
 			}
 		}
 	}
@@ -220,16 +235,19 @@ implements StudyDesignManager, SaveListener
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("<" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
 		buffer.append(solvingForPanel.toRequestXML());
+		buffer.append(powerPanel.toRequestXML());
 		buffer.append(alphaPanel.toXML());
-		//TODO: buffer.append(studyGroupsPanel.toRequestXML());
+		buffer.append(relativeGroupSizePanel.toRequestXML());
 		buffer.append(hypothesisIndependentPanel.toRequestXML());
-		// TODO: buffer.append(effectSizePanel.toRequestXML());
+		buffer.append(hypothesisRepeatedPanel.toRequestXML());
+		buffer.append(meanDifferencesPatternPanel.toRequestXML());
+		buffer.append(meanDifferencesScalePanel.toRequestXML());
 		buffer.append(variabilityErrorPanel.toRequestXML());
 		buffer.append(variabilityOutcomePanel.toRequestXML());
 		buffer.append(variabilityCovariatePanel.toRequestXML());
 		buffer.append(variabilityOutcomeCovariatePanel.toRequestXML());
-
-		buffer.append(optionsPanel.toRequestXML());
+		buffer.append(optionsTestsPanel.toRequestXML());
+		buffer.append(optionsPowerMethodsPanel.toRequestXML());
 		buffer.append("</" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
 		return buffer.toString();
 	}
@@ -247,7 +265,7 @@ implements StudyDesignManager, SaveListener
 //		buffer.append(contrastPanel.toXML());
 //		buffer.append(thetaPanel.toXML());
 //		buffer.append(covariancePanel.toXML());
-		buffer.append(optionsPanel.toStudyXML());
+		buffer.append(optionsTestsPanel.toStudyXML());
 		buffer.append("</" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
 		
 		return buffer.toString();

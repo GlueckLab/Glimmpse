@@ -21,6 +21,7 @@ import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.ListUtilities;
 import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
+import edu.cudenver.bios.glimmpse.client.listener.HypothesisListener;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.listener.RelativeGroupSizeListener;
@@ -41,6 +42,7 @@ RelativeGroupSizeListener, CovariateListener
 	protected List<RepeatedMeasure> repeatedMeasures = null;
 	protected List<Integer> relativeGroupSizes = null;
 
+	protected ArrayList<HypothesisListener> listeners = new ArrayList<HypothesisListener>();
 	// running counter of the number of 
 	
 	protected boolean hasCovariate = false;
@@ -407,5 +409,10 @@ RelativeGroupSizeListener, CovariateListener
 	public void onRelativeGroupSize(List<Integer> relativeSizes)
 	{
 		relativeGroupSizes = relativeSizes;
+	}
+	
+	public void addHypothesisListener(HypothesisListener listener)
+	{
+		listeners.add(listener);
 	}
 }

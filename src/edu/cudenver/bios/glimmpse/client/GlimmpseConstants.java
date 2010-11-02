@@ -50,6 +50,9 @@ public interface GlimmpseConstants extends Constants
     public static final String TAG_SOLVING_FOR = "solvingFor";
     public static final String TAG_POWER_LIST = "powerList";
     public static final String TAG_ALPHA_LIST = "alphaList";
+    public static final String TAG_TEST_LIST = "testList";
+    public static final String TAG_POWER_METHOD_LIST = "powerMethodList";
+    public static final String TAG_QUANTILE_LIST = "quantileList";
     public static final String TAG_OPTIONS = "options";
     public static final String TAG_SAMPLE_SIZE_LIST = "sampleSizeList";
     public static final String TAG_MATRIX = "matrix";

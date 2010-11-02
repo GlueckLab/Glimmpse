@@ -9,18 +9,22 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
+import edu.cudenver.bios.glimmpse.client.XMLUtilities;
+import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.HypothesisListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class MeanDifferencesPatternPanel extends WizardStepPanel
-implements PredictorsListener, HypothesisListener, ClickHandler
+implements PredictorsListener, HypothesisListener, 
+CovariateListener, ClickHandler
 {
 	private static final String PATTERN_RADIO_GROUP = "patternGroup";
 	private static final int WIDTH = 100;
@@ -38,7 +42,7 @@ implements PredictorsListener, HypothesisListener, ClickHandler
 	protected DataTable groups = null;
 	protected HashMap<String, Integer> groupColumnLookup = new HashMap<String,Integer>();
 	protected HypothesisType hypothesisType = HypothesisType.MAIN_EFFECT ;
-	
+	protected boolean hasCovariate = false;
 	protected int numColumns = -1;
 	
 	public MeanDifferencesPatternPanel()
@@ -161,6 +165,78 @@ implements PredictorsListener, HypothesisListener, ClickHandler
 	public void onClick(ClickEvent event)
 	{
 		notifyComplete();
+	}
+
+	public String toRequestXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		int rows = 0; //groupData.getNumberOfRows();
+		int cols = 0; //outcomesList.size(); // TODO: repeated MEASURES!!!!
+		
+		// convert the estimated means into a beta matrix
+		buffer.append("<");
+		buffer.append(GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX);
+		buffer.append(" ");
+		buffer.append(GlimmpseConstants.ATTR_NAME);
+		buffer.append("='");
+		buffer.append(GlimmpseConstants.MATRIX_BETA);
+		buffer.append("' combineHorizontal='false'>");
+		// fixed part of the beta matrix
+		XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_FIXED, rows, cols);
+
+//		for(int row = 0; row < rows; row++)
+//		{
+//			buffer.append("<r>");
+//			for(int col = 0; col < cols; col++)
+//			{
+//				buffer.append("<c>");
+//				
+//				TextBox tb = (TextBox) effectSizeTable.getWidget(row+2, predictorMap.size() + col);
+//				buffer.append(tb.getText());
+//				
+//				buffer.append("</c>");
+//			}
+//			buffer.append("</r>");
+//		}
+//		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
+
+		// random part of the beta matrix
+		if (hasCovariate)
+		{
+			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_RANDOM, rows, cols);
+			
+			buffer.append("<r>");
+			for(int col = 0; col < cols; col++)
+			{
+				buffer.append("<c>1</c>");
+			}
+			buffer.append("<r>");
+			
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
+		}
+		
+		// close the fixed/rand beta matrix
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX);
+		
+		return buffer.toString();
+	}
+
+	@Override
+	public void onHasCovariate(boolean hasCovariate)
+	{
+		this.hasCovariate = hasCovariate;
+	}
+
+	@Override
+	public void onMean(double mean)
+	{
+		// no action needed
+	}
+
+	@Override
+	public void onVariance(double variance)
+	{
+		// no action needed
 	}
 
 }

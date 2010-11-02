@@ -12,6 +12,7 @@ import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
+import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.listener.RelativeGroupSizeListener;
@@ -25,6 +26,9 @@ implements PredictorsListener, CovariateListener
     protected FlexTable groupSizesTable = new FlexTable();
     // listeners for relative size events
     protected ArrayList<RelativeGroupSizeListener> listeners = new ArrayList<RelativeGroupSizeListener>();
+    protected boolean hasCovariate = false;
+    protected double mean = 0;
+    protected double variance = 1;
     
 	public RelativeGroupSizePanel()
 	{
@@ -112,14 +116,80 @@ implements PredictorsListener, CovariateListener
 	@Override
 	public void onMean(double mean)
 	{
-		// TODO Auto-generated method stub
-		
+		this.mean = mean;
 	}
 
 	@Override
 	public void onVariance(double variance)
 	{
-		// TODO Auto-generated method stub
+		this.variance = variance;
+	}
+	
+	public String toRequestXML()
+	{
+		StringBuffer buffer = new StringBuffer();
 		
+		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_ESSENCE_MATRIX);
+
+		// build the "fixed" cell means matrix.  Essentially, this is an identity matrix
+		// with rows & columns equal to the number of study sub groups
+		int size = groupSizesTable.getRowCount() -1;  // skip header
+
+		XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_FIXED, size, size);
+
+		// identity matrix
+		for(int row = 0; row < size; row++)
+		{
+			buffer.append("<r>");
+			for(int col = 0; col < size; col++)
+			{
+				buffer.append("<c>");
+				if (row == col)
+					buffer.append(1);
+				else
+					buffer.append(0);
+				buffer.append("</c>");
+			}
+			buffer.append("</r>");
+		}
+		
+		// close tag
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
+		
+		// build row meta data list
+		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_ROW_META_DATA);
+
+		for(int row = 1; row <= size; row++)
+		{
+			ListBox lb = (ListBox) groupSizesTable.getWidget(row, 0);
+			if (lb != null) buffer.append("<r ratio='" + lb.getItemText(lb.getSelectedIndex()) + "' />");
+		}
+
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ROW_META_DATA);
+		
+		// check if there is a random matrix
+		if (hasCovariate)
+		{
+			// list random column meta data
+			buffer.append("<randomColumnMetaData>");
+			buffer.append("<c mean='");
+			buffer.append(mean);
+			buffer.append("' variance='");
+			buffer.append(variance);
+			buffer.append("'></c></randomColumnMetaData>");
+
+			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_RANDOM, size, 1);
+			for(int row = 0; row < size; row++)
+			{
+				buffer.append("<r><c>1</c></r>");
+			}
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
+			
+		}
+		
+		// close tag for essence matrix
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ESSENCE_MATRIX);
+		
+		return buffer.toString();
 	}
 }

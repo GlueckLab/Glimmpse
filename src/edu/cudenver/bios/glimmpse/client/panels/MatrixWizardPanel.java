@@ -60,8 +60,12 @@ implements StudyDesignManager, SaveListener
     protected BetaPanel betaPanel = new BetaPanel();
     protected ThetaPanel thetaPanel = new ThetaPanel();
     protected CovariancePanel covariancePanel = new CovariancePanel();
-    protected OptionsPanel optionsPanel = new OptionsPanel(getModeName());
-    //protected ResultsPanel resultsPanel = new ResultsPanel(this);
+	// options
+	protected OptionsTestsPanel optionsTestsPanel = new OptionsTestsPanel(getModeName());
+	protected OptionsPowerMethodsPanel optionsPowerMethodsPanel = 
+		new OptionsPowerMethodsPanel(getModeName());
+	protected OptionsDisplayPanel optionsDisplayPanel = new OptionsDisplayPanel(getModeName());
+	// results
 	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
     // list of panels for the wizard
 	WizardStepPanel[][] panelList = {
@@ -72,7 +76,7 @@ implements StudyDesignManager, SaveListener
 			{contrastPanel},
 			{thetaPanel},
 			{covariancePanel},
-			{optionsPanel},
+			{optionsTestsPanel, optionsPowerMethodsPanel, optionsDisplayPanel},
 			{resultsPanel}
 	};
 	
@@ -112,10 +116,11 @@ implements StudyDesignManager, SaveListener
 		designPanel.addCovariateListener(betaPanel);
 		designPanel.addCovariateListener(contrastPanel);
 		designPanel.addCovariateListener(covariancePanel);
-		designPanel.addCovariateListener(optionsPanel);
+		designPanel.addCovariateListener(optionsTestsPanel);
+		designPanel.addCovariateListener(optionsPowerMethodsPanel);
 		contrastPanel.addBetweenSubjectMatrixResizeListener(thetaPanel);
 		contrastPanel.addWithinSubjectMatrixResizeListener(thetaPanel);
-		optionsPanel.addOptionsListener(resultsPanel);
+		optionsDisplayPanel.addOptionsListener(resultsPanel);
 
 		betaPanel.addMatrixResizeListener(contrastPanel);
 		betaPanel.addMatrixResizeListener(covariancePanel);
@@ -140,12 +145,10 @@ implements StudyDesignManager, SaveListener
 					solvingForPanel.loadFromNode(child);
 				else if (GlimmpseConstants.TAG_ALPHA_LIST.equals(childName))
 					alphaPanel.loadFromNode(child);
-				
-				
-				
-				
-				else if (GlimmpseConstants.TAG_OPTIONS.equals(childName))
-					optionsPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_TEST_LIST.equals(childName))
+					optionsTestsPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_QUANTILE_LIST.equals(childName))
+					optionsPowerMethodsPanel.loadFromNode(child);
 					
 			}
 		}
@@ -175,7 +178,8 @@ implements StudyDesignManager, SaveListener
 		buffer.append(contrastPanel.toXML());
 		buffer.append(thetaPanel.toXML());
 		buffer.append(covariancePanel.toXML());
-		buffer.append(optionsPanel.toRequestXML());
+		buffer.append(optionsTestsPanel.toRequestXML());
+		buffer.append(optionsPowerMethodsPanel.toRequestXML());
 		buffer.append("</" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
 		
 		return buffer.toString();
@@ -201,7 +205,9 @@ implements StudyDesignManager, SaveListener
 		buffer.append(contrastPanel.toXML());
 		buffer.append(thetaPanel.toXML());
 		buffer.append(covariancePanel.toXML());
-		buffer.append(optionsPanel.toStudyXML());
+		buffer.append(optionsTestsPanel.toStudyXML());
+		buffer.append(optionsPowerMethodsPanel.toStudyXML());
+		buffer.append(optionsDisplayPanel.toStudyXML());
 		
 		
 		buffer.append("</");
