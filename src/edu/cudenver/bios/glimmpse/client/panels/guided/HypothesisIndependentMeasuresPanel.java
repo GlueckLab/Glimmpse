@@ -149,10 +149,10 @@ RelativeGroupSizeListener, CovariateListener
 	@Override
 	public void onRepeatedMeasures(List<RepeatedMeasure> repeatedMeasures)
 	{
-		if (repeatedMeasures == null)
+		if (repeatedMeasures == null || repeatedMeasures.size() <= 0)
 			skip = false;
 		else
-			skip = (repeatedMeasures.size() > 0);		
+			skip = true;		
 	}
 	
     /**
@@ -160,7 +160,6 @@ RelativeGroupSizeListener, CovariateListener
      */
     public void onEnter() 
     {
-		// TODO: check if repeated measures
 		Object[] predictorArray = (Object[]) predictorMap.keySet().toArray();
 		reset();
 		int i = 0;
@@ -171,7 +170,6 @@ RelativeGroupSizeListener, CovariateListener
 			addInteractions((String) predictor, ++i, predictorArray);
 		}
     }
-	
 	
 	private void addMainEffect(String predictor, int numCategories)
 	{

@@ -310,7 +310,7 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     	boolean isComplete = true;
     	for(ArrayList<String> categories: predictorCategoryMap.values())
     	{
-    		if (categories.size() < 2) 
+    		if (categories.size() < 1) 
     		{
     			isComplete = false;
     			break;

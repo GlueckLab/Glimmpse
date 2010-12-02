@@ -102,7 +102,7 @@ public interface GlimmpseConstants extends Constants
 	// ensures that default matrix dimensions conform properly
     public static final int DEFAULT_N = 3;
     public static final int DEFAULT_Q = 3;
-    public static final int DEFAULT_P = 2;
+    public static final int DEFAULT_P = 1;
     public static final int DEFAULT_A = 2;
     public static final int DEFAULT_B = 1;
     
@@ -174,7 +174,8 @@ public interface GlimmpseConstants extends Constants
     public String alphaTitle();
     public String alphaDescription();
     public String alphaTableColumn();
-    
+    public String simpleAlphaTitle();
+    public String simpleAlphaDescription();
     /* predictors section */
     public String predictorsIntroTitle();
     public String predictorsIntroDescription();
@@ -187,6 +188,7 @@ public interface GlimmpseConstants extends Constants
     public String categoricalDescription();
     // covariate panel constants
     public String covariateTitle();
+    public String covariateDescription();
     public String predictorsCovariateDescription();
     public String matrixCovariateDescription();
     public String covariateCheckBoxLabel();
@@ -212,7 +214,12 @@ public interface GlimmpseConstants extends Constants
     public String repeatedMeasuresDescription();
     public String repeatedOverTableColumn();
     public String repetitionsTableColumn();
-    
+    public String singleMeasureLabel();
+    public String repeatedMeasures1DLabel();
+    public String repeatedMeasures2DLabel();
+    public String repeatedMeasuresRepeatsLabel();
+    public String repeatedMeasuresUnitsLabel();
+
     /* hypothesis section */
     // hypotheses panel constants
     public String hypothesisIntroTitle();
@@ -283,16 +290,18 @@ public interface GlimmpseConstants extends Constants
     public String matrixCategoricalEffectsLabel();
     public String matrixCovariateEffectsLabel();
     
-    // beta matrix screen
-    public String matrixBetaTitle();
-    public String matrixBetaDescription();
-    public String matrixBetaScalingTitle();
-    public String matrixBetaScalingDescription();
-    public String matrixBetaScaleTableColumn();
-    public String matrixBetaFixedMatrixName();
-    public String matrixBetaGaussianMatrixName();
+    // beta matrix screens
+    public String betaTitle();
+    public String betaDescription();
+    public String betaScaleTitle();
+    public String betaScaleDescription();
+    public String betaScaleTableColumn();
+    public String betaFixedMatrixName();
+    public String betaGaussianMatrixName();
 
     // sigma matrix screen
+    public String sigmaScaleTitle();
+    public String sigmaScaleDescription();
     public String sigmaScaleTableColumn();
     
     // error messages

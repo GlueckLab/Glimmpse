@@ -7,8 +7,11 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
@@ -25,45 +28,25 @@ import edu.cudenver.bios.glimmpse.client.panels.RowTextBox;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class RepeatedMeasuresPanel extends WizardStepPanel
-implements OutcomesListener
+implements OutcomesListener, ClickHandler, ChangeHandler
 {
-	protected static final int CHECKBOX_COLUMN = 0;
-	protected static final int LABEL_COLUMN = 1;
-    protected static final int REPEATS_TEXTBOX_COLUMN = 2;
-    protected static final int UNITS_TEXTBOX_COLUMN = 3;
-    
-    protected HTML errorHTML = new HTML();
-    protected FlexTable repeatedMeasuresTable = new FlexTable();
-    
-    // dynamic table of repeated measures
-    protected String[] repeatedColumnNames = {
-    		Glimmpse.constants.repeatedOverTableColumn(),
-    		Glimmpse.constants.repetitionsTableColumn()
-    		};
-    protected DynamicListPanel repeatedMeasuresListPanel = 
-    	new DynamicListPanel(repeatedColumnNames, 
-    			new DynamicListValidator() {
-    		public void validate(String value, int column) throws IllegalArgumentException 
-    		{	
-    			if (value == null || value.isEmpty()) 
-    				throw new IllegalArgumentException("No value entered");
-    			if (column == 1)
-    			{
-    				try 
-    				{
-    					TextValidation.parseInteger(value, 1, true);
-    				}
-    				catch (NumberFormatException nfe)
-    				{
-    					throw new IllegalArgumentException("The number of repetitions must be an integer greater than 2");
-    				}
-    			}
-    		}
+	private static final String REPEATED_MEAUSRES_RADIO_GROUP = "repeatedMeasuresGroup";
+	protected RadioButton singleMeasureRadioButton = 
+		new RadioButton(REPEATED_MEAUSRES_RADIO_GROUP, Glimmpse.constants.singleMeasureLabel());
+	protected RadioButton repeatedMeasures1DRadioButton = 
+		new RadioButton(REPEATED_MEAUSRES_RADIO_GROUP, Glimmpse.constants.repeatedMeasures1DLabel());
+	protected RadioButton repeatedMeasures2DRadioButton = 
+		new RadioButton(REPEATED_MEAUSRES_RADIO_GROUP, Glimmpse.constants.repeatedMeasures2DLabel());
+	
+	// text boxes for each dimension
+	protected TextBox repetitions1DTextBox = new TextBox();
+	protected TextBox units1DTextBox = new TextBox();
+	protected TextBox repetitions2DOuterTextBox = new TextBox();
+	protected TextBox units2DOuterTextBox = new TextBox();
+	protected TextBox repetitions2DInnerTextBox = new TextBox();
+	protected TextBox units2DInnerTextBox = new TextBox();
 
-    		public void onValidRowCount(int validRowCount)
-    		{
-    		}
-    	});
+    protected HTML errorHTML = new HTML();
     
     // listeners for repeated measures events
     protected ArrayList<RepeatedMeasuresListener> listeners = new ArrayList<RepeatedMeasuresListener>();
@@ -71,143 +54,96 @@ implements OutcomesListener
 	public RepeatedMeasuresPanel()
 	{
 		super();
-		complete = true;
     	VerticalPanel panel = new VerticalPanel();
     	
         // create the repeated measures header/instruction text
         HTML header = new HTML(Glimmpse.constants.repeatedMeasuresTitle());
         HTML description = new HTML(Glimmpse.constants.repeatedMeasuresDescription());
-
-        // create a flexTable to display the repeated measures
-        addRepeatedMeasuresTableRow(null, 0);
                 
         panel.add(header);
         panel.add(description);
-        panel.add(repeatedMeasuresTable);
+        panel.add(singleMeasureRadioButton);
+        panel.add(repeatedMeasures1DRadioButton);
+        panel.add(createSinglyRepeatedMeasuresPanel());
+        panel.add(repeatedMeasures2DRadioButton);
+        panel.add(createDoublyRepeatedMeasuresPanel());
 
+        // add callbacks
+        singleMeasureRadioButton.addClickHandler(this);
+        repeatedMeasures1DRadioButton.addClickHandler(this);
+        repeatedMeasures2DRadioButton.addClickHandler(this);
+        
+        repetitions1DTextBox.addChangeHandler(this);
+        units1DTextBox.addChangeHandler(this);
+        repetitions2DOuterTextBox.addChangeHandler(this);
+        units2DOuterTextBox.addChangeHandler(this);
+        repetitions2DInnerTextBox.addChangeHandler(this);
+        units2DInnerTextBox.addChangeHandler(this);
+        
+        // select non-repeated measures by default
+        reset();
+        
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         initWidget(panel);
 	}
+
+	private VerticalPanel createSinglyRepeatedMeasuresPanel()
+	{
+		VerticalPanel panel = new VerticalPanel();
+		
+		Grid grid = new Grid(2,2);
+		grid.setWidget(0, 0, new HTML(Glimmpse.constants.repeatedMeasuresRepeatsLabel()));
+		grid.setWidget(0, 1, repetitions1DTextBox);
+		grid.setWidget(1, 0, new HTML(Glimmpse.constants.repeatedMeasuresUnitsLabel()));
+		grid.setWidget(1, 1, units1DTextBox);
+		panel.add(grid);
+		
+		return panel;
+	}
 	
-    private void addRepeatedMeasuresTableRow(String parentMeasure, int row)
-    {
-    	RowTextBox repeatsTextBox = new RowTextBox(row);
-    	RowTextBox unitsTextBox = new RowTextBox(row);
-    	RowCheckBox repeatedCheckBox = new RowCheckBox(row);
+	private VerticalPanel createDoublyRepeatedMeasuresPanel()
+	{
+		VerticalPanel panel = new VerticalPanel();
+		
+		Grid grid = new Grid(3,4);
+		grid.setWidget(0, 0, new HTML("1st Dimension"));
+		grid.setWidget(1, 0, new HTML(Glimmpse.constants.repeatedMeasuresRepeatsLabel()));
+		grid.setWidget(1, 1, repetitions2DOuterTextBox);
+		grid.setWidget(2, 0, new HTML(Glimmpse.constants.repeatedMeasuresUnitsLabel()));
+		grid.setWidget(2, 1, units2DOuterTextBox);
+		
+		grid.setWidget(0, 2, new HTML("2nd Dimension"));
+		grid.setWidget(1, 2, new HTML(Glimmpse.constants.repeatedMeasuresRepeatsLabel()));
+		grid.setWidget(1, 3, repetitions2DInnerTextBox);
+		grid.setWidget(2, 2, new HTML(Glimmpse.constants.repeatedMeasuresUnitsLabel()));
+		grid.setWidget(2, 3, units2DInnerTextBox);
+		
+		panel.add(grid);
+		
+		return panel;
+	}
 
-    	// add callbacks
-    	repeatedCheckBox.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				RowCheckBox rcb = (RowCheckBox) event.getSource();
-				setRepeatedMeasuresRowEnabled(rcb.row, rcb.getValue());
-			}
-    	});
-    	unitsTextBox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event)
-			{
-				RowTextBox rtb = (RowTextBox) event.getSource();
-				validateRepeatedMeasuresRow(rtb.row);
-			}
-    	});
-    	repeatsTextBox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event)
-			{
-				RowTextBox rtb = (RowTextBox) event.getSource();
-				validateRepeatedMeasuresRow(rtb.row);
-			}
-    	});
-    	
-    	HTML label;
-    	if (parentMeasure == null || parentMeasure.isEmpty())
-    	{
-    		label = new HTML("My outcomes were repeated for ");
-    	}
-    	else
-    	{
-    		label = new HTML("Within each of the " + parentMeasure + ", the outcomes were repeated for ");
-    	}
-    	
-    	repeatedMeasuresTable.setWidget(row, 0, repeatedCheckBox);
-    	repeatedMeasuresTable.setWidget(row, 1, label);
-    	repeatedMeasuresTable.setWidget(row, REPEATS_TEXTBOX_COLUMN, repeatsTextBox);
-    	repeatedMeasuresTable.setWidget(row, UNITS_TEXTBOX_COLUMN, unitsTextBox);    	
-    }
-    
-    private void validateRepeatedMeasuresRow(int row)
-    {
-    	TextBox repeats = (TextBox) repeatedMeasuresTable.getWidget(row, REPEATS_TEXTBOX_COLUMN);
-    	TextBox units = (TextBox) repeatedMeasuresTable.getWidget(row, UNITS_TEXTBOX_COLUMN);
-    	
-    	String unitValue = units.getValue();
-    	String repeatsValue = repeats.getValue();
-    	try
-    	{
-    		if (repeatsValue != null && !repeatsValue.isEmpty()) 
-    		{
-    			TextValidation.parseInteger(repeatsValue, 1, true);
-    			if (unitValue != null && !unitValue.isEmpty())
-    			{
-    				if (row == repeatedMeasuresTable.getRowCount() - 1)
-    					addRepeatedMeasuresTableRow(unitValue, row+1);
-    				else
-    					updateParentMeasure(row+1, unitValue);
-    				TextValidation.displayOkay(errorHTML, "");
-    			}
-    		}
-    	}
-    	catch (NumberFormatException nfe)
-    	{
-    		repeats.setValue("");
-    		TextValidation.displayError(errorHTML, "Repetitions should be a number greater than 1");
-    	}
-
-    }
-    
-    private void updateParentMeasure(int row, String newParentMeasure)
-    {
-    	repeatedMeasuresTable.setWidget(row, LABEL_COLUMN, 
-    			new HTML("Within each of the " + newParentMeasure + ", the outcomes were repeated for "));
-    }
-    
-    private void setRepeatedMeasuresRowEnabled(int row, boolean enabled)
-    {
-    	TextBox repeats = (TextBox) repeatedMeasuresTable.getWidget(row, REPEATS_TEXTBOX_COLUMN);
-    	TextBox units = (TextBox) repeatedMeasuresTable.getWidget(row, UNITS_TEXTBOX_COLUMN);
-
-    	repeats.setEnabled(enabled);
-    	units.setEnabled(enabled);
-    	if (!enabled)
-    	{
-    		repeats.setText("");
-    		units.setText("");
-    		// remove any rows after this in the table
-    		for(int r = repeatedMeasuresTable.getRowCount()-1; r > row; r--)
-    			repeatedMeasuresTable.removeRow(r);
-    	}
-    }
 	
     private void notifyRepeatedMeasures()
     {
     	ArrayList<RepeatedMeasure> rmList = new ArrayList<RepeatedMeasure>();
-    	for(int r = 0; r < repeatedMeasuresTable.getRowCount(); r++)
+    	
+    	if (repeatedMeasures1DRadioButton.getValue())
     	{
-    		String repeatStr = 
-    			((TextBox) repeatedMeasuresTable.getWidget(r, REPEATS_TEXTBOX_COLUMN)).getText();
-    		String unitStr = 
-    			((TextBox) repeatedMeasuresTable.getWidget(r, UNITS_TEXTBOX_COLUMN)).getText();
-    		if (!repeatStr.isEmpty() && !unitStr.isEmpty())
-    		{
-        		rmList.add(new RepeatedMeasure(unitStr, Integer.parseInt(repeatStr)));
-    		}
+    		rmList.add(new RepeatedMeasure(units1DTextBox.getText(), 
+    				Integer.parseInt(repetitions1DTextBox.getText())));
     	}
-    	for(RepeatedMeasuresListener listener: listeners) listener.onRepeatedMeasures(rmList);
+    	else if (repeatedMeasures2DRadioButton.getValue())
+    	{
+    		rmList.add(new RepeatedMeasure(units2DOuterTextBox.getText(), 
+    				Integer.parseInt(repetitions2DOuterTextBox.getText())));
+    		rmList.add(new RepeatedMeasure(units2DInnerTextBox.getText(), 
+    				Integer.parseInt(repetitions2DInnerTextBox.getText())));
+    	}
 
+    	for(RepeatedMeasuresListener listener: listeners) listener.onRepeatedMeasures(rmList);
     }
     
     public void addRepeatedMeasuresListener(RepeatedMeasuresListener listener)
@@ -224,8 +160,14 @@ implements OutcomesListener
 	@Override
 	public void reset()
 	{
-		// TODO Auto-generated method stub
-
+		singleMeasureRadioButton.setValue(true);
+		repetitions1DTextBox.setEnabled(false);
+		units1DTextBox.setEnabled(false);
+		repetitions2DOuterTextBox.setEnabled(false);
+		units2DOuterTextBox.setEnabled(false);
+		repetitions2DInnerTextBox.setEnabled(false);
+		units2DInnerTextBox.setEnabled(false);
+		checkComplete();
 	}
 
 	@Override
@@ -240,6 +182,59 @@ implements OutcomesListener
 	{
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void onClick(ClickEvent event)
+	{
+		repetitions1DTextBox.setEnabled(repeatedMeasures1DRadioButton.getValue());
+		units1DTextBox.setEnabled(repeatedMeasures1DRadioButton.getValue());
+		repetitions2DOuterTextBox.setEnabled(repeatedMeasures2DRadioButton.getValue());
+		units2DOuterTextBox.setEnabled(repeatedMeasures2DRadioButton.getValue());
+		repetitions2DInnerTextBox.setEnabled(repeatedMeasures2DRadioButton.getValue());
+		units2DInnerTextBox.setEnabled(repeatedMeasures2DRadioButton.getValue());
+		checkComplete();
+	}
+	
+	private void checkComplete()
+	{
+		if (singleMeasureRadioButton.getValue())
+		{
+			notifyComplete();
+		}
+		else if (repeatedMeasures1DRadioButton.getValue())
+		{		
+			if (!repetitions1DTextBox.getText().isEmpty() && 
+					!units1DTextBox.getText().isEmpty())
+			{
+				notifyComplete();
+			}
+			else
+			{
+				notifyInProgress();
+			}
+		}
+		else if (repeatedMeasures2DRadioButton.getValue())
+		{
+			Window.alert(repetitions2DOuterTextBox.getText() + " empty? " + repetitions2DOuterTextBox.getText().isEmpty());
+			if (!repetitions2DOuterTextBox.getText().isEmpty() && 
+					!units2DOuterTextBox.getText().isEmpty() &&
+					!repetitions2DInnerTextBox.getText().isEmpty() &&
+					!units2DInnerTextBox.getText().isEmpty())
+			{
+				notifyComplete();
+			}
+			else
+			{
+				notifyInProgress();
+			}
+		}
+	}
+
+	@Override
+	public void onChange(ChangeEvent event)
+	{
+		checkComplete();
 	}
 
 }

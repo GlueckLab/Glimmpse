@@ -21,8 +21,8 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Node;
@@ -32,14 +32,19 @@ import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
-import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
-import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
 import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
+import edu.cudenver.bios.glimmpse.client.panels.guided.PerGroupSampleSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.BetaPanel;
-import edu.cudenver.bios.glimmpse.client.panels.matrix.ContrastPanel;
-import edu.cudenver.bios.glimmpse.client.panels.matrix.CovariancePanel;
+import edu.cudenver.bios.glimmpse.client.panels.matrix.BetaScalePanel;
+import edu.cudenver.bios.glimmpse.client.panels.matrix.BetweenSubjectContrastPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.DesignPanel;
+import edu.cudenver.bios.glimmpse.client.panels.matrix.SigmaCovariateMatrixPanel;
+import edu.cudenver.bios.glimmpse.client.panels.matrix.SigmaErrorMatrixPanel;
+import edu.cudenver.bios.glimmpse.client.panels.matrix.SigmaOutcomeCovariateMatrixPanel;
+import edu.cudenver.bios.glimmpse.client.panels.matrix.SigmaOutcomesMatrixPanel;
+import edu.cudenver.bios.glimmpse.client.panels.matrix.SigmaScalePanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.ThetaPanel;
+import edu.cudenver.bios.glimmpse.client.panels.matrix.WithinSubjectContrastPanel;
 
 /**
  * Wizard panel for matrix input mode.  Contains separate steps
@@ -54,12 +59,25 @@ implements StudyDesignManager, SaveListener
 	protected static final String DEFAULT_CURVE_FILENAME = "powerCurve.jpg";
 	// content panels 
 	protected SolvingForPanel solvingForPanel = new SolvingForPanel(getModeName());
+	protected PowerPanel powerPanel = new PowerPanel();
     protected AlphaPanel alphaPanel = new AlphaPanel();
     protected DesignPanel designPanel = new DesignPanel();
-    protected ContrastPanel contrastPanel = new ContrastPanel();
+	protected BaselineCovariatePanel covariatePanel = new BaselineCovariatePanel();
+	protected PerGroupSampleSizePanel perGroupSampleSizePanel = new PerGroupSampleSizePanel();
+	
+    protected BetweenSubjectContrastPanel betweenContrastPanel = new BetweenSubjectContrastPanel();
+    protected WithinSubjectContrastPanel withinContrastPanel = new WithinSubjectContrastPanel();
+
     protected BetaPanel betaPanel = new BetaPanel();
+    protected BetaScalePanel betaScalePanel = new BetaScalePanel();
     protected ThetaPanel thetaPanel = new ThetaPanel();
-    protected CovariancePanel covariancePanel = new CovariancePanel();
+    
+    protected SigmaErrorMatrixPanel sigmaErrorPanel = new SigmaErrorMatrixPanel();
+    protected SigmaOutcomesMatrixPanel sigmaOutcomesPanel = new SigmaOutcomesMatrixPanel();
+    protected SigmaOutcomeCovariateMatrixPanel sigmaOutcomeCovariatePanel = 
+    	new SigmaOutcomeCovariateMatrixPanel();
+    protected SigmaCovariateMatrixPanel sigmaCovariatePanel = new SigmaCovariateMatrixPanel();
+    protected SigmaScalePanel sigmaScalePanel = new SigmaScalePanel();
 	// options
 	protected OptionsTestsPanel optionsTestsPanel = new OptionsTestsPanel(getModeName());
 	protected OptionsPowerMethodsPanel optionsPowerMethodsPanel = 
@@ -69,13 +87,13 @@ implements StudyDesignManager, SaveListener
 	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
     // list of panels for the wizard
 	WizardStepPanel[][] panelList = {
-			{solvingForPanel},
+			{solvingForPanel, powerPanel},
 			{alphaPanel},
-			{designPanel},
-			{betaPanel},
-			{contrastPanel},
+			{designPanel, covariatePanel, perGroupSampleSizePanel},
+			{betaPanel, betaScalePanel},
+			{betweenContrastPanel, withinContrastPanel},
 			{thetaPanel},
-			{covariancePanel},
+			{sigmaErrorPanel, sigmaOutcomesPanel, sigmaOutcomeCovariatePanel, sigmaCovariatePanel, sigmaScalePanel},
 			{optionsTestsPanel, optionsPowerMethodsPanel, optionsDisplayPanel},
 			{resultsPanel}
 	};
@@ -108,22 +126,31 @@ implements StudyDesignManager, SaveListener
 
 		// set up listener relationships between the matrix panels
 		// this maintains matrix conformance
-		solvingForPanel.addSolvingForListener(designPanel);
-		solvingForPanel.addSolvingForListener(betaPanel);
+		// set up listener relationships
+		solvingForPanel.addSolvingForListener(powerPanel);
+		solvingForPanel.addSolvingForListener(betaScalePanel);
 		solvingForPanel.addSolvingForListener(resultsPanel);
 		designPanel.addMatrixResizeListener(betaPanel);
-		designPanel.addMatrixResizeListener(contrastPanel);
-		designPanel.addCovariateListener(betaPanel);
-		designPanel.addCovariateListener(contrastPanel);
-		designPanel.addCovariateListener(covariancePanel);
-		designPanel.addCovariateListener(optionsTestsPanel);
-		designPanel.addCovariateListener(optionsPowerMethodsPanel);
-		contrastPanel.addBetweenSubjectMatrixResizeListener(thetaPanel);
-		contrastPanel.addWithinSubjectMatrixResizeListener(thetaPanel);
-		optionsDisplayPanel.addOptionsListener(resultsPanel);
+		designPanel.addMatrixResizeListener(betweenContrastPanel);
+		covariatePanel.addCovariateListener(designPanel);
+		covariatePanel.addCovariateListener(betaPanel);
+		covariatePanel.addCovariateListener(betweenContrastPanel);
+		covariatePanel.addCovariateListener(sigmaErrorPanel);
+		covariatePanel.addCovariateListener(sigmaOutcomesPanel);
+		covariatePanel.addCovariateListener(sigmaOutcomeCovariatePanel);
+		covariatePanel.addCovariateListener(sigmaCovariatePanel);
 
-		betaPanel.addMatrixResizeListener(contrastPanel);
-		betaPanel.addMatrixResizeListener(covariancePanel);
+		covariatePanel.addCovariateListener(optionsTestsPanel);
+		covariatePanel.addCovariateListener(optionsPowerMethodsPanel);
+		betweenContrastPanel.addMatrixResizeListener(thetaPanel);
+		withinContrastPanel.addMatrixResizeListener(thetaPanel);
+		optionsDisplayPanel.addOptionsListener(resultsPanel);
+		betaPanel.addMatrixResizeListener(betweenContrastPanel);
+		betaPanel.addMatrixResizeListener(sigmaErrorPanel);
+		betaPanel.addMatrixResizeListener(sigmaOutcomesPanel);
+		betaPanel.addMatrixResizeListener(sigmaOutcomeCovariatePanel);
+		betaPanel.addMatrixResizeListener(sigmaCovariatePanel);
+		
 		// initialize
 		initWidget(panel);
 	}
@@ -171,17 +198,25 @@ implements StudyDesignManager, SaveListener
 		StringBuffer buffer = new StringBuffer();
 		
 		buffer.append("<" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
-		buffer.append(solvingForPanel.toRequestXML());
 		buffer.append(alphaPanel.toXML());
-		buffer.append(designPanel.toXML());
-		buffer.append(betaPanel.toXML());
-		buffer.append(contrastPanel.toXML());
-		buffer.append(thetaPanel.toXML());
-		buffer.append(covariancePanel.toXML());
+		buffer.append(betaScalePanel.toXML());
+		buffer.append(powerPanel.toRequestXML());
 		buffer.append(optionsTestsPanel.toRequestXML());
 		buffer.append(optionsPowerMethodsPanel.toRequestXML());
+		
+		buffer.append(designPanel.toXML());
+		buffer.append(betaPanel.toXML());
+		buffer.append(betweenContrastPanel.toXML());
+		buffer.append(withinContrastPanel.toXML());
+		buffer.append(thetaPanel.toXML());		
+		buffer.append(sigmaErrorPanel.toXML());
+		buffer.append(sigmaOutcomesPanel.toXML());
+		buffer.append(sigmaOutcomeCovariatePanel.toXML());
+		buffer.append(sigmaCovariatePanel.toXML());
+
 		buffer.append("</" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
 		
+		Window.alert(buffer.toString());
 		return buffer.toString();
 	}
 
@@ -198,16 +233,21 @@ implements StudyDesignManager, SaveListener
 		buffer.append(getModeName());
 		buffer.append("'>");
 
-		buffer.append(solvingForPanel.toStudyXML());
 		buffer.append(alphaPanel.toXML());
+		buffer.append(betaScalePanel.toXML());
+		buffer.append(powerPanel.toRequestXML());
+		buffer.append(optionsTestsPanel.toRequestXML());
+		buffer.append(optionsPowerMethodsPanel.toRequestXML());
+		
 		buffer.append(designPanel.toXML());
 		buffer.append(betaPanel.toXML());
-		buffer.append(contrastPanel.toXML());
+		buffer.append(betweenContrastPanel.toXML());
+		buffer.append(withinContrastPanel.toXML());
 		buffer.append(thetaPanel.toXML());
-		buffer.append(covariancePanel.toXML());
-		buffer.append(optionsTestsPanel.toStudyXML());
-		buffer.append(optionsPowerMethodsPanel.toStudyXML());
-		buffer.append(optionsDisplayPanel.toStudyXML());
+		buffer.append(sigmaErrorPanel.toXML());
+		buffer.append(sigmaOutcomesPanel.toXML());
+		buffer.append(sigmaOutcomeCovariatePanel.toXML());
+		buffer.append(sigmaCovariatePanel.toXML());
 		
 		
 		buffer.append("</");

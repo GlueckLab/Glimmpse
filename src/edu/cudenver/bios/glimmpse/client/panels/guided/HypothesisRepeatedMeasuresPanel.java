@@ -6,13 +6,10 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.xml.client.Node;
 
@@ -34,6 +31,36 @@ RelativeGroupSizeListener, CovariateListener
 {   
 	private static final String HYPOTHESIS_RADIO_GROUP = "hypothesisRepeatedGroup";
 	
+	public int contrastDF;
+	public String predictor;
+	public String interactionPredictor;
+
+	private class HypothesisRadioButton extends RadioButton
+	{
+		public int contrastDF;
+		public String predictor;
+		public String interactionPredictor;
+
+		public HypothesisRadioButton(String group, String label,
+				int contrastDF, String predictor, String interactionPredictor)
+		{
+			super(group, label);
+			this.contrastDF = contrastDF;
+			this.predictor = predictor;
+			this.interactionPredictor = interactionPredictor;
+		}
+
+		public HypothesisRadioButton(String group, String label,
+				int contrastDF, String predictor)
+		{
+			this(group, label, contrastDF, predictor, null);
+		}
+	}
+
+	// independent groups widgets
+	protected FlexTable mainEffectsTable = new FlexTable();
+	protected FlexTable interactionsTable = new FlexTable();
+
 	protected boolean hasRepeatedMeasures = false;
 	protected List<String> outcomes = null;
 	protected HashMap<String, ArrayList<String>> predictorMap = null;
@@ -44,7 +71,7 @@ RelativeGroupSizeListener, CovariateListener
 
 	protected ArrayList<HypothesisListener> listeners = new ArrayList<HypothesisListener>();
 	// running counter of the number of 
-	
+
 	protected boolean hasCovariate = false;
 	
     public HypothesisRepeatedMeasuresPanel()
@@ -57,9 +84,10 @@ RelativeGroupSizeListener, CovariateListener
         HTML header = new HTML(Glimmpse.constants.hypothesisTitle());
         HTML description = new HTML(Glimmpse.constants.hypothesisDescription());
         
-        
         panel.add(header);
         panel.add(description);
+        panel.add(mainEffectsTable);
+        panel.add(interactionsTable);
         
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -69,19 +97,63 @@ RelativeGroupSizeListener, CovariateListener
         initWidget(panel);
     }
 
-
-    
-
-    
-
-
-    
-    private VerticalPanel createRepeatedMeasuresPanel()
+    /**
+     * Perform any setup when first entering this step in the wizard
+     */
+    public void onEnter() 
     {
-    	VerticalPanel panel = new VerticalPanel();
-    	
-    	return panel;
+		Object[] predictorArray = (Object[]) predictorMap.keySet().toArray();
+		reset();
+		int i = 0;
+		for(Object predictor: predictorArray)
+		{
+			List<String> categories = predictorMap.get(predictor);
+			addMainEffect((String) predictor, categories.size());
+			addPredictorRepeatInteractions((String) predictor);
+		}
     }
+	
+    private void addPredictorRepeatInteractions(String predictor)
+    {
+    	for(RepeatedMeasure rm: repeatedMeasures)
+    	{
+    			List<String> predictorCategories = predictorMap.get(predictor);
+    			int df = predictorCategories.size() * (rm.repeats);
+    			HypothesisRadioButton rb = new HypothesisRadioButton(HYPOTHESIS_RADIO_GROUP, 
+    					"The trend in outcomes over " + rm.units + 
+    					" will be different depending on the value of " + predictor,
+    					df, predictor, rm.units);
+    			rb.addClickHandler(new ClickHandler() {
+    				@Override
+    				public void onClick(ClickEvent event)
+    				{
+    					HypothesisRadioButton source = (HypothesisRadioButton) event.getSource();
+    					for(HypothesisListener listener: listeners)
+    						listener.onInteractionHypothesis(source.predictor, source.interactionPredictor);
+    				}
+    			});
+    			interactionsTable.setWidget(interactionsTable.getRowCount(), 0, rb);
+    	}
+    }
+    
+	private void addMainEffect(String predictor, int numCategories)
+	{
+		int startRow = mainEffectsTable.getRowCount();
+		HypothesisRadioButton rb = 
+			new HypothesisRadioButton(HYPOTHESIS_RADIO_GROUP, 
+					"The outcomes will differ by " + predictor,
+					numCategories - 1, predictor);
+		rb.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				HypothesisRadioButton source = (HypothesisRadioButton) event.getSource();
+				for(HypothesisListener listener: listeners)
+					listener.onMainEffectsHypothesis(source.predictor);
+			}
+		});
+		mainEffectsTable.setWidget(startRow, 0, rb);
+	}
     
     @Override
     public void reset() 
@@ -102,7 +174,7 @@ RelativeGroupSizeListener, CovariateListener
 			skip = true;
 		else
 			skip = false;		
-		
+		this.repeatedMeasures = repeatedMeasures;
 	}
 
 
@@ -117,15 +189,6 @@ RelativeGroupSizeListener, CovariateListener
 			this.groupColumnLookup.put(groups.getColumnLabel(c), c);
 		}
 	}
-	
-	@Override
-	public void onEnter()
-	{
-		// TODO: check if repeated measures
-
-	}
-	
-
 
 	@Override
 	public void loadFromNode(Node node)

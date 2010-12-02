@@ -60,7 +60,7 @@ public class BaselineCovariatePanel extends WizardStepPanel
         
         // create header, description HTML
         HTML header = new HTML(Glimmpse.constants.covariateTitle());
-        HTML description = new HTML("stuff about covariates");
+        HTML description = new HTML(Glimmpse.constants.covariateDescription());
         
         // build the checkbox / label to contorl for a covariate
         HorizontalPanel includeCovariatePanel = new HorizontalPanel();

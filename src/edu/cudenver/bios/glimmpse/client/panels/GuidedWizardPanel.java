@@ -41,6 +41,7 @@ import edu.cudenver.bios.glimmpse.client.panels.guided.OutcomesPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.PerGroupSampleSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.RelativeGroupSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.RepeatedMeasuresPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.SimpleAlphaPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityCovariatePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityErrorPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityOutcomeCovariatePanel;
@@ -70,7 +71,7 @@ implements StudyDesignManager, SaveListener
 	// type I error
 	protected IntroPanel alphaIntroPanel = new IntroPanel(Glimmpse.constants.alphaIntroTitle(),
 			Glimmpse.constants.alphaIntroDescription());
-	protected AlphaPanel alphaPanel = new AlphaPanel();
+	protected SimpleAlphaPanel alphaPanel = new SimpleAlphaPanel();
 	// predictors
 	protected IntroPanel predictorIntroPanel = new IntroPanel(Glimmpse.constants.predictorsIntroTitle(),
 			Glimmpse.constants.predictorsIntroDescription());
@@ -180,13 +181,16 @@ implements StudyDesignManager, SaveListener
 		covariatePanel.addCovariateListener(variabilityOutcomeCovariatePanel);
 		covariatePanel.addCovariateListener(optionsTestsPanel);
 		covariatePanel.addCovariateListener(optionsPowerMethodsPanel);
+		// listeners for repeated measures 
+		repeatedMeasuresPanel.addRepeatedMeasuresListener(hypothesisIndependentPanel);
+		repeatedMeasuresPanel.addRepeatedMeasuresListener(hypothesisRepeatedPanel);
 		// listeners for hypotheses
 		hypothesisIndependentPanel.addHypothesisListener(meanDifferencesPatternPanel);
 		hypothesisRepeatedPanel.addHypothesisListener(meanDifferencesPatternPanel);
 		// TODO: covariatePanel.addCovariateListener(effectSizePanel);
 		relativeGroupSizePanel.addRelativeGroupSizeListener(hypothesisIndependentPanel);
 		optionsDisplayPanel.addOptionsListener(resultsPanel);
-
+		
 		// initialize
 		initWidget(panel);
 	}
