@@ -57,7 +57,7 @@ public class ResizableMatrix extends Composite
 	protected boolean isSquare;
 	protected boolean isSymmetric;
 	protected HTML title = new HTML("");
-	protected String defaultValue = "0";
+	protected String defaultValue = "1";
 	protected HTML errorHTML = new HTML();
 	protected ArrayList<MatrixResizeListener> resizeListeners = new ArrayList<MatrixResizeListener>();
 	protected String name = null;
@@ -239,19 +239,25 @@ public class ResizableMatrix extends Composite
 		matrixData.setWidget(row, col, textBox);
 	}
 	
-	private void fillRow(int row, String value, boolean enabled)
+	private void fillRow(int row, String diagonalValue, boolean enabled)
 	{
 		for (int c = 0; c < matrixData.getColumnCount(); c++)
 		{
-			setData(row, c, value, enabled);
+			if (c == row)
+				setData(row, c, diagonalValue, enabled);
+			else
+				setData(row, c, "0", enabled);
 		}
 	}
 	
-	private void fillColumn(int col, String value, boolean enabled)
+	private void fillColumn(int col, String diagonalValue, boolean enabled)
 	{
 		for (int row= 0; row < matrixData.getRowCount(); row++) 
 		{
-			setData(row, col, value, enabled);
+			if (col == row)
+				setData(row, col, diagonalValue, enabled);
+			else
+				setData(row, col, "0", enabled);
 		}
 	}
 		
@@ -351,5 +357,10 @@ public class ResizableMatrix extends Composite
     public void setEnabledColumnDimension(boolean enabled)
     {
     	columnTextBox.setEnabled(enabled);
+    }
+    
+    public void reset()
+    {
+    	reset(this.getRowDimension(), this.getColumnDimension());
     }
 }

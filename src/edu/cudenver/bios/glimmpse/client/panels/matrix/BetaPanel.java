@@ -15,35 +15,33 @@ import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class BetaPanel extends WizardStepPanel
-implements MatrixResizeListener, CovariateListener, ListValidator, SolvingForListener
+implements MatrixResizeListener, CovariateListener
 {
     protected ResizableMatrix betaFixed = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_BETA,
     			GlimmpseConstants.DEFAULT_Q, 
-    			GlimmpseConstants.DEFAULT_P, "0", Glimmpse.constants.matrixBetaFixedMatrixName()); 
+    			GlimmpseConstants.DEFAULT_P, "0", Glimmpse.constants.betaFixedMatrixName()); 
     protected ResizableMatrix betaRandom = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_BETA_RANDOM,
     			1, GlimmpseConstants.DEFAULT_P, 
-    			"0", Glimmpse.constants.matrixBetaGaussianMatrixName()); 
+    			"0", Glimmpse.constants.betaGaussianMatrixName()); 
     
-   	// list of per group sample sizes
-    protected ListEntryPanel betaScaleListPanel =
-    	new ListEntryPanel(Glimmpse.constants.matrixBetaScaleTableColumn(), this);
-
+    boolean hasCovariate;
+    
 	public BetaPanel()
 	{
 		super();
+		complete = true;
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text
-        HTML header = new HTML(Glimmpse.constants.matrixBetaTitle());
-        HTML description = new HTML(Glimmpse.constants.matrixBetaDescription());
+        HTML header = new HTML(Glimmpse.constants.betaTitle());
+        HTML description = new HTML(Glimmpse.constants.betaDescription());
 
         // layout the panel
         panel.add(header);
         panel.add(description);
         panel.add(createBetaMatrixPanel());
-        panel.add(createBetaScalePanel());
         
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -59,7 +57,6 @@ implements MatrixResizeListener, CovariateListener, ListValidator, SolvingForLis
     	
         panel.add(betaFixed);
         panel.add(betaRandom);
-		panel.add(betaScaleListPanel);
         betaFixed.addMatrixResizeListener(new MatrixResizeListener() {
 			public void onColumns(String name, int newCols)
 			{
@@ -80,58 +77,12 @@ implements MatrixResizeListener, CovariateListener, ListValidator, SolvingForLis
         
     	return panel;
 	}
-	
-    private VerticalPanel createBetaScalePanel()
-    {
-    	VerticalPanel panel = new VerticalPanel();
-    	
-        HTML header = new HTML(Glimmpse.constants.matrixBetaScalingTitle());
-        HTML description = new HTML(Glimmpse.constants.matrixBetaScalingDescription());
-        
-        panel.add(header);
-        panel.add(description);
-        panel.add(betaScaleListPanel);
-
-    	// add style
-    	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-    	panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-    	    	
-    	return panel;
-    }
-	
-	
+		
     public void reset()
     {
-    	
+    	betaFixed.reset(); // TODO
     }
-    
-    
-    
-    
-	public void validate(String value) throws IllegalArgumentException
-	{
-    	try
-    	{
-    		TextValidation.parseDouble(value, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false);
-    	}
-    	catch (NumberFormatException nfe)
-    	{
-    		throw new IllegalArgumentException(Glimmpse.constants.errorInvalidAlpha());
-    	}
-	}
-	
-	public void onValidRowCount(int validRowCount)
-	{
-		if (validRowCount > 0)
-			notifyComplete();
-		else
-			notifyInProgress();
-	}
-	
+
 	public void addMatrixResizeListener(MatrixResizeListener listener)
 	{
 		betaFixed.addMatrixResizeListener(listener);
@@ -177,7 +128,6 @@ implements MatrixResizeListener, CovariateListener, ListValidator, SolvingForLis
 	public String toXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		if (betaScaleListPanel.isVisible()) buffer.append(betaScaleListPanel.toXML("betaScaleList"));
 		buffer.append("<fixedRandomMatrix name='beta' combineHorizontal='false' >");
 		buffer.append(betaFixed.toXML(GlimmpseConstants.MATRIX_FIXED));
 		if (betaRandom.isVisible())
@@ -187,12 +137,6 @@ implements MatrixResizeListener, CovariateListener, ListValidator, SolvingForLis
 		buffer.append("</fixedRandomMatrix>");
 
 		return buffer.toString();
-	}
-
-	@Override
-	public void onSolvingFor(SolutionType solutionType)
-	{
-		//betaScaleListPanel.setVisible(solutionType != SolutionType.EFFECT_SIZE);
 	}
 
 	@Override

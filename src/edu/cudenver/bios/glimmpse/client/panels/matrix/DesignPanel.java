@@ -11,6 +11,7 @@ import com.google.gwt.xml.client.Node;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
+import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
 import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
@@ -22,42 +23,32 @@ import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class DesignPanel extends WizardStepPanel
-implements SolvingForListener, MatrixResizeListener, CovariateListener, ListValidator
+implements MatrixResizeListener, CovariateListener
 {    	
 	private static final int MAX_RATIO = 10;
     protected ResizableMatrix essenceFixed = new ResizableMatrix(GlimmpseConstants.MATRIX_DESIGN_FIXED,
 			GlimmpseConstants.DEFAULT_N, 
 			GlimmpseConstants.DEFAULT_Q, "0", Glimmpse.constants.matrixCategoricalEffectsLabel());
-    protected ResizableMatrix essenceCovariate = new ResizableMatrix(GlimmpseConstants.MATRIX_DESIGN_RANDOM,
-			GlimmpseConstants.DEFAULT_N,1,"1", Glimmpse.constants.matrixCovariateEffectsLabel());
-	protected CovariatePanel covariatePanel = new CovariatePanel(Glimmpse.constants.matrixCovariateDescription());
    	protected Grid rowMDGrid;
-   	
-   	// list of per group sample sizes
-    protected ListEntryPanel perGroupNListPanel =
-    	new ListEntryPanel(Glimmpse.constants.perGroupSampleSizeTableColumn(), this);
-    // panel containing group sample size list
-    protected VerticalPanel perGroupSampleSizePanel = new VerticalPanel();
     
+   	boolean hasCovariate = true;
+   	double mean = 0;
+   	double variance = Double.NaN;
+   	
 	public DesignPanel()
 	{
 		super();
-		
+		complete = true;
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text
         HTML header = new HTML(Glimmpse.constants.matrixDesignTitle());
         HTML description = new HTML(Glimmpse.constants.matrixDesignDescription());
         
-        // build the per group sample size panel
-        buildPerGroupSampleSizePanel();
-        
         // layout the overall panel
         panel.add(header);
         panel.add(description);
         panel.add(createEssenceMatrixPanel());
-        panel.add(covariatePanel);
-        panel.add(perGroupSampleSizePanel);
         
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -98,18 +89,15 @@ implements SolvingForListener, MatrixResizeListener, CovariateListener, ListVali
     	}
     	rowMDPanel.add(rowMDGrid);
     	// layout the matrices and row meta data
-    	Grid layoutGrid = new Grid(1,3);
+    	Grid layoutGrid = new Grid(1,2);
     	layoutGrid.setWidget(0, 0, rowMDPanel);
     	layoutGrid.setWidget(0, 1, essenceFixed);
-    	layoutGrid.setWidget(0, 2, essenceCovariate);
     	layoutGrid.getRowFormatter().setVerticalAlign(0, HasVerticalAlignment.ALIGN_BOTTOM);
     	// add listeners
-    	covariatePanel.addCovariateListener(this);
     	essenceFixed.addMatrixResizeListener(this);
 
         // layout the overall panel
         panel.add(layoutGrid);
-        essenceCovariate.setVisible(false);
     	
         // set style
     	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -119,47 +107,31 @@ implements SolvingForListener, MatrixResizeListener, CovariateListener, ListVali
     	return panel;
     }
     
-    /**
-     * Layout the widgets in the per group sample size panel
-     */
-    private void buildPerGroupSampleSizePanel()
-    {
-        HTML header = new HTML(Glimmpse.constants.perGroupSampleSizeTitle());
-        HTML description = new HTML(Glimmpse.constants.perGroupSampleSizeDescription());
-        
-    	perGroupSampleSizePanel.add(header);
-    	perGroupSampleSizePanel.add(description);
-    	perGroupSampleSizePanel.add(perGroupNListPanel);
-    	
-    	perGroupSampleSizePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-    	perGroupSampleSizePanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-
-    }
-    
 	public void reset()
 	{
-		
+		// TODO
 	}
 	
     public void onHasCovariate(boolean hasCovariate) 
     {
-    	essenceCovariate.setVisible(hasCovariate);
+    	this.hasCovariate = hasCovariate;
     }
     
-    public void onMean(double mean) {}
+    public void onMean(double mean) 
+    {
+    	this.mean = mean;
+    }
     
-    public void onVariance(double variance) {}
+    public void onVariance(double variance) 
+    {
+    	this.variance = variance;
+    }
     
 	public void onRows(String name, int newRows) 
 	{
 		int currentRows = rowMDGrid.getRowCount();
 		if (currentRows != newRows)
 		{
-			essenceCovariate.setRowDimension(newRows);
 			rowMDGrid.resizeRows(newRows);
 			for(int r = currentRows; r < newRows; r++)
 			{
@@ -199,19 +171,9 @@ implements SolvingForListener, MatrixResizeListener, CovariateListener, ListVali
 		essenceFixed.addMatrixResizeListener(listener);
 	}
 	
-	public void addCovariateListener(CovariateListener listener)
-	{
-		covariatePanel.addCovariateListener(listener);
-	}
-	
 	public String toXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		
-		if (perGroupNListPanel.isVisible())
-		{
-			buffer.append(perGroupNListPanel.toXML(GlimmpseConstants.TAG_SAMPLE_SIZE_LIST));
-		}
 		
 		buffer.append("<essenceMatrix>");
 		// list row meta data
@@ -222,36 +184,33 @@ implements SolvingForListener, MatrixResizeListener, CovariateListener, ListVali
 			buffer.append("<r ratio='" + lb.getItemText(lb.getSelectedIndex()) + "' />");
 		}
 		buffer.append("</rowMetaData>");
-
-		// add fixed effects matrix
-		buffer.append(essenceFixed.toXML(GlimmpseConstants.MATRIX_FIXED));
-		// TODO: decide what we are doing here
-		
-		// if the user is controlling for a baseline covariate, add the random meta data
-		// and random effects matrix to the output
-		if (covariatePanel.hasCovariate())
+		// if controlling for a covariate, add meta info for the random column
+		if (hasCovariate)
 		{
 			// list random column meta data
 			buffer.append("<randomColumnMetaData>");
 			buffer.append("<c mean='");
-			buffer.append(covariatePanel.getMean());
+			buffer.append(mean);
 			buffer.append("' variance='");
-			buffer.append(covariatePanel.getVariance());
+			buffer.append(variance);
 			buffer.append("'></c></randomColumnMetaData>");
-			buffer.append(essenceCovariate.toXML(GlimmpseConstants.MATRIX_RANDOM));
 		}
-		buffer.append("</essenceMatrix>");
-		return buffer.toString();
-	}
-
-	@Override
-	public void onSolvingFor(SolutionType solutionType)
-	{
-		perGroupNListPanel.setVisible(solutionType != SolutionType.TOTAL_N);
-		if (solutionType != SolutionType.TOTAL_N)
+		// build the fixed/random matrix
+		buffer.append("<fixedRandomMatrix name='design' combineHorizontal='true' >");
+		// add fixed effects matrix
+		buffer.append(essenceFixed.toXML(GlimmpseConstants.MATRIX_FIXED));
+		if (hasCovariate)
 		{
-			notifyComplete();
+			int rows = essenceFixed.getRowDimension();
+			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_RANDOM, rows, 1);
+			for(int i = 0; i < rows; i++) buffer.append("<r><c>1</c></r>");
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.MATRIX_RANDOM);
 		}
+		// if the user is controlling for a baseline covariate, add the random meta data
+		// and random effects matrix to the output
+
+		buffer.append("</fixedRandomMatrix></essenceMatrix>");
+		return buffer.toString();
 	}
 
 	@Override
