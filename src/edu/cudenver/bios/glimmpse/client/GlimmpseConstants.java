@@ -85,7 +85,7 @@ public interface GlimmpseConstants extends Constants
     public static final String MATRIX_WITHIN_CONTRAST = "withinSubjectContrast";
     public static final String MATRIX_SIGMA_ERROR = "sigmaError";
     public static final String MATRIX_SIGMA_OUTCOME = "sigmaOutcome";
-    public static final String MATRIX_SIGMA_OUTCOME_COVARIATE = "sigmaOutcomeGaussianRandom ";
+    public static final String MATRIX_SIGMA_OUTCOME_COVARIATE = "sigmaOutcomeGaussianRandom";
     public static final String MATRIX_SIGMA_COVARIATE = "sigmaGaussianRandom";
     public static final String MATRIX_THETA = "theta";
     
