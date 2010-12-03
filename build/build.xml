@@ -7,7 +7,7 @@
 	<property name="target.dir"  value="${explodedzip.dir}"/>
 	<property name="javadoc.dir" value="${basedir}/javadoc" />
 	<property name="thirdparty.dir" value="${basedir}/../../thirdparty" />
-	<property name="gwt.dir" value="${thirdparty.dir}/gwt/2.0.3" />
+	<property name="gwt.dir" value="${thirdparty.dir}/gwt/2.0.3/lib" />
 	<property name="gwt.visualization.dir" value="${thirdparty.dir}/gwt-visualization/1.1/lib" />
 	<property name="zip.file" value="${ant.project.name}.zip" />
 	<property name="war.dir" value="${basedir}/../war"/>
@@ -61,8 +61,11 @@
 		    	<exclude name="**/**/.svn" />
 		    </fileset>
 		  </copy>
-		  <copy todir="${explodedzip.dir}" file="${war.dir}/index.html" />
-		  <copy todir="${explodedzip.dir}" file="${war.dir}/glimmpse.html" />
+		  <copy todir="${explodedzip.dir}" file="${war.dir}/index.html">
+			<fileset dir="${war.dir}">
+				<include name="*.html"/>
+			</fileset>
+		  </copy>
 	</target>
 	
   <target name="zip" depends="clean,prepare,compile.gwt,copy"
