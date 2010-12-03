@@ -31,7 +31,7 @@ implements MatrixResizeListener, CovariateListener
 			GlimmpseConstants.DEFAULT_Q, "0", Glimmpse.constants.matrixCategoricalEffectsLabel());
    	protected Grid rowMDGrid;
     
-   	boolean hasCovariate = true;
+   	boolean hasCovariate = false;
    	double mean = 0;
    	double variance = Double.NaN;
    	
@@ -195,8 +195,6 @@ implements MatrixResizeListener, CovariateListener
 			buffer.append(variance);
 			buffer.append("'></c></randomColumnMetaData>");
 		}
-		// build the fixed/random matrix
-		buffer.append("<fixedRandomMatrix name='design' combineHorizontal='true' >");
 		// add fixed effects matrix
 		buffer.append(essenceFixed.toXML(GlimmpseConstants.MATRIX_FIXED));
 		if (hasCovariate)
@@ -204,12 +202,12 @@ implements MatrixResizeListener, CovariateListener
 			int rows = essenceFixed.getRowDimension();
 			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_RANDOM, rows, 1);
 			for(int i = 0; i < rows; i++) buffer.append("<r><c>1</c></r>");
-			XMLUtilities.closeTag(buffer, GlimmpseConstants.MATRIX_RANDOM);
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
 		}
 		// if the user is controlling for a baseline covariate, add the random meta data
 		// and random effects matrix to the output
 
-		buffer.append("</fixedRandomMatrix></essenceMatrix>");
+		buffer.append("</essenceMatrix>");
 		return buffer.toString();
 	}
 

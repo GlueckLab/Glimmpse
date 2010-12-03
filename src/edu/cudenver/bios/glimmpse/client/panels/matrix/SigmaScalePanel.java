@@ -74,7 +74,7 @@ implements ListValidator
 	
 	public String toXML()
 	{
-		return sigmaScaleListPanel.toXML(GlimmpseConstants.TAG_BETA_SCALE_LIST);
+		return sigmaScaleListPanel.toXML(GlimmpseConstants.TAG_SIGMA_SCALE_LIST);
 	}
     
 }

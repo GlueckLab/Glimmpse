@@ -139,9 +139,9 @@ implements StudyDesignManager, SaveListener
 		covariatePanel.addCovariateListener(sigmaOutcomesPanel);
 		covariatePanel.addCovariateListener(sigmaOutcomeCovariatePanel);
 		covariatePanel.addCovariateListener(sigmaCovariatePanel);
-
 		covariatePanel.addCovariateListener(optionsTestsPanel);
 		covariatePanel.addCovariateListener(optionsPowerMethodsPanel);
+		sigmaCovariatePanel.addCovariateListener(designPanel);
 		betweenContrastPanel.addMatrixResizeListener(thetaPanel);
 		withinContrastPanel.addMatrixResizeListener(thetaPanel);
 		optionsDisplayPanel.addOptionsListener(resultsPanel);
@@ -203,7 +203,8 @@ implements StudyDesignManager, SaveListener
 		buffer.append(powerPanel.toRequestXML());
 		buffer.append(optionsTestsPanel.toRequestXML());
 		buffer.append(optionsPowerMethodsPanel.toRequestXML());
-		
+		buffer.append(perGroupSampleSizePanel.toXML());
+		buffer.append(sigmaScalePanel.toXML());
 		buffer.append(designPanel.toXML());
 		buffer.append(betaPanel.toXML());
 		buffer.append(betweenContrastPanel.toXML());
@@ -215,8 +216,7 @@ implements StudyDesignManager, SaveListener
 		buffer.append(sigmaCovariatePanel.toXML());
 
 		buffer.append("</" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
-		
-		Window.alert(buffer.toString());
+
 		return buffer.toString();
 	}
 
@@ -238,17 +238,17 @@ implements StudyDesignManager, SaveListener
 		buffer.append(powerPanel.toRequestXML());
 		buffer.append(optionsTestsPanel.toRequestXML());
 		buffer.append(optionsPowerMethodsPanel.toRequestXML());
-		
+		buffer.append(perGroupSampleSizePanel.toXML());
+		buffer.append(sigmaScalePanel.toXML());
 		buffer.append(designPanel.toXML());
 		buffer.append(betaPanel.toXML());
 		buffer.append(betweenContrastPanel.toXML());
 		buffer.append(withinContrastPanel.toXML());
-		buffer.append(thetaPanel.toXML());
+		buffer.append(thetaPanel.toXML());		
 		buffer.append(sigmaErrorPanel.toXML());
 		buffer.append(sigmaOutcomesPanel.toXML());
 		buffer.append(sigmaOutcomeCovariatePanel.toXML());
 		buffer.append(sigmaCovariatePanel.toXML());
-		
 		
 		buffer.append("</");
 		buffer.append(GlimmpseConstants.TAG_STUDY);

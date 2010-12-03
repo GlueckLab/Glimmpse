@@ -1,5 +1,7 @@
 package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
+import java.util.ArrayList;
+
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
@@ -15,6 +17,7 @@ implements CovariateListener, MatrixResizeListener
     protected ResizableMatrix sigmaG = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_SIGMA_COVARIATE,
     			1, 1, "0", "&Sigma; G (Covariate)"); 
+    protected ArrayList<CovariateListener> listeners = new ArrayList<CovariateListener>();
     
     public SigmaCovariateMatrixPanel()
     {
@@ -93,4 +96,14 @@ implements CovariateListener, MatrixResizeListener
 		
 	}
 
+    public void addCovariateListener(CovariateListener listener)
+    {
+        listeners.add(listener);
+    }
+    
+    @Override 
+    public void onExit()
+    {
+    	for(CovariateListener listener: listeners) listener.onVariance(sigmaG.getData(0,0));
+    }
 }

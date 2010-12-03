@@ -115,7 +115,7 @@ implements MatrixResizeListener, CovariateListener
 			int rows = betweenSubjectFixed.getRowDimension();
 			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_RANDOM, rows, 1);
 			for(int i = 0; i < rows; i++) buffer.append("<r><c>1</c></r>");
-			XMLUtilities.closeTag(buffer, GlimmpseConstants.MATRIX_RANDOM);
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
 		}
 		buffer.append("</fixedRandomMatrix>");
 		return buffer.toString();

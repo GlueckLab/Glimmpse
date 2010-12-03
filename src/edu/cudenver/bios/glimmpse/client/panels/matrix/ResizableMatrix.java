@@ -239,6 +239,18 @@ public class ResizableMatrix extends Composite
 		matrixData.setWidget(row, col, textBox);
 	}
 	
+	public double getData(int row, int col)
+	{
+		double value = Double.NaN;
+		if (row >= 0 && row < matrixData.getRowCount() &&
+				col >= 0 && col < matrixData.getColumnCount())
+		{
+			TextBox tb = (TextBox) matrixData.getWidget(row, col);
+			value = Double.parseDouble(tb.getValue());
+		}
+		return value;
+	}
+	
 	private void fillRow(int row, String diagonalValue, boolean enabled)
 	{
 		for (int c = 0; c < matrixData.getColumnCount(); c++)

@@ -72,14 +72,18 @@ implements ListValidator, SolvingForListener
 	public void reset()
 	{
 		// TODO Auto-generated method stub
-
+		perGroupNListPanel.reset();
 	}
 
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
-
+		perGroupNListPanel.loadFromNode(node);
+	}
+	
+	public String toXML()
+	{
+		return perGroupNListPanel.toXML(GlimmpseConstants.TAG_SAMPLE_SIZE_LIST);
 	}
 
 }
