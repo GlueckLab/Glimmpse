@@ -4,6 +4,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
 
+import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
@@ -16,7 +17,7 @@ implements MatrixResizeListener, CovariateListener
     protected ResizableMatrix betweenSubjectFixed = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_BETWEEN_CONTRAST,
     			GlimmpseConstants.DEFAULT_A, 
-    			GlimmpseConstants.DEFAULT_Q, "0", "Between Subject (C)<br>Fixed"); 
+    			GlimmpseConstants.DEFAULT_Q, "0", Glimmpse.constants.betweenSubjectContrastMatrixName()); 
     protected boolean hasCovariate = false;
     
 	public BetweenSubjectContrastPanel()
@@ -24,10 +25,10 @@ implements MatrixResizeListener, CovariateListener
 		super();
 		complete = true;
 		VerticalPanel panel = new VerticalPanel();
-		
+		betweenSubjectFixed.setMaxRows(GlimmpseConstants.DEFAULT_A);
         // create header/instruction text
-        HTML header = new HTML("Between Subject Contrast (C)");
-        HTML description = new HTML("Specify your between subject contrast");
+        HTML header = new HTML(Glimmpse.constants.betweenSubjectContrastTitle());
+        HTML description = new HTML(Glimmpse.constants.betweenSubjectContrastDescription());
 
         // layout the panel
         panel.add(header);
@@ -72,12 +73,18 @@ implements MatrixResizeListener, CovariateListener
 	{
 		if (GlimmpseConstants.MATRIX_DESIGN_FIXED.equals(name))
 		{
+			betweenSubjectFixed.setMaxRows(newRows - 1);
 			if (betweenSubjectFixed.getRowDimension() > newRows - 1)
 			{
 				betweenSubjectFixed.setRowDimension(newRows - 1);
 				betweenSubjectFixed.notifyOnRows(newRows-1);
 			}
-		}		
+		}
+		else if (GlimmpseConstants.MATRIX_BETA.equals(name))
+		{
+			betweenSubjectFixed.setColumnDimension(newRows);
+			betweenSubjectFixed.notifyOnColumns(newRows);
+		}
 	}
 	
 	public void addMatrixResizeListener(MatrixResizeListener listener)

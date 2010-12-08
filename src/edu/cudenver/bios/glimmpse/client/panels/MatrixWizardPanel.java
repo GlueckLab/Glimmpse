@@ -146,6 +146,7 @@ implements StudyDesignManager, SaveListener
 		withinContrastPanel.addMatrixResizeListener(thetaPanel);
 		optionsDisplayPanel.addOptionsListener(resultsPanel);
 		betaPanel.addMatrixResizeListener(betweenContrastPanel);
+		betaPanel.addMatrixResizeListener(withinContrastPanel);
 		betaPanel.addMatrixResizeListener(sigmaErrorPanel);
 		betaPanel.addMatrixResizeListener(sigmaOutcomesPanel);
 		betaPanel.addMatrixResizeListener(sigmaOutcomeCovariatePanel);

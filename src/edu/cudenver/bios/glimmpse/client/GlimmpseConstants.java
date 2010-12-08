@@ -304,6 +304,14 @@ public interface GlimmpseConstants extends Constants
     public String sigmaScaleDescription();
     public String sigmaScaleTableColumn();
     
+    // contrasts
+    public String betweenSubjectContrastTitle();
+    public String betweenSubjectContrastDescription();
+    public String betweenSubjectContrastMatrixName();
+    public String withinSubjectContrastTitle();
+    public String withinSubjectContrastDescription();
+    public String withinSubjectContrastMatrixName();
+    
     // error messages
     public String errorUploadFailed();
     public String errorUploadInvalidStudyFile();
@@ -313,8 +321,9 @@ public interface GlimmpseConstants extends Constants
     public String errorInvalidQuantile();
     public String errorInvalidPower();
     public String errorInvalidNumber();
+    public String errorInvalidPositiveNumber();
     public String errorMaxRows();
-    
+    public String errorInvalidMatrixDimension();
     // confirm messages
     public String confirmClearScreen();
     public String confirmClearAll();

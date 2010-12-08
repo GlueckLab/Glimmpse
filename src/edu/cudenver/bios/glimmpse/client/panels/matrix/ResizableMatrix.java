@@ -48,9 +48,11 @@ import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
  */
 public class ResizableMatrix extends Composite 
 {
-	protected static final int MAX_ROWS = 50;
+	protected static final int DEFAULT_MAX_ROWS = 50;
 	protected static final int MIN_ROW_COL = 1;
-	protected static final int MAX_COLS = 50;
+	protected static final int DEFAULT_MAX_COLS = 50;
+	protected int maxRows = DEFAULT_MAX_ROWS;
+	protected int maxCols = DEFAULT_MAX_COLS;
 	protected Grid matrixData;
 	protected TextBox rowTextBox;
 	protected TextBox columnTextBox;
@@ -63,6 +65,7 @@ public class ResizableMatrix extends Composite
 	protected String name = null;
 	public ResizableMatrix(String name, int rows, int cols, String defaultValue, String title) 
 	{	
+		
 		this.name = name;
 	    if (title != null && !title.isEmpty()) 
 	    	this.title = new HTML(title);
@@ -82,7 +85,8 @@ public class ResizableMatrix extends Composite
 			{
 				try
 				{
-					int newRows = edu.cudenver.bios.glimmpse.client.TextValidation.parseInteger(rowTextBox.getText(), MIN_ROW_COL, MAX_ROWS);
+					int newRows = 
+						edu.cudenver.bios.glimmpse.client.TextValidation.parseInteger(rowTextBox.getText(), MIN_ROW_COL, maxRows);
 					setRowDimension(newRows);
 					// notify listeners of row change
 					notifyOnRows(newRows);
@@ -90,7 +94,7 @@ public class ResizableMatrix extends Composite
 				}
 				catch (NumberFormatException nfe)
 				{
-					TextValidation.displayError(errorHTML, "Please enter an integer value");
+					TextValidation.displayError(errorHTML, Glimmpse.constants.errorInvalidMatrixDimension());
 					rowTextBox.setText(Integer.toString(matrixData.getRowCount()));
 				}
 			}
@@ -102,7 +106,7 @@ public class ResizableMatrix extends Composite
 			{
 				try
 				{
-					int newCols = TextValidation.parseInteger(columnTextBox.getText(), MIN_ROW_COL, MAX_ROWS);
+					int newCols = TextValidation.parseInteger(columnTextBox.getText(), MIN_ROW_COL, maxCols);
 					setColumnDimension(newCols);
 					// notify listeners of row change
 					notifyOnColumns(newCols);
@@ -111,7 +115,7 @@ public class ResizableMatrix extends Composite
 				catch (NumberFormatException nfe)
 				{
 					columnTextBox.setText(Integer.toString(matrixData.getCellCount(0)));
-					TextValidation.displayError(errorHTML, "Please enter an integer value");
+					TextValidation.displayError(errorHTML, Glimmpse.constants.errorInvalidMatrixDimension());
 				}
 			}
 		});
@@ -162,7 +166,7 @@ public class ResizableMatrix extends Composite
 	
 	public void setRowDimension(int newRows)
 	{
-		if (newRows >= MIN_ROW_COL && newRows <= MAX_ROWS)
+		if (newRows >= MIN_ROW_COL && newRows <= maxRows)
 		{
 			int oldRows = matrixData.getRowCount();
 			if (oldRows != newRows)
@@ -188,7 +192,7 @@ public class ResizableMatrix extends Composite
 	
 	public void setColumnDimension(int newCols)
 	{
-		if (newCols >= MIN_ROW_COL && newCols <= MAX_COLS)
+		if (newCols >= MIN_ROW_COL && newCols <= maxCols)
 		{
 			int oldCols = matrixData.getColumnCount();
 			if (oldCols != newCols)
@@ -369,6 +373,22 @@ public class ResizableMatrix extends Composite
     public void setEnabledColumnDimension(boolean enabled)
     {
     	columnTextBox.setEnabled(enabled);
+    }
+    
+    public void setMaxRows(int rows)
+    {
+    	if (rows >= MIN_ROW_COL)
+    	{
+        	maxRows = rows;
+    	}
+    }
+    
+    public void setMaxColumns(int columns)
+    {
+    	if (columns >= MIN_ROW_COL)
+    	{
+        	maxCols = columns;
+    	}
     }
     
     public void reset()
