@@ -94,7 +94,7 @@ implements OptionsListener, SolvingForListener
 
 	// options for display of data
 	protected boolean showTable = true;
-	protected boolean showCurve = true;
+	protected boolean showCurve = false;
 	protected XAxisType xaxisType = XAxisType.TOTAL_N;
 	protected CurveSubset[] curveSubsets = null;
 	// indicates whether we are solving for power, sample size, or effect size
@@ -251,6 +251,7 @@ implements OptionsListener, SolvingForListener
 	private void buildWaitDialog()
 	{
 		waitDialog = new DialogBox();
+		waitDialog.setGlassEnabled(true);
 		HTML text = new HTML("Processing, Please Wait...");
 		text.setStyleName("waitDialogText");
 		waitDialog.setStyleName("waitDialog");
@@ -443,7 +444,6 @@ implements OptionsListener, SolvingForListener
 				resultsTable.draw(resultsData);
 				resultsTablePanel.setVisible(true);
 			}
-			hideWorkingDialog();
 		}
 		catch (Exception e)
 		{
@@ -485,9 +485,10 @@ implements OptionsListener, SolvingForListener
 
 	private void sendPowerRequest()
 	{
+		showWorkingDialog();
 		//showWorkingDialog();
 		String requestEntityBody = manager.getPowerRequestXML();
-		Window.alert(requestEntityBody);
+		//Window.alert(requestEntityBody);
 		matrixDisplayPanel.loadFromXML(requestEntityBody);
 		RequestBuilder builder = null;
 		switch(solutionType)

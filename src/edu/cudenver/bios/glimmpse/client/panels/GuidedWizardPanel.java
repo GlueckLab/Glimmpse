@@ -32,6 +32,7 @@ import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
+import edu.cudenver.bios.glimmpse.client.listener.ToolbarActionListener;
 import edu.cudenver.bios.glimmpse.client.panels.guided.CategoricalPredictorsPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisIndependentMeasuresPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisRepeatedMeasuresPanel;
@@ -55,7 +56,7 @@ import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityOutcomesPanel;
  *
  */
 public class GuidedWizardPanel extends Composite
-implements StudyDesignManager, SaveListener
+implements StudyDesignManager, ToolbarActionListener
 {
 	private static final String MODE_NAME = "guided";
 	// default filenames
@@ -152,7 +153,7 @@ implements StudyDesignManager, SaveListener
 		VerticalPanel panel = new VerticalPanel();
 		
 		wizardPanel = new WizardPanel(panelList, groupLabels);
-		wizardPanel.addSaveListener(this);
+		wizardPanel.addToolbarActionListener(this);
 		panel.add(wizardPanel);
 
 		// set up listener relationships
@@ -285,23 +286,25 @@ implements StudyDesignManager, SaveListener
 	}
 
 	/**
-	 * Save the study design, results, or power curve
-	 * @param type the type of save requested
+	 * Handle save events
 	 */
 	@Override
-	public void onSave(SaveType type)
+	public void onMenuAction(String menu, String item)
 	{
-		switch(type)
+		if (Glimmpse.constants.toolBarSaveMenu().equals(menu))
 		{
-		case STUDY:
-			wizardPanel.sendSaveRequest(getStudyDesignXML(), DEFAULT_STUDY_FILENAME);
-			break;
-		case RESULTS:
-			wizardPanel.sendSaveRequest(resultsPanel.dataTableToCSV(),DEFAULT_RESULTS_FILENAME);
-			break;
-		case CURVE:
-			resultsPanel.saveCurveData();
-			break;
-		}	
+			if (Glimmpse.constants.toolBarSaveStudyMenuItem().equals(item))
+			{
+				wizardPanel.sendSaveRequest(getStudyDesignXML(), DEFAULT_STUDY_FILENAME);
+			}
+			else if (Glimmpse.constants.toolBarSaveDataMenuItem().equals(item))
+			{
+				wizardPanel.sendSaveRequest(resultsPanel.dataTableToCSV(),DEFAULT_RESULTS_FILENAME);
+			}
+			else if (Glimmpse.constants.toolBarSaveCurveMenuItem().equals(item))
+			{
+				resultsPanel.saveCurveData();
+			}
+		}
 	}
 }

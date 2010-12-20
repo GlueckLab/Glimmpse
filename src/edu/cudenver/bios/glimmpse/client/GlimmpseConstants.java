@@ -117,6 +117,8 @@ public interface GlimmpseConstants extends Constants
     public static final String SOLUTION_TYPE_SAMPLE_SIZE = "sampleSize";
     public static final String SOLUTION_TYPE_EFFECT_SIZE = "effectSize";
     
+    // toolbar separator keyword
+    public static final String TOOLBAR_SEPARATOR = "_SEPARATOR_";
     // navigation buttons
     public String buttonNext();
     public String buttonPrevious();
@@ -124,7 +126,16 @@ public interface GlimmpseConstants extends Constants
     public String buttonSave();
     public String buttonClear();
     public String buttonHelp();
-    
+    // toolbar menu items
+    public String toolBarSaveDataMenuItem();
+    public String toolBarSaveCurveMenuItem();
+    public String toolBarSaveStudyMenuItem();
+    public String toolBarClearAllMenuItem();
+    public String toolBarClearScreenMenuItem();
+    public String toolBarHelpManualMenuItem();
+    public String toolBarSaveMenu();
+    public String toolBarClearMenu();
+    public String toolBarHelpMenu();
     // left navigation / steps left panel
     public String stepsLeftStart();
     public String stepsLeftAlpha();

@@ -32,6 +32,8 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
 
+import edu.cudenver.bios.glimmpse.client.Glimmpse;
+import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.NavigationListener;
 import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
@@ -70,9 +72,22 @@ implements ToolbarActionListener, NavigationListener, StepStatusListener
     // nav panel
     protected NavigationPanel navPanel = new NavigationPanel();
 	// index of currently visible step
-    protected int currentStep = 0;    
+    protected int currentStep = 0;  
+	// menu toolbar items
+	String[][] toolBarItems = {
+			{Glimmpse.constants.toolBarSaveMenu(), 
+				Glimmpse.constants.toolBarSaveStudyMenuItem(),
+				GlimmpseConstants.TOOLBAR_SEPARATOR,
+				Glimmpse.constants.toolBarSaveCurveMenuItem(),
+				Glimmpse.constants.toolBarSaveDataMenuItem()},
+			{Glimmpse.constants.toolBarClearMenu(), 
+					Glimmpse.constants.toolBarClearScreenMenuItem(),
+					Glimmpse.constants.toolBarClearAllMenuItem()},
+			{Glimmpse.constants.toolBarHelpMenu(),
+						Glimmpse.constants.toolBarHelpManualMenuItem()}
+	};
     // toolbar 
-    protected ToolBarPanel toolBar = new ToolBarPanel();
+    protected ToolBarPanel toolBar = new ToolBarPanel(toolBarItems);
     // deck panel containing all steps in the input wizard
     protected DeckPanel wizardDeck = new DeckPanel();
     // clear dialog
@@ -107,7 +122,11 @@ implements ToolbarActionListener, NavigationListener, StepStatusListener
 		
 		// initialize the steps left panel
 		stepsLeftPanel = new StepsLeftPanel(stepGroupLabels);
-		
+		// disable the "save results" and "save curve" menu items
+		toolBar.setMenuItemEnabled(Glimmpse.constants.toolBarSaveMenu(), 
+				Glimmpse.constants.toolBarSaveCurveMenuItem(), false);
+		toolBar.setMenuItemEnabled(Glimmpse.constants.toolBarSaveMenu(), 
+				Glimmpse.constants.toolBarSaveDataMenuItem(), false);
 		// add the content panels to the deck
 		int count = 0;
 		for(WizardStepPanel[] stepPanelGroup: stepPanels)
@@ -246,20 +265,28 @@ implements ToolbarActionListener, NavigationListener, StepStatusListener
     	w.onEnter();
     	
     	boolean lastPanel = (currentStep == wizardDeck.getWidgetCount() - 1);
+    	// enable the save menu items if we're on the last step.  Note, I'm not crazy about this
+    	// since it assumes that results are only shown on the last step, but I didn't have time
+    	// to make it all robust and stuff.  Bad programmer, no biscuit for you.
+    	if (lastPanel)
+    	{    		
+    		toolBar.setMenuItemEnabled(Glimmpse.constants.toolBarSaveMenu(), 
+    				Glimmpse.constants.toolBarSaveCurveMenuItem(), true);
+    		toolBar.setMenuItemEnabled(Glimmpse.constants.toolBarSaveMenu(), 
+    				Glimmpse.constants.toolBarSaveDataMenuItem(), true);
+    	}
+    	else
+    	{
+    		toolBar.setMenuItemEnabled(Glimmpse.constants.toolBarSaveMenu(), 
+    				Glimmpse.constants.toolBarSaveCurveMenuItem(), false);
+    		toolBar.setMenuItemEnabled(Glimmpse.constants.toolBarSaveMenu(), 
+    				Glimmpse.constants.toolBarSaveDataMenuItem(), false);
+    	}
     	navPanel.setPrevious(currentStep != 0);
     }
-    
-	/**
-	 * Notify cancel listeners of cancel event
-	 */
-    protected void notifyOnCancel()
-    {  	
-    	for(CancelListener listener: cancelListeners) listener.onCancel();
-    }
-    
+        
     /**
-     * Add a listener for cancel events
-     * @param listener
+     * Add a listener for toolbar events
      */
     public void addCancelListener(CancelListener listener)
     {
@@ -267,21 +294,11 @@ implements ToolbarActionListener, NavigationListener, StepStatusListener
     }
     
     /**
-     * Notify listeners that a save action is requested
-     * @param type type of save requested
+     * Add a listener for toolbar events
      */
-    protected void notifyOnSave(SaveType type)
-    {  	
-    	for(SaveListener listener: saveListeners) listener.onSave(type);
-    }
-    
-    /**
-     * Add a listener for save events
-     * @param listener
-     */
-    public void addSaveListener(SaveListener listener)
+    public void addToolbarActionListener(ToolbarActionListener listener)
     {
-    	saveListeners.add(listener);
+    	toolBar.addToolbarActionListener(listener);
     }
 
     /**
@@ -300,24 +317,39 @@ implements ToolbarActionListener, NavigationListener, StepStatusListener
     }
 
 	@Override
-	public void onSave()
+	public void onMenuAction(String menu, String item)
 	{
-		// TODO Auto-generated method stub
-		
+		if (Glimmpse.constants.toolBarClearMenu().equals(menu))
+		{
+			if (Glimmpse.constants.toolBarClearAllMenuItem().equals(item))
+			{
+				if (Window.confirm(Glimmpse.constants.confirmClearAll()))
+				{
+					notifyOnCancel();
+				}
+			}
+			else if (Glimmpse.constants.toolBarClearScreenMenuItem().equals(item))
+			{
+				if (Window.confirm(Glimmpse.constants.confirmClearScreen()))
+				{
+					WizardStepPanel w = ((WizardStepPanel) wizardDeck.getWidget(currentStep));
+					w.reset();
+				}
+			}
+		}
+		else if (Glimmpse.constants.toolBarHelpMenu().equals(menu))
+		{
+			if (Glimmpse.constants.toolBarHelpManualMenuItem().equals(item))
+			{
+				// open manual
+				Window.open(HELP_URL, "_blank", null);
+			}
+		}
 	}
-
-	@Override
-	public void onClear()
+	
+	public void notifyOnCancel()
 	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onHelp()
-	{
-		// TODO Auto-generated method stub
-		
+		for(CancelListener listener: cancelListeners) listener.onCancel();
 	}
     
 }
