@@ -198,17 +198,21 @@
 }
 
 /* style for subpanels in a wizard step */
-.wizardToolBar {
+.wizardToolBarPanel {
 	float: right;
 }
 
-.wizardToolBarSave {
+.gwt-MenuBar .gwt-MenuItem-disabled  {
+	color: blue;
+	background: gray;
 }
 
-.wizardToolBarClear {
+.gwt-MenuBar .gwt-MenuItem-selected {
+	background: green;
 }
 
-.wizardToolBarHelp {
+.gwt-MenuBar .gwt-MenuItem-disabled-selected {
+	background: pink;
 }
 
 .wizardNavigationPanel {
