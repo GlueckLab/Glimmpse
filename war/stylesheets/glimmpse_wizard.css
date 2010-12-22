@@ -35,6 +35,11 @@
 .modeSelectionInputContainer {
 	width: 100%;
 	margin-left: 10px;
+	padding: 10px;
+	background: #ebf0f5;
+	border: 1px solid #ccc;
+	-moz-border-radius: 5px;
+   border-radius: 5px;
 }
 
 .modeSelectionPanelHeader {
@@ -51,40 +56,40 @@
 }
 
 .modeSelectionPanelContainer {
-	padding: 5px;
-	background-color:  #E0ECF8;
-	height: 200px;
+	background-color:  white;
+	height: 260px;
 	width: 240px;
-	vertical-align: top;
-	text-align: center;
-	border: 1px outset #ccc;
-  	-moz-border-radius: 5px;
-	border-radius: 5px;
+	border: 2px solid #ccc;
+}
+
+.modeSelectionPanelContainer .gwt-FileUpload {
+	width: 30px;
+	margin-left: 5px;
+	margin-top: 8px;
 }
 
 .modeSelectionPanelContainerTitle {
-	font-weight: bold;
 	font-size: larger;
+	text-align: center;
+	width: 100%;
+	height: 30px;
+	padding-top: 6px;
+	background: #005C84;
+	border-bottom: 2px solid black;
+	color: white;
 }
 
 .modeSelectionPanelContainerDescription {
+	padding: 10px;
+	height: 150px;
 }
 
 .modeSelectionPanelGoButton {
-	font-weight: bold;
-	color: #000;
-	border: 1px solid #fff;
-	background: #fff url(../images/forward.png) no-repeat 36px 1px;
-	text-align: left;
-	width: 75px;
-	height: 36px;
-	margin-top: 5px;
+	float: right;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	cursor: pointer;
 }
-
-.modeSelectionPanelGoButton:hover {
-	border: 1px solid #000;
-}
-
 
 /* style for main wizard input panel (GWT class) */
 .glimmpseWizardPanel {
@@ -101,8 +106,6 @@
 /* Style for "steps left" banner above the input wizard. */
 
 .stepsLeftPanel {
-	margin-right: 10px;
-/*	border-bottom: 1px solid #ccc; */
 }
 
 .stepsLeftLabel {
@@ -138,7 +141,7 @@
 
 /* styles applied to steps in the input wizard */
 .wizardStepPanel {
-	margin-left: 5px;
+	margin-left: 10px;
 }
 
 .wizardStepPanel-subpanel {
@@ -192,8 +195,11 @@
 /* tool buttons */
 .wizardToolsPanel {
 	padding-top: 20px;
+	padding-bottom: 20px;
 	background: #fff;
 	text-align: left;
+	width: 100%;
+	border-right: 1px solid #d6e0eb;
 }
 
 .wizardToolsPanelButton {
@@ -211,6 +217,7 @@
 
 .wizardNavigationPanel {
 	margin-top: 20px;
+	margin-left: 20px;
 }
 
 /* wizard navigation buttons */
