@@ -30,6 +30,13 @@
 	background-repeat:repeat-x;
 }
 
+/* style for initial mode selection screen */
+
+.modeSelectionInputContainer {
+	width: 100%;
+	margin-left: 10px;
+}
+
 .modeSelectionPanelHeader {
 	margin-left: 20px;
 	margin-top: 10px;
@@ -41,30 +48,26 @@
 .modeSelectionPanelDescription {
 	margin: 10px 20px;
 	width: 80%;
-	font-size: larger;
 }
 
 .modeSelectionPanelContainer {
-	/*border: 1px solid #14f;*/
 	padding: 5px;
-	background-color: #E0ECF8;
-	width: 80%;
-	height: 100px;
-	margin: 10px 20px;
-	-moz-box-shadow: 5px 5px 5px #aaa;
-  	-webkit-box-shadow: 5px 5px 5px #aaa;
-  	box-shadow: 5px 5px 5px #aaa;
+	background-color:  #E0ECF8;
+	height: 200px;
+	width: 240px;
+	vertical-align: top;
+	text-align: center;
+	border: 1px outset #ccc;
   	-moz-border-radius: 5px;
 	border-radius: 5px;
 }
 
 .modeSelectionPanelContainerTitle {
 	font-weight: bold;
-	font-size: large;
+	font-size: larger;
 }
 
 .modeSelectionPanelContainerDescription {
-	font-size: larger;
 }
 
 .modeSelectionPanelGoButton {
@@ -75,8 +78,7 @@
 	text-align: left;
 	width: 75px;
 	height: 36px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
+	margin-top: 5px;
 }
 
 .modeSelectionPanelGoButton:hover {
@@ -100,32 +102,33 @@
 
 .stepsLeftPanel {
 	margin-right: 10px;
-	border-right: 2px solid #E0ECF8;
+/*	border-bottom: 1px solid #ccc; */
 }
 
 .stepsLeftLabel {
-	text-align: center;
+	text-align: left;
 	padding: 5px 5px;
-	font-size: larger;
     width: 120px;
+    border: 1px solid #d6e0eb;
 }
 
 .stepsLeftLabel-complete {
 	color: gray;
-	background: #fff;
+	background: #ebf0f5;
 	font-weight: normal;
 }
 
 .stepsLeftLabel-selected {
 	color: black; 
 	font-weight: bold;
-	background: #E0ECF8;
+	background: #fff;/*#E0ECF8;*/
+	border-right: none;
 }
 
 .stepsLeftLabel-deselected {
 	color: gray;
 	font-weight: normal;
-	background: #fff;
+	background: #ebf0f5;
 }
 
 /* style for main wizard input panel (GWT class) */
@@ -140,17 +143,6 @@
 
 .wizardStepPanel-subpanel {
 	width: 100%;
-}
-
-.wizardStepInputContainer {
-	padding: 10px;
-	margin: 0px 10px;	
-	spacing: 20px;
-	background: #F9FCFF;
-	border: 3px solid #ccc;
-	width: 90%;
-	 -moz-border-radius: 5px;
-	border-radius: 5px;
 }
 
 .wizardStepHeader {
@@ -197,22 +189,24 @@
 	width: 90%;	
 }
 
-/* style for subpanels in a wizard step */
-.wizardToolBarPanel {
-	float: right;
+/* tool buttons */
+.wizardToolsPanel {
+	padding-top: 20px;
+	background: #fff;
+	text-align: left;
 }
 
-.gwt-MenuBar .gwt-MenuItem-disabled  {
-	color: blue;
-	background: gray;
+.wizardToolsPanelButton {
+	font: smaller;
+	padding-top: 5px;
+	border: none;
+	background: #fff;
+	color: #005C84;
+	cursor: pointer;
 }
 
-.gwt-MenuBar .gwt-MenuItem-selected {
-	background: green;
-}
-
-.gwt-MenuBar .gwt-MenuItem-disabled-selected {
-	background: pink;
+.wizardToolsPanelButton:hover {
+	text-decoration: underline;
 }
 
 .wizardNavigationPanel {
@@ -223,10 +217,10 @@
 .wizardNavigationPanelButton {
 	background: #005C84;
 	color: #F9FCFF;
-	width: 100px;
-	height: 30px;
+	width: 75px;
+	height: 24px;
 	margin: 5px 5px;
-	border: 1px solid #ccc;
+	border: 2px outset #ccc;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
 }
