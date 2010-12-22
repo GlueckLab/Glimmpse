@@ -23,7 +23,10 @@ package edu.cudenver.bios.glimmpse.client.panels;
 
 import java.util.ArrayList;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.FormPanel;
@@ -33,13 +36,10 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
-import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.NavigationListener;
 import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
 import edu.cudenver.bios.glimmpse.client.listener.StepStatusListener;
-import edu.cudenver.bios.glimmpse.client.listener.SaveListener.SaveType;
-import edu.cudenver.bios.glimmpse.client.listener.ToolbarActionListener;
 
 /**
  * Abstract base class for "wizard" panels.  Manages navigation,
@@ -49,8 +49,11 @@ import edu.cudenver.bios.glimmpse.client.listener.ToolbarActionListener;
  *
  */
 public class WizardPanel extends Composite
-implements ToolbarActionListener, NavigationListener, StepStatusListener
+implements NavigationListener, StepStatusListener
 {
+	// style for tools
+	protected static final String STYLE_TOOL_PANEL = "wizardToolsPanel";
+	protected static final String STYLE_TOOL_BUTTON = "wizardToolsPanelButton";
 	// uri for help manual
 	protected static final String HELP_URL = "/help/manual.pdf";
 	// url for file save web service
@@ -73,26 +76,9 @@ implements ToolbarActionListener, NavigationListener, StepStatusListener
     protected NavigationPanel navPanel = new NavigationPanel();
 	// index of currently visible step
     protected int currentStep = 0;  
-	// menu toolbar items
-	String[][] toolBarItems = {
-			{Glimmpse.constants.toolBarSaveMenu(), 
-				Glimmpse.constants.toolBarSaveStudyMenuItem(),
-				GlimmpseConstants.TOOLBAR_SEPARATOR,
-				Glimmpse.constants.toolBarSaveCurveMenuItem(),
-				Glimmpse.constants.toolBarSaveDataMenuItem()},
-			{Glimmpse.constants.toolBarClearMenu(), 
-					Glimmpse.constants.toolBarClearScreenMenuItem(),
-					Glimmpse.constants.toolBarClearAllMenuItem()},
-			{Glimmpse.constants.toolBarHelpMenu(),
-						Glimmpse.constants.toolBarHelpManualMenuItem()}
-	};
-    // toolbar 
-    protected ToolBarPanel toolBar = new ToolBarPanel(toolBarItems);
     // deck panel containing all steps in the input wizard
     protected DeckPanel wizardDeck = new DeckPanel();
-    // clear dialog
-    
-	
+
     /* 
      * Panel that is not actually displayed, but indicates that we are 
      * at the end of the current panel group
@@ -119,14 +105,11 @@ implements ToolbarActionListener, NavigationListener, StepStatusListener
 	public WizardPanel(WizardStepPanel[][] stepPanels, String[] stepGroupLabels)
 	{		
 		VerticalPanel contentPanel = new VerticalPanel();
+		VerticalPanel leftPanel = new VerticalPanel();
 		
 		// initialize the steps left panel
 		stepsLeftPanel = new StepsLeftPanel(stepGroupLabels);
-		// disable the "save results" and "save curve" menu items
-		toolBar.setMenuItemEnabled(Glimmpse.constants.toolBarSaveMenu(), 
-				Glimmpse.constants.toolBarSaveCurveMenuItem(), false);
-		toolBar.setMenuItemEnabled(Glimmpse.constants.toolBarSaveMenu(), 
-				Glimmpse.constants.toolBarSaveDataMenuItem(), false);
+
 		// add the content panels to the deck
 		int count = 0;
 		for(WizardStepPanel[] stepPanelGroup: stepPanels)
@@ -140,20 +123,59 @@ implements ToolbarActionListener, NavigationListener, StepStatusListener
 			if (count < stepPanels.length) wizardDeck.add(new GroupSeparatorPanel());
 		}
 		
-		// add navigation and  toolbar action callbacks
-		toolBar.addToolbarActionListener(this);
+		// add navigation callbacks
 		navPanel.addNavigationListener(this);
 		enterStep();
 		
 		// layout the wizard panel
-		contentPanel.add(toolBar);
+		//contentPanel.add(toolBar);
+		leftPanel.add(stepsLeftPanel);
+		leftPanel.add(createToolLinks());
 		contentPanel.add(wizardDeck);
 		contentPanel.add(navPanel);
-		panel.add(stepsLeftPanel);		
+		panel.add(leftPanel);		
 		panel.add(contentPanel);
 
 		// initialize
 		initWidget(panel);
+	}
+	
+	public VerticalPanel createToolLinks()
+	{
+		VerticalPanel panel = new VerticalPanel();
+		
+		Button saveButton = new Button(Glimmpse.constants.toolsSaveStudy(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				notifyOnSave();
+			}
+		});
+		
+		Button cancelButton = new Button(Glimmpse.constants.toolsCancel(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				notifyOnCancel();
+			}
+		});
+		Button helpButton = new Button(Glimmpse.constants.toolsHelp(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				openHelpManual();
+			}
+		});
+		panel.add(saveButton);
+		panel.add(helpButton);
+		panel.add(cancelButton);
+		
+		// add style
+		panel.setStyleName(STYLE_TOOL_PANEL);
+		saveButton.setStyleName(STYLE_TOOL_BUTTON);
+		cancelButton.setStyleName(STYLE_TOOL_BUTTON);
+		helpButton.setStyleName(STYLE_TOOL_BUTTON);
+		return panel;
 	}
 	
     /**
@@ -263,30 +285,11 @@ implements ToolbarActionListener, NavigationListener, StepStatusListener
     	wizardDeck.showWidget(currentStep);
     	navPanel.setNext(w.isComplete());
     	w.onEnter();
-    	
-    	boolean lastPanel = (currentStep == wizardDeck.getWidgetCount() - 1);
-    	// enable the save menu items if we're on the last step.  Note, I'm not crazy about this
-    	// since it assumes that results are only shown on the last step, but I didn't have time
-    	// to make it all robust and stuff.  Bad programmer, no biscuit for you.
-    	if (lastPanel)
-    	{    		
-    		toolBar.setMenuItemEnabled(Glimmpse.constants.toolBarSaveMenu(), 
-    				Glimmpse.constants.toolBarSaveCurveMenuItem(), true);
-    		toolBar.setMenuItemEnabled(Glimmpse.constants.toolBarSaveMenu(), 
-    				Glimmpse.constants.toolBarSaveDataMenuItem(), true);
-    	}
-    	else
-    	{
-    		toolBar.setMenuItemEnabled(Glimmpse.constants.toolBarSaveMenu(), 
-    				Glimmpse.constants.toolBarSaveCurveMenuItem(), false);
-    		toolBar.setMenuItemEnabled(Glimmpse.constants.toolBarSaveMenu(), 
-    				Glimmpse.constants.toolBarSaveDataMenuItem(), false);
-    	}
     	navPanel.setPrevious(currentStep != 0);
     }
         
     /**
-     * Add a listener for toolbar events
+     * Add a listener for cancel events
      */
     public void addCancelListener(CancelListener listener)
     {
@@ -294,13 +297,32 @@ implements ToolbarActionListener, NavigationListener, StepStatusListener
     }
     
     /**
-     * Add a listener for toolbar events
+     * Notify listeners of a cancel event
      */
-    public void addToolbarActionListener(ToolbarActionListener listener)
+	public void notifyOnCancel()
+	{
+		if (Window.confirm(Glimmpse.constants.confirmClearAll()))
+		{
+			for(CancelListener listener: cancelListeners) listener.onCancel();
+		}
+	}
+	
+    /**
+     * Add a listener for save study events
+     */
+    public void addSaveListener(SaveListener listener)
     {
-    	toolBar.addToolbarActionListener(listener);
+    	saveListeners.add(listener);
     }
 
+    /**
+     * Notify save listeners of a save study event
+     */
+    private void notifyOnSave()
+    {
+    	for(SaveListener listener: saveListeners) listener.onSave();
+    }
+    
     /**
      * Send a save request to the File web service.  A service is used to force
      * the browser to pop-up the save as dialog box.
@@ -316,40 +338,12 @@ implements ToolbarActionListener, NavigationListener, StepStatusListener
     	saveForm.submit();
     }
 
-	@Override
-	public void onMenuAction(String menu, String item)
-	{
-		if (Glimmpse.constants.toolBarClearMenu().equals(menu))
-		{
-			if (Glimmpse.constants.toolBarClearAllMenuItem().equals(item))
-			{
-				if (Window.confirm(Glimmpse.constants.confirmClearAll()))
-				{
-					notifyOnCancel();
-				}
-			}
-			else if (Glimmpse.constants.toolBarClearScreenMenuItem().equals(item))
-			{
-				if (Window.confirm(Glimmpse.constants.confirmClearScreen()))
-				{
-					WizardStepPanel w = ((WizardStepPanel) wizardDeck.getWidget(currentStep));
-					w.reset();
-				}
-			}
-		}
-		else if (Glimmpse.constants.toolBarHelpMenu().equals(menu))
-		{
-			if (Glimmpse.constants.toolBarHelpManualMenuItem().equals(item))
-			{
-				// open manual
-				Window.open(HELP_URL, "_blank", null);
-			}
-		}
-	}
-	
-	public void notifyOnCancel()
-	{
-		for(CancelListener listener: cancelListeners) listener.onCancel();
-	}
-    
+    /**
+     * Open the help manual in a new tab/window
+     */
+    public void openHelpManual()
+    {
+		// open manual
+		Window.open(HELP_URL, "_blank", null);
+    }
 }
