@@ -1,9 +1,5 @@
 package edu.cudenver.bios.glimmpse.client;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.google.gwt.i18n.client.Constants;
 
 import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener.SolutionType;
@@ -29,7 +25,6 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_STEP_TABLE_ROW = "wizardStepTableRow";
     
     public static final String STYLE_WIZARD_STEP_LIST_PANEL = "wizardStepListPanel";
-    public static final String STYLE_WIZARD_STEP_LIST = "wizardStepList";
     public static final String STYLE_WIZARD_STEP_LIST_BUTTON = "wizardStepListButton";
     public static final String STYLE_WIZARD_STEP_LIST_TEXTBOX = "wizardStepListTextBox";
     public static final String STYLE_WIZARD_STEP_LIST_HEADER = "wizardStepListHeader";
@@ -121,10 +116,14 @@ public interface GlimmpseConstants extends Constants
     // navigation buttons
     public String buttonNext();
     public String buttonPrevious();
+    // other buttons
+    public String buttonDelete();
+    public String buttonAdd();
     // tools
     public String toolsSaveStudy();
     public String toolsCancel();
     public String toolsHelp();
+
     // left navigation / steps left panel
     public String stepsLeftStart();
     public String stepsLeftAlpha();
@@ -283,7 +282,9 @@ public interface GlimmpseConstants extends Constants
 
     // matrix constants
     public String matrixDimensionSeparator();
-    
+    // matrix intro
+    public String matrixIntroTitle();
+    public String matrixIntroDescription();
     // design matrix screen
     public String matrixDesignTitle();
     public String matrixDesignDescription();
