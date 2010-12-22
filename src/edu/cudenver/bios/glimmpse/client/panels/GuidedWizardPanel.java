@@ -56,7 +56,7 @@ import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityOutcomesPanel;
  *
  */
 public class GuidedWizardPanel extends Composite
-implements StudyDesignManager, ToolbarActionListener
+implements StudyDesignManager, SaveListener
 {
 	private static final String MODE_NAME = "guided";
 	// default filenames
@@ -153,7 +153,7 @@ implements StudyDesignManager, ToolbarActionListener
 		VerticalPanel panel = new VerticalPanel();
 		
 		wizardPanel = new WizardPanel(panelList, groupLabels);
-		wizardPanel.addToolbarActionListener(this);
+		wizardPanel.addSaveListener(this);
 		panel.add(wizardPanel);
 
 		// set up listener relationships
@@ -289,22 +289,8 @@ implements StudyDesignManager, ToolbarActionListener
 	 * Handle save events
 	 */
 	@Override
-	public void onMenuAction(String menu, String item)
+	public void onSave()
 	{
-		if (Glimmpse.constants.toolBarSaveMenu().equals(menu))
-		{
-			if (Glimmpse.constants.toolBarSaveStudyMenuItem().equals(item))
-			{
-				wizardPanel.sendSaveRequest(getStudyDesignXML(), DEFAULT_STUDY_FILENAME);
-			}
-			else if (Glimmpse.constants.toolBarSaveDataMenuItem().equals(item))
-			{
-				wizardPanel.sendSaveRequest(resultsPanel.dataTableToCSV(),DEFAULT_RESULTS_FILENAME);
-			}
-			else if (Glimmpse.constants.toolBarSaveCurveMenuItem().equals(item))
-			{
-				resultsPanel.saveCurveData();
-			}
-		}
+		wizardPanel.sendSaveRequest(getStudyDesignXML(), DEFAULT_STUDY_FILENAME);
 	}
 }

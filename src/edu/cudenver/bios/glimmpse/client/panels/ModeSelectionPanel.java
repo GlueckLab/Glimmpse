@@ -52,13 +52,14 @@ import edu.cudenver.bios.glimmpse.client.listener.ModeSelectionListener;
  */
 public class ModeSelectionPanel extends Composite implements SubmitCompleteHandler
 {
+	private static final String STYLE_PANEL = "modeSelectionPanel";
 	private static final String STYLE_HEADER = "modeSelectionPanelHeader";
 	private static final String STYLE_DESCRIPTION = "modeSelectionPanelDescription";
 	private static final String STYLE_GO_BUTTON = "modeSelectionPanelGoButton";
 	private static final String STYLE_CONTAINER = "modeSelectionPanelContainer";
 	private static final String STYLE_CONTAINER_TITLE = "modeSelectionPanelContainerTitle";
 	private static final String STYLE_CONTAINER_DESC = "modeSelectionPanelContainerDescription";
-
+    public static final String STYLE_INPUT_CONTAINER = "modeSelectionInputContainer";
     // uri of file upload service
     private static final String UPLOAD_URI = "/webapps/file/upload";
     // form tag for file
@@ -81,43 +82,36 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
         // add introductory text
         HTML header = new HTML(Glimmpse.constants.modeSelectionTitle());
         HTML description = new HTML(Glimmpse.constants.modeSelectionDescription());
-        panel.add(header);
-        panel.add(description);
         
         // create user input container
-        VerticalPanel inputContainer = new VerticalPanel();
-
+        Grid inputContainer = new Grid(1,3);
         // guided study design mode
-        Grid guidedModeContainer = new Grid(1,2);
-        VerticalPanel guidedTextContainer = new VerticalPanel();
+        VerticalPanel guidedModeContainer = new VerticalPanel();
         HTML guidedTitle = new HTML(Glimmpse.constants.modeSelectionGuidedTitle());
         HTML guidedDescription = new HTML(Glimmpse.constants.modeSelectionGuidedDescription());
-        guidedTextContainer.add(guidedTitle);
-        guidedTextContainer.add(guidedDescription);
-        guidedModeContainer.setWidget(0, 0, guidedTextContainer);
         Button guidedGoButton = new Button(Glimmpse.constants.modeSelectionGoButton(), new ClickHandler() {
             public void onClick(ClickEvent e)
             {
                 for(ModeSelectionListener listener: startListeners) listener.onGuidedMode();
             }
         });
-        guidedModeContainer.setWidget(0, 1, guidedGoButton);
+        guidedModeContainer.add(guidedTitle);
+        guidedModeContainer.add(guidedDescription);
+        guidedModeContainer.add(guidedGoButton);
         
         // matrix entry mode
-        Grid matrixModeContainer = new Grid(1,2);
-        VerticalPanel matrixTextContainer = new VerticalPanel();
+        VerticalPanel matrixModeContainer =  new VerticalPanel();
         HTML matrixTitle = new HTML(Glimmpse.constants.modeSelectionMatrixTitle());
         HTML matrixDescription = new HTML(Glimmpse.constants.modeSelectionMatrixDescription());
-        matrixTextContainer.add(matrixTitle);
-        matrixTextContainer.add(matrixDescription);
-        matrixModeContainer.setWidget(0, 0, matrixTextContainer);
         Button matrixGoButton = new Button(Glimmpse.constants.modeSelectionGoButton(), new ClickHandler() {
             public void onClick(ClickEvent e)
             {
                 for(ModeSelectionListener listener: startListeners) listener.onMatrixMode();
             }
         });
-        matrixModeContainer.setWidget(0, 1, matrixGoButton);
+        matrixModeContainer.add(matrixTitle);
+        matrixModeContainer.add(matrixDescription);
+        matrixModeContainer.add(matrixGoButton);
         
         // upload an existing study        
         VerticalPanel uploadContainer = new VerticalPanel();
@@ -154,16 +148,18 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
         uploadContainer.add(formPanel);
         
         // build overall panel        
-        inputContainer.add(guidedModeContainer);
-        inputContainer.add(matrixModeContainer);
-        inputContainer.add(uploadContainer);       
+        inputContainer.setWidget(0, 0, guidedModeContainer);
+        inputContainer.setWidget(0, 1,matrixModeContainer);
+        inputContainer.setWidget(0, 2,uploadContainer);       
+        panel.add(header);
+        panel.add(description);
         panel.add(inputContainer);
         
         // add style
         header.setStyleName(STYLE_HEADER);
         description.setStyleName(STYLE_DESCRIPTION);
-        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-        inputContainer.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_INPUT_CONTAINER);
+        panel.setStyleName(STYLE_PANEL);
+        inputContainer.setStyleName(STYLE_INPUT_CONTAINER);
         // guided subpanel style
         guidedModeContainer.setStyleName(STYLE_CONTAINER);
         guidedTitle.setStyleName(STYLE_CONTAINER_TITLE);
@@ -178,7 +174,7 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
         uploadContainer.setStyleName(STYLE_CONTAINER);
         uploadTitle.setStyleName(STYLE_CONTAINER_TITLE);
         uploadDescription.setStyleName(STYLE_CONTAINER_DESC);
-
+        
         // initialize the panel
         initWidget(panel);
     }

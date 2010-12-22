@@ -14,7 +14,6 @@ public interface GlimmpseConstants extends Constants
 	public static final String STYLE_DISABLED = "disabled";
 	public static final String STYLE_GLIMMPSE_PANEL = "glimmpsePanel";
     public static final String STYLE_WIZARD_STEP_PANEL = "wizardStepPanel";
-    public static final String STYLE_WIZARD_STEP_INPUT_CONTAINER = "wizardStepInputContainer";
     public static final String STYLE_WIZARD_STEP_HEADER = "wizardStepHeader";
     public static final String STYLE_WIZARD_STEP_DESCRIPTION = "wizardStepDescription";
     public static final String STYLE_WIZARD_STEP_SUBPANEL = "subpanel";
@@ -122,20 +121,10 @@ public interface GlimmpseConstants extends Constants
     // navigation buttons
     public String buttonNext();
     public String buttonPrevious();
-    // toolbar action buttons
-    public String buttonSave();
-    public String buttonClear();
-    public String buttonHelp();
-    // toolbar menu items
-    public String toolBarSaveDataMenuItem();
-    public String toolBarSaveCurveMenuItem();
-    public String toolBarSaveStudyMenuItem();
-    public String toolBarClearAllMenuItem();
-    public String toolBarClearScreenMenuItem();
-    public String toolBarHelpManualMenuItem();
-    public String toolBarSaveMenu();
-    public String toolBarClearMenu();
-    public String toolBarHelpMenu();
+    // tools
+    public String toolsSaveStudy();
+    public String toolsCancel();
+    public String toolsHelp();
     // left navigation / steps left panel
     public String stepsLeftStart();
     public String stepsLeftAlpha();

@@ -52,7 +52,7 @@ import edu.cudenver.bios.glimmpse.client.panels.matrix.WithinSubjectContrastPane
  * for each type of matrix required for power calculations on the GLMM
  */
 public class MatrixWizardPanel extends Composite
-implements StudyDesignManager, ToolbarActionListener
+implements StudyDesignManager, SaveListener
 {
 	// default filenames
 	protected static final String DEFAULT_STUDY_FILENAME = "study.xml";
@@ -122,7 +122,7 @@ implements StudyDesignManager, ToolbarActionListener
 		VerticalPanel panel = new VerticalPanel();
 		
 		wizardPanel = new WizardPanel(panelList, groupLabels);
-		wizardPanel.addToolbarActionListener(this);
+		wizardPanel.addSaveListener(this);
 		panel.add(wizardPanel);
 
 		// set up listener relationships between the matrix panels
@@ -269,22 +269,8 @@ implements StudyDesignManager, ToolbarActionListener
 	 * Handle save events
 	 */
 	@Override
-	public void onMenuAction(String menu, String item)
+	public void onSave()
 	{
-		if (Glimmpse.constants.toolBarSaveMenu().equals(menu))
-		{
-			if (Glimmpse.constants.toolBarSaveStudyMenuItem().equals(item))
-			{
-				wizardPanel.sendSaveRequest(getStudyDesignXML(), DEFAULT_STUDY_FILENAME);
-			}
-			else if (Glimmpse.constants.toolBarSaveDataMenuItem().equals(item))
-			{
-				wizardPanel.sendSaveRequest(resultsPanel.dataTableToCSV(),DEFAULT_RESULTS_FILENAME);
-			}
-			else if (Glimmpse.constants.toolBarSaveCurveMenuItem().equals(item))
-			{
-				resultsPanel.saveCurveData();
-			}
-		}
+		wizardPanel.sendSaveRequest(getStudyDesignXML(), DEFAULT_STUDY_FILENAME);
 	}
 }
