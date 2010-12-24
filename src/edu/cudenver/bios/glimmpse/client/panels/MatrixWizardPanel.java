@@ -21,7 +21,6 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
@@ -33,7 +32,6 @@ import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
-import edu.cudenver.bios.glimmpse.client.listener.ToolbarActionListener;
 import edu.cudenver.bios.glimmpse.client.panels.guided.PerGroupSampleSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.BetaPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.BetaScalePanel;
@@ -59,6 +57,8 @@ implements StudyDesignManager, SaveListener
 	protected static final String DEFAULT_RESULTS_FILENAME = "power.csv";
 	protected static final String DEFAULT_CURVE_FILENAME = "powerCurve.jpg";
 	// content panels 
+	protected IntroPanel introPanel = new IntroPanel(Glimmpse.constants.matrixIntroTitle(),
+			Glimmpse.constants.matrixIntroDescription());
 	protected SolvingForPanel solvingForPanel = new SolvingForPanel(getModeName());
 	protected PowerPanel powerPanel = new PowerPanel();
     protected AlphaPanel alphaPanel = new AlphaPanel();
@@ -88,7 +88,7 @@ implements StudyDesignManager, SaveListener
 	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
     // list of panels for the wizard
 	WizardStepPanel[][] panelList = {
-			{solvingForPanel, powerPanel},
+			{introPanel, solvingForPanel, powerPanel},
 			{alphaPanel},
 			{designPanel, covariatePanel, perGroupSampleSizePanel},
 			{betaPanel, betaScalePanel},

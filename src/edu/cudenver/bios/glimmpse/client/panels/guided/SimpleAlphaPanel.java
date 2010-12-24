@@ -82,9 +82,9 @@ implements ListValidator, ClickHandler
     	panel.add(grid);
         
         // set style
-        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         // initialize the panel
         initWidget(panel);
     }
@@ -149,6 +149,9 @@ implements ListValidator, ClickHandler
      */
     public void reset()
     {
+    	alpha05CheckBox.setValue(false);
+    	alpha01CheckBox.setValue(false);
+    	alpha10CheckBox.setValue(false);
     	notifyInProgress();
     }
 

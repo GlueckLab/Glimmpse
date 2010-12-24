@@ -32,11 +32,13 @@ import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
-import edu.cudenver.bios.glimmpse.client.listener.ToolbarActionListener;
 import edu.cudenver.bios.glimmpse.client.panels.guided.CategoricalPredictorsPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisDoublyRepeatedMeasuresPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisIndependentMeasuresPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisRepeatedMeasuresPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesIndependentMeasuresPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesPatternPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesRepeatedMeasuresPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesScalePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.OutcomesPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.PerGroupSampleSizePanel;
@@ -44,9 +46,8 @@ import edu.cudenver.bios.glimmpse.client.panels.guided.RelativeGroupSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.RepeatedMeasuresPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.SimpleAlphaPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityCovariatePanel;
-import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityErrorPanel;
-import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityOutcomeCovariatePanel;
-import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityOutcomesPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityIndependentMeasuresPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityRepeatedMeasuresPanel;
 
 /**
  * Wizard panel for "guided" input mode.  Contains panels to describe 
@@ -92,21 +93,24 @@ implements StudyDesignManager, SaveListener
 		new HypothesisIndependentMeasuresPanel();
 	protected HypothesisRepeatedMeasuresPanel hypothesisRepeatedPanel = 
 		new HypothesisRepeatedMeasuresPanel();
+	protected HypothesisDoublyRepeatedMeasuresPanel hypothesisDoublyRepeatedPanel = 
+		new HypothesisDoublyRepeatedMeasuresPanel();
 	// mean differences
 	protected IntroPanel meanDifferencesIntroPanel = new IntroPanel(Glimmpse.constants.meanDifferenceIntroTitle(),
 			Glimmpse.constants.meanDifferenceIntroDescription());
-	protected MeanDifferencesPatternPanel meanDifferencesPatternPanel =
-		new MeanDifferencesPatternPanel();
-	protected MeanDifferencesScalePanel meanDifferencesScalePanel =
-		new MeanDifferencesScalePanel();
+	protected MeanDifferencesIndependentMeasuresPanel meanDifferencesIndependentPanel =
+		new MeanDifferencesIndependentMeasuresPanel();
+	protected MeanDifferencesRepeatedMeasuresPanel meanDifferencesRepeatedPanel =
+		new MeanDifferencesRepeatedMeasuresPanel();
 	// variability
 	protected IntroPanel variabilityIntroPanel = new IntroPanel(Glimmpse.constants.variabilityIntroTitle(),
 			Glimmpse.constants.variabilityIntroDescription());
-	protected VariabilityErrorPanel variabilityErrorPanel = new VariabilityErrorPanel();
+	protected VariabilityIndependentMeasuresPanel variabilityIndependentPanel = 
+		new VariabilityIndependentMeasuresPanel();
+	protected VariabilityRepeatedMeasuresPanel variabilityRepeatedPanel = 
+		new VariabilityRepeatedMeasuresPanel();
 	protected VariabilityCovariatePanel variabilityCovariatePanel = new VariabilityCovariatePanel();
-	protected VariabilityOutcomesPanel variabilityOutcomePanel = new VariabilityOutcomesPanel();
-	protected VariabilityOutcomeCovariatePanel variabilityOutcomeCovariatePanel = 
-		new VariabilityOutcomeCovariatePanel();
+
 	// options
 	protected OptionsTestsPanel optionsTestsPanel = new OptionsTestsPanel(getModeName());
 	protected OptionsPowerMethodsPanel optionsPowerMethodsPanel = 
@@ -122,11 +126,12 @@ implements StudyDesignManager, SaveListener
 			{predictorIntroPanel, catPredictorsPanel, covariatePanel, 
 				relativeGroupSizePanel, perGroupSampleSizePanel}, 
 			{outcomesIntroPanel, outcomesPanel, repeatedMeasuresPanel}, 
-			{hypothesisIntroPanel, hypothesisIndependentPanel, hypothesisRepeatedPanel},
-			{meanDifferencesIntroPanel, meanDifferencesPatternPanel,
-				meanDifferencesScalePanel},
-			{variabilityIntroPanel, variabilityErrorPanel, variabilityCovariatePanel, 
-					variabilityOutcomePanel, variabilityOutcomeCovariatePanel},
+			{hypothesisIntroPanel, hypothesisIndependentPanel, hypothesisRepeatedPanel,
+				hypothesisDoublyRepeatedPanel},
+			{meanDifferencesIntroPanel, meanDifferencesIndependentPanel,
+				meanDifferencesRepeatedPanel},
+			{variabilityIntroPanel, variabilityIndependentPanel, variabilityRepeatedPanel,
+					variabilityCovariatePanel},
 			{optionsTestsPanel, optionsPowerMethodsPanel, optionsDisplayPanel},
 			{resultsPanel}
 	};
@@ -163,31 +168,27 @@ implements StudyDesignManager, SaveListener
 		// listeners for outcome measures
 		outcomesPanel.addOutcomesListener(hypothesisIndependentPanel);
 		outcomesPanel.addOutcomesListener(hypothesisRepeatedPanel);
-		outcomesPanel.addOutcomesListener(variabilityErrorPanel);
-		outcomesPanel.addOutcomesListener(variabilityOutcomePanel);
-		outcomesPanel.addOutcomesListener(variabilityOutcomeCovariatePanel);
+		outcomesPanel.addOutcomesListener(meanDifferencesIndependentPanel);
+		outcomesPanel.addOutcomesListener(variabilityIndependentPanel);
+		outcomesPanel.addOutcomesListener(variabilityRepeatedPanel);
+		outcomesPanel.addOutcomesListener(variabilityCovariatePanel);
 		// listeners for predictor information
 		catPredictorsPanel.addPredictorsListener(relativeGroupSizePanel);
 		catPredictorsPanel.addPredictorsListener(hypothesisIndependentPanel);
 		catPredictorsPanel.addPredictorsListener(hypothesisRepeatedPanel);
-		catPredictorsPanel.addPredictorsListener(meanDifferencesPatternPanel);
 		// listeners for baseline covariates
 		covariatePanel.addCovariateListener(hypothesisIndependentPanel);
 		covariatePanel.addCovariateListener(hypothesisRepeatedPanel);
-		covariatePanel.addCovariateListener(meanDifferencesPatternPanel);
 		covariatePanel.addCovariateListener(relativeGroupSizePanel);
-		covariatePanel.addCovariateListener(variabilityErrorPanel);
-		covariatePanel.addCovariateListener(variabilityOutcomePanel);
 		covariatePanel.addCovariateListener(variabilityCovariatePanel);
-		covariatePanel.addCovariateListener(variabilityOutcomeCovariatePanel);
 		covariatePanel.addCovariateListener(optionsTestsPanel);
 		covariatePanel.addCovariateListener(optionsPowerMethodsPanel);
 		// listeners for repeated measures 
 		repeatedMeasuresPanel.addRepeatedMeasuresListener(hypothesisIndependentPanel);
 		repeatedMeasuresPanel.addRepeatedMeasuresListener(hypothesisRepeatedPanel);
 		// listeners for hypotheses
-		hypothesisIndependentPanel.addHypothesisListener(meanDifferencesPatternPanel);
-		hypothesisRepeatedPanel.addHypothesisListener(meanDifferencesPatternPanel);
+		hypothesisIndependentPanel.addHypothesisListener(meanDifferencesIndependentPanel);
+		hypothesisRepeatedPanel.addHypothesisListener(meanDifferencesRepeatedPanel);
 		// TODO: covariatePanel.addCovariateListener(effectSizePanel);
 		relativeGroupSizePanel.addRelativeGroupSizeListener(hypothesisIndependentPanel);
 		optionsDisplayPanel.addOptionsListener(resultsPanel);
@@ -245,12 +246,11 @@ implements StudyDesignManager, SaveListener
 		buffer.append(relativeGroupSizePanel.toRequestXML());
 		buffer.append(hypothesisIndependentPanel.toRequestXML());
 		buffer.append(hypothesisRepeatedPanel.toRequestXML());
-		buffer.append(meanDifferencesPatternPanel.toRequestXML());
-		buffer.append(meanDifferencesScalePanel.toRequestXML());
-		buffer.append(variabilityErrorPanel.toRequestXML());
-		buffer.append(variabilityOutcomePanel.toRequestXML());
+		buffer.append(meanDifferencesIndependentPanel.toRequestXML());
+		buffer.append(meanDifferencesRepeatedPanel.toRequestXML());
+		buffer.append(variabilityIndependentPanel.toRequestXML());
+		buffer.append(variabilityRepeatedPanel.toRequestXML());
 		buffer.append(variabilityCovariatePanel.toRequestXML());
-		buffer.append(variabilityOutcomeCovariatePanel.toRequestXML());
 		buffer.append(optionsTestsPanel.toRequestXML());
 		buffer.append(optionsPowerMethodsPanel.toRequestXML());
 		buffer.append("</" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");

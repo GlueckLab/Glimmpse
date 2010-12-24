@@ -23,7 +23,8 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_STEP_TABLE = "wizardStepTable";
     public static final String STYLE_WIZARD_STEP_TABLE_HEADER = "wizardStepTableHeader";
     public static final String STYLE_WIZARD_STEP_TABLE_ROW = "wizardStepTableRow";
-    
+    public static final String STYLE_WIZARD_INDENTED_CONTENT = "wizardStepIndentedContent";
+
     public static final String STYLE_WIZARD_STEP_LIST_PANEL = "wizardStepListPanel";
     public static final String STYLE_WIZARD_STEP_LIST_BUTTON = "wizardStepListButton";
     public static final String STYLE_WIZARD_STEP_LIST_TEXTBOX = "wizardStepListTextBox";
@@ -123,7 +124,8 @@ public interface GlimmpseConstants extends Constants
     public String toolsSaveStudy();
     public String toolsCancel();
     public String toolsHelp();
-
+    // miscellaneous words
+    public String and();
     // left navigation / steps left panel
     public String stepsLeftStart();
     public String stepsLeftAlpha();
@@ -229,6 +231,14 @@ public interface GlimmpseConstants extends Constants
     /* mean differences section */
     public String meanDifferenceIntroTitle();
     public String meanDifferenceIntroDescription();
+    public String meanDifferenceTitle();
+    public String meanDifferenceDescription();
+    public String meanDifferenceMainEffectHypothesis();
+    public String meanDifferenceMainEffectQuestion();
+    public String meanDifferenceInteractionEffectHypothesis();
+    public String meanDifferenceInteractionEffectQuestion();
+    public String meanDifferenceScaleQuestion();
+    public String meanDifferenceScaleAnswer();
     public String meanDifferencePatternTitle();
     public String meanDifferencePatternDescription();
     public String meanDifferenceScaleTitle();

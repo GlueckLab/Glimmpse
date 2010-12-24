@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RadioButton;
@@ -39,7 +40,7 @@ RelativeGroupSizeListener, CovariateListener
 		public HypothesisRadioButton(String group, String label,
 				int contrastDF, String predictor, String interactionPredictor)
 		{
-			super(group, label);
+			super(group, label, true);
 			this.contrastDF = contrastDF;
 			this.predictor = predictor;
 			this.interactionPredictor = interactionPredictor;
@@ -77,8 +78,9 @@ RelativeGroupSizeListener, CovariateListener
         
         panel.add(header);
         panel.add(description);
-        panel.add(mainEffectsTable);
         panel.add(interactionsTable);
+        panel.add(mainEffectsTable);
+
         
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -137,6 +139,15 @@ RelativeGroupSizeListener, CovariateListener
 		{
 			this.groupColumnLookup.put(groups.getColumnLabel(c), c);
 		}
+		Object[] predictorArray = (Object[]) predictorMap.keySet().toArray();
+		reset();
+		int i = 0;
+		for(Object predictor: predictorArray)
+		{
+			List<String> categories = predictorMap.get(predictor);
+			addMainEffect((String) predictor, categories.size());
+			addInteractions((String) predictor, ++i, predictorArray);
+		}
 	}
 
 	@Override
@@ -155,28 +166,12 @@ RelativeGroupSizeListener, CovariateListener
 			skip = true;		
 	}
 	
-    /**
-     * Perform any setup when first entering this step in the wizard
-     */
-    public void onEnter() 
-    {
-		Object[] predictorArray = (Object[]) predictorMap.keySet().toArray();
-		reset();
-		int i = 0;
-		for(Object predictor: predictorArray)
-		{
-			List<String> categories = predictorMap.get(predictor);
-			addMainEffect((String) predictor, categories.size());
-			addInteractions((String) predictor, ++i, predictorArray);
-		}
-    }
-	
 	private void addMainEffect(String predictor, int numCategories)
 	{
 		int startRow = mainEffectsTable.getRowCount();
 		HypothesisRadioButton rb = 
 			new HypothesisRadioButton(HYPOTHESIS_RADIO_GROUP, 
-					"The outcomes will differ by " + predictor,
+					"The outcomes will differ by <u>" + predictor + "</u>",
 					numCategories - 1, predictor);
 		rb.addClickHandler(new ClickHandler() {
 			@Override
@@ -201,8 +196,8 @@ RelativeGroupSizeListener, CovariateListener
 
 			int df = predictorCategories.size() * (interactionCategories.size()-1);
 			HypothesisRadioButton rb = new HypothesisRadioButton(HYPOTHESIS_RADIO_GROUP, 
-					"The effect of " + predictor + 
-					" on the outcomes will be different depending on the value of " + interaction,
+					"The effect of <u>" + predictor + 
+					"</u> on the outcomes will be different depending on the value of <u>" + interaction + "</u>",
 					df, predictor, interaction);
 			rb.addClickHandler(new ClickHandler() {
 				@Override

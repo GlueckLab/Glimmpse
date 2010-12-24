@@ -13,6 +13,8 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.NamedFrame;
@@ -168,7 +170,13 @@ implements OptionsListener, SolvingForListener
 		VerticalPanel formContainer = new VerticalPanel();
 		formContainer.add(curveEntityBodyHidden);
 		curveForm.add(formContainer);
-		
+		curveForm.addSubmitCompleteHandler(new SubmitCompleteHandler() {
+			@Override
+			public void onSubmitComplete(SubmitCompleteEvent event)
+			{
+				hideWorkingDialog();
+			}
+		});
 		// setup the form for saving curve data - you can't dynamically change a form target,
 		// so we need the separate one for saving
 		saveForm.setAction(CURVE_URL);
@@ -444,6 +452,7 @@ implements OptionsListener, SolvingForListener
 				resultsTable.draw(resultsData);
 				resultsTablePanel.setVisible(true);
 			}
+			hideWorkingDialog();
 		}
 		catch (Exception e)
 		{

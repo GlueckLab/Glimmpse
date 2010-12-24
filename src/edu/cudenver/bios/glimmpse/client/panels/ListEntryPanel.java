@@ -28,10 +28,8 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
@@ -56,7 +54,6 @@ public class ListEntryPanel extends Composite
 	protected static final int VISIBLE_COUNT = 4;
 	protected static final int HEADER_ROW = 0;
 	protected static final int LISTBOX_ROW = 1;
-	protected static final int DELETE_ROW = 2;
 	
     // text entry box
     protected TextBox listEntryTextBox = new TextBox();
@@ -81,37 +78,20 @@ public class ListEntryPanel extends Composite
 		this.validator = validator;
 		
         // create the dynamic table for entering predictors
-        VerticalPanel tablePanel = new VerticalPanel();
+        VerticalPanel panel = new VerticalPanel();
         
-        // set up the input table 
-        Grid layoutGrid = new Grid(3, 1);
-        layoutGrid.setWidget(HEADER_ROW,0,createTextEntry(columnName));
-        layoutGrid.setWidget(LISTBOX_ROW,0, listBox);
-        Button deleteButton = new Button(("Delete "), 
-        		new ClickHandler() {
-        	@Override
-        	public void onClick(ClickEvent event)
-        	{
-        		removeSelectedListItems();
-        	}
-        });
-        layoutGrid.setWidget(DELETE_ROW, 0, deleteButton);
-        //addRow();
-
-        // layout the panels
-        tablePanel.add(layoutGrid);
-        tablePanel.add(errorHTML);
+        // layout the panel;
+        panel.add(createTextEntry(columnName));
+        panel.add(listBox);
+        panel.add(errorHTML);
         
         // set style
         listBox.setVisibleItemCount(VISIBLE_COUNT); // can't seem to do this with css?
-        tablePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_PANEL);
-        layoutGrid.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST);
-        layoutGrid.getRowFormatter().setStylePrimaryName(0, 
-        		GlimmpseConstants.STYLE_WIZARD_STEP_LIST_HEADER);
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_PANEL);
         errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
         
         // initialize the panel
-        initWidget(tablePanel);
+        initWidget(panel);
 	}
 	
 	/**
@@ -130,8 +110,33 @@ public class ListEntryPanel extends Composite
 				addListIem();
 			}
 		});
+		Button deleteButton = new Button((Glimmpse.constants.buttonDelete()), 
+				new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				removeSelectedListItems();
+			}
+		});
+		Button addButton = new Button((Glimmpse.constants.buttonAdd()), 
+				new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				addListIem();
+			}
+		});
+        
+		
+		// layout the panel
 		panel.add(new HTML(columnName + ": "));
 		panel.add(listEntryTextBox);
+		panel.add(addButton);
+		panel.add(deleteButton);
+		// add style
+		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_HEADER);
+		addButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+		deleteButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
 		return panel;
 	}
 	

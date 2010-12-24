@@ -25,6 +25,8 @@ import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 public class DesignPanel extends WizardStepPanel
 implements MatrixResizeListener, CovariateListener
 {    	
+	private static final String STYLE_ROWMD_PANEL = "rowMetaDataPanel";
+	private static final String STYLE_ROWMD_DATA = "rowMetaDataPanelData";
 	private static final int MAX_RATIO = 10;
     protected ResizableMatrix essenceFixed = new ResizableMatrix(GlimmpseConstants.MATRIX_DESIGN_FIXED,
 			GlimmpseConstants.DEFAULT_N, 
@@ -92,7 +94,7 @@ implements MatrixResizeListener, CovariateListener
     	Grid layoutGrid = new Grid(1,2);
     	layoutGrid.setWidget(0, 0, rowMDPanel);
     	layoutGrid.setWidget(0, 1, essenceFixed);
-    	layoutGrid.getRowFormatter().setVerticalAlign(0, HasVerticalAlignment.ALIGN_BOTTOM);
+    	layoutGrid.getRowFormatter().setVerticalAlign(0, HasVerticalAlignment.ALIGN_TOP);
     	// add listeners
     	essenceFixed.addMatrixResizeListener(this);
 
@@ -102,8 +104,8 @@ implements MatrixResizeListener, CovariateListener
         // set style
     	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
     	panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-    	rowMDPanel.setStyleName(GlimmpseConstants.STYLE_MATRIX_PANEL);
-    	rowMDGrid.setStyleName(GlimmpseConstants.STYLE_MATRIX_DATA);
+    	rowMDPanel.setStyleName(STYLE_ROWMD_PANEL);
+    	rowMDGrid.setStyleName(STYLE_ROWMD_DATA);
     	return panel;
     }
     

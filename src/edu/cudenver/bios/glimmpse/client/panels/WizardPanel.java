@@ -54,6 +54,10 @@ implements NavigationListener, StepStatusListener
 	// style for tools
 	protected static final String STYLE_TOOL_PANEL = "wizardToolsPanel";
 	protected static final String STYLE_TOOL_BUTTON = "wizardToolsPanelButton";
+	protected static final String STYLE_CONTENT_PANEL = "wizardContentPanel";
+	protected static final String STYLE_SAVE = "save";
+	protected static final String STYLE_CANCEL = "cancel";
+	protected static final String STYLE_HELP = "help";
 	// uri for help manual
 	protected static final String HELP_URL = "/help/manual.pdf";
 	// url for file save web service
@@ -136,6 +140,9 @@ implements NavigationListener, StepStatusListener
 		panel.add(leftPanel);		
 		panel.add(contentPanel);
 
+		// add style
+		contentPanel.setStyleName(STYLE_CONTENT_PANEL);
+		panel.setStyleName(STYLE_CONTENT_PANEL);
 		// initialize
 		initWidget(panel);
 	}
@@ -173,8 +180,11 @@ implements NavigationListener, StepStatusListener
 		// add style
 		panel.setStyleName(STYLE_TOOL_PANEL);
 		saveButton.setStyleName(STYLE_TOOL_BUTTON);
+		saveButton.addStyleDependentName(STYLE_SAVE);
 		cancelButton.setStyleName(STYLE_TOOL_BUTTON);
+		cancelButton.addStyleDependentName(STYLE_CANCEL);
 		helpButton.setStyleName(STYLE_TOOL_BUTTON);
+		helpButton.addStyleDependentName(STYLE_HELP);
 		return panel;
 	}
 	

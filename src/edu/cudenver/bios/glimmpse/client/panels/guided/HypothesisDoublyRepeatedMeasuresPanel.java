@@ -6,13 +6,10 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.xml.client.Node;
 
@@ -25,24 +22,25 @@ import edu.cudenver.bios.glimmpse.client.listener.HypothesisListener;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.listener.RelativeGroupSizeListener;
+import edu.cudenver.bios.glimmpse.client.listener.RepeatedMeasuresListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
-public class HypothesisPanel extends WizardStepPanel
-implements OutcomesListener, PredictorsListener, 
-RelativeGroupSizeListener, CovariateListener, ClickHandler
+public class HypothesisDoublyRepeatedMeasuresPanel extends WizardStepPanel
+implements OutcomesListener, PredictorsListener, RepeatedMeasuresListener,
+RelativeGroupSizeListener, CovariateListener
 {   
-	private static final String HYPOTHESIS_RADIO_GROUP = "hypothesisGroup";
-	private static final int INDEPENDENT_GROUPS_INDEX = 0;
-	private static final int REPEATED_MEASURES_INDEX = 1;
-
-	protected ArrayList<HypothesisListener> listeners = new ArrayList<HypothesisListener>();
+	private static final String HYPOTHESIS_RADIO_GROUP = "hypothesisRepeatedGroup";
 	
+	public int contrastDF;
+	public String predictor;
+	public String interactionPredictor;
+
 	private class HypothesisRadioButton extends RadioButton
 	{
 		public int contrastDF;
 		public String predictor;
 		public String interactionPredictor;
-		
+
 		public HypothesisRadioButton(String group, String label,
 				int contrastDF, String predictor, String interactionPredictor)
 		{
@@ -51,47 +49,45 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 			this.predictor = predictor;
 			this.interactionPredictor = interactionPredictor;
 		}
-		
+
 		public HypothesisRadioButton(String group, String label,
 				int contrastDF, String predictor)
 		{
 			this(group, label, contrastDF, predictor, null);
 		}
 	}
-	
+
+	// independent groups widgets
+	protected FlexTable mainEffectsTable = new FlexTable();
+	protected FlexTable interactionsTable = new FlexTable();
+
 	protected boolean hasRepeatedMeasures = false;
 	protected List<String> outcomes = null;
 	protected HashMap<String, ArrayList<String>> predictorMap = null;
 	protected DataTable groups = null;
 	protected HashMap<String, Integer> groupColumnLookup = new HashMap<String,Integer>();
-	
+	protected List<RepeatedMeasure> repeatedMeasures = null;
 	protected List<Integer> relativeGroupSizes = null;
-	protected DeckPanel deckPanel = new DeckPanel();
-	
-	// independent groups widgets
-	protected FlexTable independentMainEffectsTable = new FlexTable();
-	protected FlexTable independentInteractionsTable = new FlexTable();
 
+	protected ArrayList<HypothesisListener> listeners = new ArrayList<HypothesisListener>();
 	// running counter of the number of 
-	
+
 	protected boolean hasCovariate = false;
 	
-    public HypothesisPanel()
+    public HypothesisDoublyRepeatedMeasuresPanel()
     {
     	super();
     	complete = true;
+    	skip = true;
         VerticalPanel panel = new VerticalPanel();
         
         HTML header = new HTML(Glimmpse.constants.hypothesisTitle());
         HTML description = new HTML(Glimmpse.constants.hypothesisDescription());
         
-        deckPanel.add(createIndependentGroupsPanel());
-        deckPanel.add(createRepeatedMeasuresPanel());
-        deckPanel.showWidget(INDEPENDENT_GROUPS_INDEX);
-        
         panel.add(header);
         panel.add(description);
-        panel.add(deckPanel);
+        panel.add(mainEffectsTable);
+        panel.add(interactionsTable);
         
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -101,122 +97,11 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
         initWidget(panel);
     }
 
-    private VerticalPanel createIndependentGroupsPanel()
+    /**
+     * Perform any setup when first entering this step in the wizard
+     */
+    public void onEnter() 
     {
-    	VerticalPanel panel = new VerticalPanel();
-
-        panel.add(createIndependentMainEffectsPanel());
-        panel.add(createIndependentInteractionsPanel());
-        panel.add(createIndependentOutcomesPanel());
-        
-        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-
-        
-        return panel;
-    	
-    }
-    
-    private VerticalPanel createIndependentOutcomesPanel()
-    {
-    	VerticalPanel panel = new VerticalPanel();
-    	
-    	HTML header = new HTML("Test the Selected Hypotheses for");
-
-    	panel.add(header);
-    	
-        // set style
-        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-        panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        
-    	return panel;
-    }
-    
-    private VerticalPanel createIndependentMainEffectsPanel()
-    {
-    	VerticalPanel panel = new VerticalPanel();
-    	
-    	HTML header = new HTML("Main Effects");
-
-    	panel.add(header);
-    	panel.add(this.independentMainEffectsTable);
-    	
-        // set style
-        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-        panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        
-    	return panel;
-    }
-    
-    private VerticalPanel createIndependentInteractionsPanel()
-    {
-    	VerticalPanel panel = new VerticalPanel();
-    	
-    	HTML header = new HTML("Interactions");
-
-    	panel.add(header);
-    	panel.add(this.independentInteractionsTable);
-    	
-        // set style
-        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-        panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        header.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
-        
-    	return panel;
-    }
-    
-    private VerticalPanel createRepeatedMeasuresPanel()
-    {
-    	VerticalPanel panel = new VerticalPanel();
-    	
-    	return panel;
-    }
-    
-    public void reset() 
-    {
-    	independentInteractionsTable.removeAllRows();
-    	independentMainEffectsTable.removeAllRows();
-    }
-
-	@Override
-	public void onOutcomes(List<String> outcomes)
-	{
-		this.outcomes = outcomes;
-	}
-
-	//@Override
-	public void onRepeatedMeasures(List<RepeatedMeasure> repeatedMeasures)
-	{
-		if (repeatedMeasures == null || repeatedMeasures.size() <= 0)
-		{
-			deckPanel.showWidget(INDEPENDENT_GROUPS_INDEX);
-		}
-		else
-		{
-			deckPanel.showWidget(REPEATED_MEASURES_INDEX);
-		}
-	}
-
-	@Override
-	public void onPredictors(HashMap<String, ArrayList<String>> predictorMap, DataTable groups)
-	{
-		this.predictorMap = predictorMap;
-		this.groups = groups;
-		// build a lookup table of column id's (predictors) to column numbers
-		for(int c = 0; c < groups.getNumberOfColumns(); c++)
-		{
-			this.groupColumnLookup.put(groups.getColumnLabel(c), c);
-		}
-	}
-	
-	@Override
-	public void onEnter()
-	{
-		// TODO: check if repeated measures
 		Object[] predictorArray = (Object[]) predictorMap.keySet().toArray();
 		reset();
 		int i = 0;
@@ -224,14 +109,36 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 		{
 			List<String> categories = predictorMap.get(predictor);
 			addMainEffect((String) predictor, categories.size());
-			addInteractions((String) predictor, ++i, predictorArray);
+			addPredictorRepeatInteractions((String) predictor);
 		}
-		
-	}
+    }
 	
+    private void addPredictorRepeatInteractions(String predictor)
+    {
+    	for(RepeatedMeasure rm: repeatedMeasures)
+    	{
+    			List<String> predictorCategories = predictorMap.get(predictor);
+    			int df = predictorCategories.size() * (rm.repeats);
+    			HypothesisRadioButton rb = new HypothesisRadioButton(HYPOTHESIS_RADIO_GROUP, 
+    					"The trend in outcomes over " + rm.units + 
+    					" will be different depending on the value of " + predictor,
+    					df, predictor, rm.units);
+    			rb.addClickHandler(new ClickHandler() {
+    				@Override
+    				public void onClick(ClickEvent event)
+    				{
+    					HypothesisRadioButton source = (HypothesisRadioButton) event.getSource();
+    					for(HypothesisListener listener: listeners)
+    						listener.onInteractionHypothesis(source.predictor, source.interactionPredictor);
+    				}
+    			});
+    			interactionsTable.setWidget(interactionsTable.getRowCount(), 0, rb);
+    	}
+    }
+    
 	private void addMainEffect(String predictor, int numCategories)
 	{
-		int startRow = independentMainEffectsTable.getRowCount();
+		int startRow = mainEffectsTable.getRowCount();
 		HypothesisRadioButton rb = 
 			new HypothesisRadioButton(HYPOTHESIS_RADIO_GROUP, 
 					"The outcomes will differ by " + predictor,
@@ -245,76 +152,42 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 					listener.onMainEffectsHypothesis(source.predictor);
 			}
 		});
-		independentMainEffectsTable.setWidget(startRow, 0, rb);
+		mainEffectsTable.setWidget(startRow, 0, rb);
 	}
-	
-	private void addInteractions(String predictor, int startIndex, Object[] predictorArray)
-	{
-		int startRow = independentInteractionsTable.getRowCount();
-		for(int i = startIndex; i < predictorArray.length; i++)
-		{
-			String interaction = (String) predictorArray[i];
-			List<String> predictorCategories = predictorMap.get(predictor);
-			List<String> interactionCategories = predictorMap.get(interaction);
+    
+    @Override
+    public void reset() 
+    {
 
-			int df = predictorCategories.size() * (interactionCategories.size()-1);
-			HypothesisRadioButton rb = new HypothesisRadioButton(HYPOTHESIS_RADIO_GROUP, 
-					"The effect of " + predictor + 
-					" on the outcomes will be different depending on the value of " + interaction,
-					df, predictor, interaction);
-			rb.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event)
-				{
-					HypothesisRadioButton source = (HypothesisRadioButton) event.getSource();
-					for(HypothesisListener listener: listeners)
-						listener.onInteractionHypothesis(source.predictor, source.interactionPredictor);
-				}
-			});
-			independentInteractionsTable.setWidget(startRow, 0, rb);
-			startRow++;
-		}
+    }
+
+	@Override
+	public void onOutcomes(List<String> outcomes)
+	{
+		this.outcomes = outcomes;
 	}
 
 	@Override
-	public void onClick(ClickEvent event)
+	public void onRepeatedMeasures(List<RepeatedMeasure> repeatedMeasures)
 	{
-		boolean hypothesisSelected = false;
-		
-		// check if any hypotheses are selected
-		if (deckPanel.getVisibleWidget() == INDEPENDENT_GROUPS_INDEX)
-		{
-			for(int r = 0; r < independentMainEffectsTable.getRowCount(); r++)
-			{
-				CheckBox cb = (CheckBox) independentMainEffectsTable.getWidget(r, 0);
-				if (cb.getValue())
-				{
-					hypothesisSelected = true;
-					break;
-				}
-			}
-			if (!hypothesisSelected)
-			{
-				for(int r = 0; r < independentInteractionsTable.getRowCount(); r++)
-				{
-					CheckBox cb = (CheckBox) independentInteractionsTable.getWidget(r, 0);
-					if (cb.getValue())
-					{
-						hypothesisSelected = true;
-						break;
-					}
-				}
-			}
-		}
+		if (repeatedMeasures == null || repeatedMeasures.size() <= 0)
+			skip = true;
 		else
+			skip = false;		
+		this.repeatedMeasures = repeatedMeasures;
+	}
+
+
+	@Override
+	public void onPredictors(HashMap<String, ArrayList<String>> predictorMap, DataTable groups)
+	{
+		this.predictorMap = predictorMap;
+		this.groups = groups;
+		// build a lookup table of column id's (predictors) to column numbers
+		for(int c = 0; c < groups.getNumberOfColumns(); c++)
 		{
-			
+			this.groupColumnLookup.put(groups.getColumnLabel(c), c);
 		}
-		
-		if (hypothesisSelected)
-			notifyComplete();
-		else
-			notifyInProgress();
 	}
 
 	@Override
@@ -339,9 +212,6 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 		buffer.append(GlimmpseConstants.MATRIX_BETWEEN_CONTRAST);
 		buffer.append("' combineHorizontal='true' >");
 		int rows = 0;
-		if (deckPanel.getVisibleWidget() == INDEPENDENT_GROUPS_INDEX)
-		{
-			int columns = groups.getNumberOfRows();
 //			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_FIXED, rows, columns);
 //
 //			// add the contrasts for main effects
@@ -367,28 +237,28 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 //				}
 //			}
 //			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
-		}
-		else
-		{
-			
-		}
-		
-		if (hasCovariate)
-		{
-			// build the gaussian portion of the C matrix
-			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_RANDOM, rows, 1);
-			for(int r = 0; r < rows; r++)
-			{
-				XMLUtilities.openTag(buffer, "r");
-				XMLUtilities.openTag(buffer, "c");
-				buffer.append(1);
-				XMLUtilities.closeTag(buffer, "c");
-				XMLUtilities.closeTag(buffer, "r");
-			}
-			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
-		}
-		
-		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX);
+//		}
+//		else
+//		{
+//			
+//		}
+//		
+//		if (hasCovariate)
+//		{
+//			// build the gaussian portion of the C matrix
+//			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_RANDOM, rows, 1);
+//			for(int r = 0; r < rows; r++)
+//			{
+//				XMLUtilities.openTag(buffer, "r");
+//				XMLUtilities.openTag(buffer, "c");
+//				buffer.append(1);
+//				XMLUtilities.closeTag(buffer, "c");
+//				XMLUtilities.closeTag(buffer, "r");
+//			}
+//			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
+//		}
+//		
+//		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX);
 	}
 	
 	private void buildInteractionContrastXML(StringBuffer buffer, String predictor, String interaction)
@@ -542,30 +412,30 @@ RelativeGroupSizeListener, CovariateListener, ClickHandler
 		int rows = 0;
 		int cols = 0;
 		
-		if (deckPanel.getVisibleWidget() == INDEPENDENT_GROUPS_INDEX)
-		{
-			// the dimension of theta is a x b, where a = #rows in C matrix, b = #cols in U matrix
-			rows = 0; //TODO: contrastCount;
-			//cols = independentOutcomesTable.getRowCount();
-		}
-		else
-		{
-		}
-		
-		XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_THETA, rows, cols);
-		for(int r = 0; r < rows; r++)
-		{
-			XMLUtilities.openTag(buffer, "r");
-			for(int c = 0; c < cols; c++)
-			{
-				// we assume null hypotheses of 0 for guided mode
-				XMLUtilities.openTag(buffer, "c");
-				buffer.append(0);
-				XMLUtilities.closeTag(buffer, "c");
-			}
-			XMLUtilities.closeTag(buffer, "r");
-		}
-		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
+//		if (deckPanel.getVisibleWidget() == INDEPENDENT_GROUPS_INDEX)
+//		{
+//			// the dimension of theta is a x b, where a = #rows in C matrix, b = #cols in U matrix
+//			rows = 0; //TODO: contrastCount;
+//			cols = independentOutcomesTable.getRowCount();
+//		}
+//		else
+//		{
+//		}
+//		
+//		XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_THETA, rows, cols);
+//		for(int r = 0; r < rows; r++)
+//		{
+//			XMLUtilities.openTag(buffer, "r");
+//			for(int c = 0; c < cols; c++)
+//			{
+//				// we assume null hypotheses of 0 for guided mode
+//				XMLUtilities.openTag(buffer, "c");
+//				buffer.append(0);
+//				XMLUtilities.closeTag(buffer, "c");
+//			}
+//			XMLUtilities.closeTag(buffer, "r");
+//		}
+//		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
 
 	}
 	

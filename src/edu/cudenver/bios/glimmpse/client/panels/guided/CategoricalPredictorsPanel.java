@@ -10,6 +10,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
@@ -34,9 +35,12 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     // text boxes for entering predictor / category values
     protected TextBox predictorTextBox = new TextBox();
     protected TextBox categoryTextBox = new TextBox();
+    // control buttons for predictor / category add
+    protected Button predictorAddButton = new Button(Glimmpse.constants.buttonAdd());
+    protected Button categoryAddButton = new Button(Glimmpse.constants.buttonAdd());
     // control buttons for predictor/category deletion
-    protected Button predictorDeleteButton = new Button("Delete Predictor");
-    protected Button categoryDeleteButton = new Button("Delete Category");
+    protected Button predictorDeleteButton = new Button(Glimmpse.constants.buttonDelete());
+    protected Button categoryDeleteButton = new Button(Glimmpse.constants.buttonDelete());
     
     protected HashMap<String,ArrayList<String>> predictorCategoryMap = 
     	new HashMap<String,ArrayList<String>>();
@@ -158,25 +162,39 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     	});
     	// build text entry panels
     	HorizontalPanel predictorPanel = new HorizontalPanel();
-    	predictorPanel.add(new HTML("Predictor: "));
-    	predictorPanel.add(predictorTextBox);
+    	predictorPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+    	VerticalPanel predictorTextContainer = new VerticalPanel();
+    	predictorTextContainer.add(new HTML(Glimmpse.constants.predictorsTableColumn()));
+    	predictorTextContainer.add(predictorTextBox);
+    	predictorPanel.add(predictorTextContainer);
+    	predictorPanel.add(predictorAddButton);
+    	predictorPanel.add(predictorDeleteButton);
+
     	HorizontalPanel categoryPanel = new HorizontalPanel();
-    	categoryPanel.add(new HTML("Catgeory: "));
-    	categoryPanel.add(categoryTextBox);
+    	categoryPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+    	VerticalPanel categoryTextContainer = new VerticalPanel();
+    	categoryTextContainer.add(new HTML(Glimmpse.constants.categoriesTableColumn()));
+    	categoryTextContainer.add(categoryTextBox);
+    	categoryPanel.add(categoryTextContainer);
+    	categoryPanel.add(categoryAddButton);
+    	categoryPanel.add(categoryDeleteButton);
     	
     	// layout the panels
-    	Grid grid = new Grid(3,2);
+    	Grid grid = new Grid(2,2);
     	grid.setWidget(0, 0, predictorPanel);
     	grid.setWidget(0, 1, categoryPanel);
     	grid.setWidget(1, 0, predictorList);
     	grid.setWidget(1, 1, categoryList);
-    	grid.setWidget(2, 0, predictorDeleteButton);
-    	grid.setWidget(2, 1, categoryDeleteButton);
     	panel.add(grid);
     	
     	// set style
     	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_PANEL);
-    	grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST);
+    	predictorAddButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+    	predictorDeleteButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+    	categoryAddButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+    	categoryDeleteButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+    	
+    	//grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST);
         grid.getRowFormatter().setStylePrimaryName(0, 
         		GlimmpseConstants.STYLE_WIZARD_STEP_LIST_HEADER);
     	
