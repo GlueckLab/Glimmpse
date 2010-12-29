@@ -2,6 +2,7 @@ package edu.cudenver.bios.glimmpse.client.panels.guided;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -16,10 +17,11 @@ import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.listener.RelativeGroupSizeListener;
+import edu.cudenver.bios.glimmpse.client.listener.VariabilityListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class RelativeGroupSizePanel extends WizardStepPanel
-implements PredictorsListener, CovariateListener
+implements PredictorsListener, VariabilityListener, CovariateListener
 {
 	protected static final int MAX_RELATIVE_SIZE = 10;
     // data table to display possible groups
@@ -57,8 +59,7 @@ implements PredictorsListener, CovariateListener
 	@Override
 	public void reset()
 	{
-		// TODO Auto-generated method stub
-
+		groupSizesTable.clear();
 	}
 
 	@Override
@@ -104,25 +105,6 @@ implements PredictorsListener, CovariateListener
 	public void addRelativeGroupSizeListener(RelativeGroupSizeListener listener)
 	{
 		listeners.add(listener);
-	}
-
-	@Override
-	public void onHasCovariate(boolean hasCovariate)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onMean(double mean)
-	{
-		this.mean = mean;
-	}
-
-	@Override
-	public void onVariance(double variance)
-	{
-		this.variance = variance;
 	}
 	
 	public String toRequestXML()
@@ -191,5 +173,38 @@ implements PredictorsListener, CovariateListener
 		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ESSENCE_MATRIX);
 		
 		return buffer.toString();
+	}
+	
+	@Override
+	public void onExit()
+	{
+		ArrayList<Integer> relativeSizes = new ArrayList<Integer>();
+		for(int i = 1; i < groupSizesTable.getRowCount(); i++)
+		{
+			ListBox lb = (ListBox) groupSizesTable.getWidget(i, 0);
+			relativeSizes.add(lb.getSelectedIndex()+1);
+		}
+		for(RelativeGroupSizeListener listener: listeners)
+		{
+			listener.onRelativeGroupSize(relativeSizes);
+		}
+	}
+
+	@Override
+	public void onOutcomeVariance(List<Double> variancesOfOutcomes)
+	{
+		// no action needed
+	}
+
+	@Override
+	public void onCovariateVariance(double varianceOfCovariate)
+	{
+		this.variance = varianceOfCovariate;
+	}
+
+	@Override
+	public void onHasCovariate(boolean hasCovariate)
+	{
+		this.hasCovariate = hasCovariate;
 	}
 }

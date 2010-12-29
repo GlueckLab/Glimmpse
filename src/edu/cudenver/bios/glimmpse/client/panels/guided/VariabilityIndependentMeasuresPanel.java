@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextBox;
@@ -16,11 +15,14 @@ import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.ListUtilities;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
+import edu.cudenver.bios.glimmpse.client.XMLUtilities;
+import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
+import edu.cudenver.bios.glimmpse.client.listener.VariabilityListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class VariabilityIndependentMeasuresPanel extends WizardStepPanel
-implements OutcomesListener
+implements OutcomesListener, CovariateListener
 {
 	protected static final int COLUMN_LABEL = 0;
 	protected static final int COLUMN_TEXTBOX = 1;
@@ -30,7 +32,9 @@ implements OutcomesListener
 	protected VerticalPanel correlationContainer = new VerticalPanel();
 	protected FlexTable correlationTable = new FlexTable();
 	protected HTML correlationErrorHTML = new HTML();
-
+	protected boolean hasCovariate = false;
+	protected ArrayList<VariabilityListener> listeners = new ArrayList<VariabilityListener>();
+	
 	public VariabilityIndependentMeasuresPanel()
 	{
 		VerticalPanel panel = new VerticalPanel();
@@ -81,7 +85,7 @@ implements OutcomesListener
 					TextBox tb = (TextBox) event.getSource();
 					try
 					{
-						double value = TextValidation.parseDouble(tb.getText(), 0, true);
+						TextValidation.parseDouble(tb.getText(), 0, true);
 						TextValidation.displayOkay(standardDeviationErrorHTML, "");
 					}
 					catch (NumberFormatException e)
@@ -110,7 +114,7 @@ implements OutcomesListener
 						TextBox tb = (TextBox) event.getSource();
 						try
 						{
-							double value = TextValidation.parseDouble(tb.getText(), 0, 1, true);
+							TextValidation.parseDouble(tb.getText(), 0, 1, true);
 							TextValidation.displayOkay(correlationErrorHTML, "");
 						}
 						catch (NumberFormatException e)
@@ -165,37 +169,51 @@ implements OutcomesListener
 	
 	public String toRequestXML()
 	{
-		// calculate the variances from the entered standard deviations
-		int numOutcomes = standardDeviationTable.getRowCount();
-		Double[] variances = new Double[numOutcomes];
-		for(int i = 0; i < numOutcomes; i++)
-		{
-			double value =  Double.parseDouble(((TextBox) standardDeviationTable.getWidget(i,COLUMN_TEXTBOX)).getText());
-			variances[i] = value*value;
-		}
 		StringBuffer buffer = new StringBuffer();
-
-		for(int row = 0; row < numOutcomes; row++)
+		if (complete)
 		{
-			buffer.append("<r>");
-			for(int col = 0; col < numOutcomes; col++)
+			// calculate the variances from the entered standard deviations
+			int numOutcomes = standardDeviationTable.getRowCount();
+			Double[] variances = new Double[numOutcomes];
+			for(int i = 0; i < numOutcomes; i++)
 			{
-				buffer.append("<c>");
-				if (row == col)
-				{
-					buffer.append(variances[row]);
-				}
-				else
-				{
-					// convert the correlation to a covariance and append to the buffer
-					double correlation = 
-						Double.parseDouble(((TextBox) correlationTable.getWidget(row+col-1,COLUMN_TEXTBOX)).getText());
-					double covariance = correlation * Math.sqrt(variances[row]*variances[col]);
-					buffer.append(covariance);
-				}
-				buffer.append("</c>");
+				double value =  Double.parseDouble(((TextBox) standardDeviationTable.getWidget(i,COLUMN_TEXTBOX)).getText());
+				variances[i] = value*value;
 			}
-			buffer.append("</r>");
+
+			if (!hasCovariate)
+			{
+				XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_SIGMA_ERROR, 
+						numOutcomes, numOutcomes);
+			}
+			else
+			{
+				XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_SIGMA_OUTCOME, 
+						numOutcomes, numOutcomes);
+			}
+			for(int row = 0; row < numOutcomes; row++)
+			{
+				XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_ROW);
+				for(int col = 0; col < numOutcomes; col++)
+				{
+					XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_COLUMN);
+					if (row == col)
+					{
+						buffer.append(variances[row]);
+					}
+					else
+					{
+						// convert the correlation to a covariance and append to the buffer
+						double correlation = 
+							Double.parseDouble(((TextBox) correlationTable.getWidget(row+col-1,COLUMN_TEXTBOX)).getText());
+						double covariance = correlation * Math.sqrt(variances[row]*variances[col]);
+						buffer.append(covariance);
+					}
+					XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_COLUMN);
+				}
+				XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ROW);
+			}
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
 		}
 		return buffer.toString();
 	}
@@ -214,4 +232,31 @@ implements OutcomesListener
 
 	}
 
+	@Override
+	public void onHasCovariate(boolean hasCovariate)
+	{
+		this.hasCovariate = hasCovariate;
+	}
+
+	public void addVariabilityListener(VariabilityListener listener)
+	{
+		listeners.add(listener);
+	}
+	
+	public void onExit()
+	{
+		if (complete)
+		{
+			ArrayList<Double> variances = new ArrayList<Double>();
+			// build list of outcome variances
+			for(int row = 0; row < standardDeviationTable.getRowCount(); row++)
+			{
+				double stddev = 
+					Double.parseDouble(((TextBox) standardDeviationTable.getWidget(row,COLUMN_TEXTBOX)).getText());
+				variances.add(stddev * stddev);
+			}
+			// notify listeners
+			for(VariabilityListener listener: listeners) listener.onOutcomeVariance(variances);
+		}
+	}
 }

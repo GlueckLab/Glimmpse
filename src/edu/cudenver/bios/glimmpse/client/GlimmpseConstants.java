@@ -23,6 +23,7 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_STEP_TABLE = "wizardStepTable";
     public static final String STYLE_WIZARD_STEP_TABLE_HEADER = "wizardStepTableHeader";
     public static final String STYLE_WIZARD_STEP_TABLE_ROW = "wizardStepTableRow";
+    public static final String STYLE_WIZARD_CONTENT = "wizardStepContent";
     public static final String STYLE_WIZARD_INDENTED_CONTENT = "wizardStepIndentedContent";
 
     public static final String STYLE_WIZARD_STEP_LIST_PANEL = "wizardStepListPanel";
@@ -56,6 +57,9 @@ public interface GlimmpseConstants extends Constants
     public static final String TAG_FIXED_RANDOM_MATRIX = "fixedRandomMatrix";
     public static final String TAG_BETA_SCALE_LIST = "betaScaleList";
     public static final String TAG_SIGMA_SCALE_LIST = "sigmaScaleList";
+    public static final String TAG_ROW = "r";
+    public static final String TAG_COLUMN = "c";
+    public static final String TAG_VALUE = "v";
     
     public static final String ATTR_MODE = "mode";
     public static final String ATTR_TYPE = "type";
@@ -237,13 +241,13 @@ public interface GlimmpseConstants extends Constants
     public String meanDifferenceMainEffectQuestion();
     public String meanDifferenceInteractionEffectHypothesis();
     public String meanDifferenceInteractionEffectQuestion();
-    public String meanDifferenceScaleQuestion();
-    public String meanDifferenceScaleAnswer();
+    public String meanDifferenceInteractionEffectQuestionMiddle();
     public String meanDifferencePatternTitle();
     public String meanDifferencePatternDescription();
     public String meanDifferenceScaleTitle();
     public String meanDifferenceScaleDescription();
-    public String meanDifferenceTableColumn();
+    public String meanDifferenceScaleQuestion();
+    public String meanDifferenceScaleAnswer();
 
     /* Variability section */
     // intro panel
@@ -261,6 +265,13 @@ public interface GlimmpseConstants extends Constants
     // sigma covariate outcome panel
     public String variabilityCovariateOutcomeTitle();
     public String variabilityCovariateOutcomeDescription();
+    public String variabilityCovariateOutcomeQuestion();
+    // sigma scale panel
+    public String variabilityScaleTitle();
+    public String variabilityScaleDescription();
+    public String variabilityScaleQuestion();
+    public String variabilityScaleAnswer();
+    
     // options panel constants
     public String optionsTitle();
     public String optionsDescription();

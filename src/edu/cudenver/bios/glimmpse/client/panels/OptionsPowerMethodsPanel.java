@@ -178,24 +178,6 @@ implements CovariateListener, ClickHandler
 	}
 
 	/**
-	 * No action required by this panel for onMean callback from CovariateListener
-	 */
-	@Override
-	public void onMean(double mean)
-	{
-		// no action
-	}
-
-	/**
-	 * No action required by this panel for onVariance callback from CovariateListener
-	 */
-	@Override
-	public void onVariance(double variance)
-	{
-		// no action
-	}
-
-	/**
 	 * Create an XML representation of the list of selected power methods
 	 * 
 	 * @return XML representation of the power methods

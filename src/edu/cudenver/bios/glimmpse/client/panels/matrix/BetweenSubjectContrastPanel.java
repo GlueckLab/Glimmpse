@@ -98,20 +98,6 @@ implements MatrixResizeListener, CovariateListener
 		this.hasCovariate = hasCovariate;
 	}
 
-	@Override
-	public void onMean(double mean)
-	{
-		// n/a
-		
-	}
-
-	@Override
-	public void onVariance(double variance)
-	{
-		// n/a
-		
-	}
-
 	public String toXML()
 	{
 		StringBuffer buffer = new StringBuffer();

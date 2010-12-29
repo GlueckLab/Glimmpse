@@ -24,6 +24,22 @@ public class XMLUtilities
 		buffer.append(">");
 	}
 	
+	public static void fixedRandomMatrixOpenTag(StringBuffer buffer, String name, boolean combineHorizontal)
+	{
+		buffer.append("<");
+		buffer.append(GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX);
+		buffer.append(" ");
+		buffer.append(GlimmpseConstants.ATTR_NAME);
+		buffer.append("='");
+		buffer.append(name);
+		buffer.append("' ");
+		buffer.append(GlimmpseConstants.ATTR_COMBINE_HORIZONTAL);
+		buffer.append("='");
+		buffer.append(combineHorizontal);
+		buffer.append("' ");
+		buffer.append(">");
+	}
+	
 	public static void closeTag(StringBuffer buffer, String tagName)
 	{
 		buffer.append("</");

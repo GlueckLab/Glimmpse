@@ -1,5 +1,7 @@
 package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
+import java.util.List;
+
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -15,7 +17,7 @@ import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
 import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
-import edu.cudenver.bios.glimmpse.client.panels.CovariatePanel;
+import edu.cudenver.bios.glimmpse.client.listener.VariabilityListener;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
 import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
@@ -23,7 +25,7 @@ import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class DesignPanel extends WizardStepPanel
-implements MatrixResizeListener, CovariateListener
+implements MatrixResizeListener, CovariateListener, VariabilityListener
 {    	
 	private static final String STYLE_ROWMD_PANEL = "rowMetaDataPanel";
 	private static final String STYLE_ROWMD_DATA = "rowMetaDataPanelData";
@@ -219,4 +221,17 @@ implements MatrixResizeListener, CovariateListener
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void onOutcomeVariance(List<Double> variancesOfOutcomes)
+	{
+		// no action needed for this panel
+	}
+
+	@Override
+	public void onCovariateVariance(double varianceOfCovariate)
+	{
+		this.variance = varianceOfCovariate;
+	}
+
 }

@@ -497,7 +497,7 @@ implements OptionsListener, SolvingForListener
 		showWorkingDialog();
 		//showWorkingDialog();
 		String requestEntityBody = manager.getPowerRequestXML();
-		//Window.alert(requestEntityBody);
+		Window.alert(requestEntityBody);
 		matrixDisplayPanel.loadFromXML(requestEntityBody);
 		RequestBuilder builder = null;
 		switch(solutionType)

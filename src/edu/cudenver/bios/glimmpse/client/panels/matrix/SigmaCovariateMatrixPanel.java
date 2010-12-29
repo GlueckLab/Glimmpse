@@ -9,6 +9,7 @@ import com.google.gwt.xml.client.Node;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
+import edu.cudenver.bios.glimmpse.client.listener.VariabilityListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class SigmaCovariateMatrixPanel extends WizardStepPanel
@@ -17,7 +18,7 @@ implements CovariateListener, MatrixResizeListener
     protected ResizableMatrix sigmaG = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_SIGMA_COVARIATE,
     			1, 1, "0", "&Sigma; G (Covariate)"); 
-    protected ArrayList<CovariateListener> listeners = new ArrayList<CovariateListener>();
+    protected ArrayList<VariabilityListener> listeners = new ArrayList<VariabilityListener>();
     
     public SigmaCovariateMatrixPanel()
     {
@@ -82,21 +83,7 @@ implements CovariateListener, MatrixResizeListener
 		skip = !hasCovariate;
 	}
 
-	@Override
-	public void onMean(double mean)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onVariance(double variance)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-    public void addCovariateListener(CovariateListener listener)
+    public void addVariabilityListener(VariabilityListener listener)
     {
         listeners.add(listener);
     }
@@ -104,6 +91,6 @@ implements CovariateListener, MatrixResizeListener
     @Override 
     public void onExit()
     {
-    	for(CovariateListener listener: listeners) listener.onVariance(sigmaG.getData(0,0));
+    	for(VariabilityListener listener: listeners) listener.onCovariateVariance(sigmaG.getData(0,0));
     }
 }

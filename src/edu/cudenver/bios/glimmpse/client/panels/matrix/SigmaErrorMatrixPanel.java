@@ -81,17 +81,4 @@ implements CovariateListener, MatrixResizeListener
 		skip = hasCovariate;
 	}
 
-	@Override
-	public void onMean(double mean)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onVariance(double variance)
-	{
-		// TODO Auto-generated method stub
-		
-	}
 }

@@ -453,18 +453,6 @@ RelativeGroupSizeListener, CovariateListener
 		this.hasCovariate = hasCovariate;
 	}
 
-	@Override
-	public void onMean(double mean)
-	{
-		// no action needed for this event
-	}
-
-	@Override
-	public void onVariance(double variance)
-	{
-		// no action needed for this event		
-	}
-
 	/**
 	 * Needed for generating main effects contrasts
 	 */

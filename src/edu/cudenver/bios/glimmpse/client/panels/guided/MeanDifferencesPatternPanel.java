@@ -227,16 +227,4 @@ CovariateListener, ClickHandler
 		this.hasCovariate = hasCovariate;
 	}
 
-	@Override
-	public void onMean(double mean)
-	{
-		// no action needed
-	}
-
-	@Override
-	public void onVariance(double variance)
-	{
-		// no action needed
-	}
-
 }

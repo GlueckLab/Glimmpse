@@ -7,6 +7,7 @@ import com.google.gwt.xml.client.Node;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
+import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
 import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
@@ -110,31 +111,17 @@ implements MatrixResizeListener, CovariateListener
 	{
 		betaRandom.setVisible(hasCovariate);		
 	}
-
-	@Override
-	public void onMean(double mean)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onVariance(double variance)
-	{
-		// TODO Auto-generated method stub
-		
-	}
 	
 	public String toXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("<fixedRandomMatrix name='beta' combineHorizontal='false' >");
+		XMLUtilities.fixedRandomMatrixOpenTag(buffer, GlimmpseConstants.MATRIX_BETA, false);
 		buffer.append(betaFixed.toXML(GlimmpseConstants.MATRIX_FIXED));
 		if (betaRandom.isVisible())
 		{
 			buffer.append(betaRandom.toXML(GlimmpseConstants.MATRIX_RANDOM));
 		}
-		buffer.append("</fixedRandomMatrix>");
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX);
 
 		return buffer.toString();
 	}

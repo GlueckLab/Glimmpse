@@ -115,20 +115,6 @@ implements CovariateListener, MatrixResizeListener, ListValidator
 	}
 
 	@Override
-	public void onMean(double mean)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onVariance(double variance)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void onColumns(String name, int newCols)
 	{
 		if (GlimmpseConstants.MATRIX_BETA.equals(name))

@@ -1,43 +1,48 @@
 package edu.cudenver.bios.glimmpse.client.panels.guided;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
+import edu.cudenver.bios.glimmpse.client.XMLUtilities;
+import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.HypothesisListener;
 import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
+import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class MeanDifferencesIndependentMeasuresPanel extends WizardStepPanel
-implements HypothesisListener, ChangeHandler, OutcomesListener
+implements HypothesisListener, ChangeHandler, CovariateListener,
+OutcomesListener, PredictorsListener
 {
 	private static final int COLUMN_LABEL = 0;
 	private static final int COLUMN_TEXTBOX = 1;
     protected VerticalPanel mainEffectContainer = new VerticalPanel();
     protected HTML mainEffectHypothesisHTML = new HTML("");
     protected HTML mainEffectQuestionHTML = new HTML("");
-    protected FlexTable mainEffectOutcomesTable = new FlexTable();
+    protected FlexTable outcomesTable = new FlexTable();
     protected HTML errorHTML = new HTML("");
     protected VerticalPanel interactionEffectContainer = new VerticalPanel();
-    protected HTML interactionEffectPredictorHTML = new HTML("");
-    protected HTML interactionEffectIntPredictorHTML = new HTML("");
-    protected TextBox interactionEffectTextBox = new TextBox();
-    
-    protected VerticalPanel scaleContainer = new VerticalPanel();
-    protected CheckBox scaleCheckBox = new CheckBox();
+    protected HTML interactionEffectHypothesisHTML = new HTML("");
+    protected HTML interactionEffectQuestionHTML = new HTML("");
+
     protected String predictor = null;
     protected String interactionPredictor = null;
+    protected int numOutcomes = 0;
+    protected int numGroups = 0;
+    protected boolean hasCovariate = false;
     
     private class OutcomeTextBox extends TextBox 
     {
@@ -58,34 +63,24 @@ implements HypothesisListener, ChangeHandler, OutcomesListener
         // create the main effect entry form
         mainEffectContainer.add(mainEffectHypothesisHTML);
         mainEffectContainer.add(mainEffectQuestionHTML);
-        mainEffectContainer.add(mainEffectOutcomesTable);
         
         // create the interaction effect entry form
-        interactionEffectContainer.add(new HTML(Glimmpse.constants.meanDifferenceInteractionEffectQuestion()));
-        interactionEffectContainer.add(interactionEffectPredictorHTML);
-        interactionEffectContainer.add(new HTML(" " + Glimmpse.constants.and() + ""));
-        interactionEffectContainer.add(interactionEffectIntPredictorHTML);
-        interactionEffectContainer.add(interactionEffectTextBox);
-        // create the beta scale checkbox - asks if the user wants to test 0.5,1,and 2 times the estimated
-        // mean difference
-        HorizontalPanel checkBoxContainer = new HorizontalPanel();
-        checkBoxContainer.add(scaleCheckBox);
-        checkBoxContainer.add(new HTML(Glimmpse.constants.meanDifferenceScaleAnswer()));
-        scaleContainer.add(new HTML(Glimmpse.constants.meanDifferenceScaleQuestion()));
-        scaleContainer.add(checkBoxContainer);
+        interactionEffectContainer.add(interactionEffectHypothesisHTML);
+        interactionEffectContainer.add(interactionEffectQuestionHTML);
+
         // layout the overall panel
         panel.add(header);
         panel.add(description);
         panel.add(mainEffectContainer);
         panel.add(interactionEffectContainer);
+        panel.add(outcomesTable);
         panel.add(errorHTML);
-        panel.add(scaleContainer);
+
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        mainEffectOutcomesTable.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
-        checkBoxContainer.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
+        outcomesTable.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
         errorHTML.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
         initWidget(panel);
 	}
@@ -93,10 +88,20 @@ implements HypothesisListener, ChangeHandler, OutcomesListener
 	@Override
 	public void reset()
 	{
-		// TODO Auto-generated method stub
-
+		outcomesTable.clear();
+		// TODO
 	}
 
+	public void onEnter()
+	{
+		// clear the outcome text boxes
+		for(int i = 0; i < outcomesTable.getRowCount(); i++)
+		{
+			((TextBox) outcomesTable.getWidget(i, COLUMN_TEXTBOX)).setText("");
+		}
+		TextValidation.displayOkay(errorHTML, "");
+	}
+	
 	@Override
 	public void loadFromNode(Node node)
 	{
@@ -125,20 +130,58 @@ implements HypothesisListener, ChangeHandler, OutcomesListener
 		this.interactionPredictor = interactionPredictor;
 		interactionEffectContainer.setVisible(true);
 		mainEffectContainer.setVisible(false);
-		interactionEffectPredictorHTML.setHTML(predictor);
-		interactionEffectPredictorHTML.setHTML(interactionPredictor);
+		interactionEffectHypothesisHTML.setHTML(Glimmpse.constants.meanDifferenceInteractionEffectHypothesis() +
+				" <u>" + predictor + "</u> " + Glimmpse.constants.and() + " <u>" + interactionPredictor + "</u>");
+		interactionEffectQuestionHTML.setHTML(Glimmpse.constants.meanDifferenceInteractionEffectQuestion() +
+				" <u>" + predictor + "</u> " + Glimmpse.constants.meanDifferenceInteractionEffectQuestionMiddle() + 
+				" <u>" + interactionPredictor + "</u>");
 	}
 	
 	public String toRequestXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		if (interactionPredictor == null)
+		if (!skip && complete)
 		{
+			XMLUtilities.fixedRandomMatrixOpenTag(buffer, GlimmpseConstants.MATRIX_BETA, false);
 
-		}
-		else
-		{
-			
+			int columns = numOutcomes;
+			int rows = numGroups;
+			// main effects hypothesis
+			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_FIXED, rows, columns);
+			for(int row = 0; row < rows; row++)
+			{
+				buffer.append("<r>");
+				for(int col = 0; col < columns; col++)
+				{
+					buffer.append("<c>");
+					if (row == 0)
+					{
+						buffer.append(((TextBox) outcomesTable.getWidget(col, COLUMN_TEXTBOX)).getText());
+					}
+					else
+					{
+						buffer.append(0);
+					}
+					buffer.append("</c>");
+				}
+				buffer.append("</r>");
+			}
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
+
+			if (hasCovariate)
+			{
+				XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_RANDOM, 1, columns);
+				XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_ROW);
+				for(int col = 0; col < columns; col++)
+				{
+					XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_COLUMN);
+					buffer.append(1);
+					XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_COLUMN);
+				}
+				XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ROW);
+				XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
+			}
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX);
 		}
 		return buffer.toString();
 	}
@@ -149,7 +192,7 @@ implements HypothesisListener, ChangeHandler, OutcomesListener
 		TextBox source = (TextBox) event.getSource();
 		try
 		{
-			double value = TextValidation.parseDouble(source.getText(), Double.NEGATIVE_INFINITY, 
+			TextValidation.parseDouble(source.getText(), Double.NEGATIVE_INFINITY, 
 					Double.POSITIVE_INFINITY, false);
 		}
 		catch (NumberFormatException nfe)
@@ -162,36 +205,47 @@ implements HypothesisListener, ChangeHandler, OutcomesListener
 
 	private void checkComplete()
 	{
-		if (interactionPredictor == null)
+		boolean noEmpty = true;
+		for(int i = 0; i < outcomesTable.getRowCount(); i++)
 		{
-			boolean noEmpty = true;
-			for(int i = 0; i < mainEffectOutcomesTable.getRowCount(); i++)
+			String value = ((TextBox) outcomesTable.getWidget(i, COLUMN_TEXTBOX)).getText();
+			if (value == null || value.isEmpty())
 			{
-				String value = ((TextBox) mainEffectOutcomesTable.getWidget(i, COLUMN_TEXTBOX)).getText();
-				if (value == null || value.isEmpty())
-				{
-					noEmpty = false;
-					break;
-				}		
-			}
-			if (noEmpty)
-				notifyComplete();
-			else
-				notifyInProgress();
+				noEmpty = false;
+				break;
+			}		
 		}
+		if (noEmpty)
+			notifyComplete();
+		else
+			notifyInProgress();
 	}
 	
 	@Override
 	public void onOutcomes(List<String> outcomes)
 	{
-		mainEffectOutcomesTable.clear();
+		numOutcomes = outcomes.size();
+		outcomesTable.clear();
 		int i = 0;
 		for(String outcome: outcomes)
 		{
-			mainEffectOutcomesTable.setWidget(i, COLUMN_LABEL, new HTML(outcome));
-			mainEffectOutcomesTable.setWidget(i, COLUMN_TEXTBOX, new OutcomeTextBox(outcome, this));
+			outcomesTable.setWidget(i, COLUMN_LABEL, new HTML(outcome));
+			outcomesTable.setWidget(i, COLUMN_TEXTBOX, new OutcomeTextBox(outcome, this));
 			i++;
 		}
+	}
+
+	@Override
+	public void onPredictors(HashMap<String, ArrayList<String>> predictorMap,
+			DataTable groups)
+	{
+		numGroups = groups.getNumberOfRows();
+	}
+
+	@Override
+	public void onHasCovariate(boolean hasCovariate)
+	{
+		this.hasCovariate = hasCovariate;
 	}	
 
 }

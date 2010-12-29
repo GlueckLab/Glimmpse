@@ -200,9 +200,12 @@ RelativeGroupSizeListener, CovariateListener
 	public String toRequestXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		buildBetweenSubjectContrastXML(buffer);
-		buildWithinSubjectContrastXML(buffer);
-		buildThetaNullMatrixXML(buffer);
+		if (!skip)
+		{
+			buildBetweenSubjectContrastXML(buffer);
+			buildWithinSubjectContrastXML(buffer);
+			buildThetaNullMatrixXML(buffer);
+		}
 		return buffer.toString();
 	}
 	
@@ -451,18 +454,6 @@ RelativeGroupSizeListener, CovariateListener
 	public void onHasCovariate(boolean hasCovariate)
 	{
 		this.hasCovariate = hasCovariate;
-	}
-
-	@Override
-	public void onMean(double mean)
-	{
-		// no action needed for this event
-	}
-
-	@Override
-	public void onVariance(double variance)
-	{
-		// no action needed for this event		
 	}
 
 	/**
