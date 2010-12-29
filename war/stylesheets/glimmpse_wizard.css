@@ -31,11 +31,9 @@
 }
 
 /* style for initial mode selection screen */
-
 .modeSelectionInputContainer {
-	width: 100%;
-	margin-left: 10px;
 	padding: 10px;
+	margin-left:20px;
 	background: #ebf0f5;
 	border: 1px solid #ccc;
 	-moz-border-radius: 5px;
@@ -62,12 +60,6 @@
 	border: 2px solid #ccc;
 }
 
-.modeSelectionPanelContainer .gwt-FileUpload {
-	width: 30px;
-	margin-left: 5px;
-	margin-top: 8px;
-}
-
 .modeSelectionPanelContainerTitle {
 	font-size: larger;
 	text-align: center;
@@ -91,6 +83,12 @@
 	cursor: pointer;
 }
 
+.modeSelectionPanelContainer .gwt-FileUpload {
+	width: 30px;
+	margin-left: 5px;
+	margin-top: 8px;
+}
+
 /* style for main wizard input panel (GWT class) */
 .glimmpseWizardPanel {
 	margin: 5px 5px;
@@ -99,13 +97,10 @@
 	height: 100%;
 }
 
-.wizardLayoutPanel {
-	height: 100%;	
-}
-
 /* Style for "steps left" banner above the input wizard. */
 
 .stepsLeftPanel {
+	width: 120px;
 }
 
 .stepsLeftLabel {
@@ -124,7 +119,7 @@
 .stepsLeftLabel-selected {
 	color: black; 
 	font-weight: bold;
-	background: #fff;/*#E0ECF8;*/
+	background: #fff;
 	border-right: none;
 }
 
@@ -135,13 +130,14 @@
 }
 
 /* style for main wizard input panel (GWT class) */
-.wizardPanel {
-	width: 100%;
+.wizardContentPanel {
+	width: 680px;
 }
 
 /* styles applied to steps in the input wizard */
 .wizardStepPanel {
-	margin-left: 10px;
+	width: 100%;
+	padding-left: 10px;
 }
 
 .wizardStepPanel-subpanel {
@@ -167,31 +163,6 @@
 	margin: 10px 0px;
 }
 
-.wizardStepHelp-subpanel {
-	background: url(../images/info.png) no-repeat 6px 10px;
-	width: 32px;
-	height: 32px;
-}
-
-.wizardStepButton {
-	margin: 5px 5px;
-	height: 26px;
-	width: 134px;
-	border: none;
-	color: #000;
-	background: url(../images/save.png) no-repeat 0px 0px;
-}
-
-.wizardStepButton:hover {
-	border: none;
-	color: #005C84;
-	text-decoration: underline;
-}
-
-.wizardStepTabPanel {
-	width: 90%;	
-}
-
 /* tool buttons */
 .wizardToolsPanel {
 	padding-top: 20px;
@@ -205,10 +176,22 @@
 .wizardToolsPanelButton {
 	font: smaller;
 	padding-top: 5px;
+	padding-left: 20px;
 	border: none;
-	background: #fff;
 	color: #005C84;
 	cursor: pointer;
+}
+
+.wizardToolsPanelButton-save {
+	background: url(../images/save.png) no-repeat 4px 6px;
+}
+
+.wizardToolsPanelButton-cancel {
+	background: url(../images/cancel.png) no-repeat 4px 6px;
+}
+
+.wizardToolsPanelButton-help {
+	background: url(../images/help.png) no-repeat 4px 6px;
 }
 
 .wizardToolsPanelButton:hover {
@@ -246,44 +229,28 @@
 .wizardNavigationPanelButton[disabled]:hover {	
 }
 
-.columnMetaData {
-	width: 75px;
-	margin-top: 10px;
-}
-
-.columnMetaData td {
-	background: #ddd;
-	border: 1px solid #000;
-}
-
-.columnMetaData {
-	border: 0;
-	width: 75px;
-	text-align: center;
-}
-
-.columnMetaDataPopup {
-	border: 10px solid #000;
-	background: white;
-}
-
-.rowMetaDataCell {
-	width: 50px;
-}
-
-.matrixPanel {
-	border: 1px outset
-}
-
-.matrixPanel {
-	border: 1px outset #14f;
+.rowMetaDataPanel {
+	border: 1px solid #ccc;
 	background: #E0ECF8;
+	padding: 5px;
 }
 
-.gwt-PopupPanel {
+.rowMetaDataPanelData {
+	margin-top: 14px;
+	width: 50px;
+	border-collapse: collapse;
+}
+
+.rowMetaDataPanelData td {
 	background: white;
 	border: 1px solid #000;
-	width: 50%;
+	height: 24px;
+}
+
+.matrixPanel {
+	border: 1px solid #ccc;
+	background: #E0ECF8;
+	padding: 5px;
 }
 
 .matrixData {
@@ -360,6 +327,7 @@
 
 .wizardStepTable {
 	border-collapse:collapse;
+	background: #ebf0f5;
 }
 
 .wizardStepTableHeader .gwt-HTML {
@@ -400,36 +368,40 @@
 	background: #fff;
 }
 
-
 .wizardStepListPanel {
-	border: 1px outset #14f;
-	background: #E0ECF8;
+	background: #ebf0f5;
 	width: 80%;
+	border: 1px solid #999;
+	border-collapse: collapse;
 }
 
-.wizardStepList {
-	border-collapse:collapse;
+.wizardStepListPanel .gwt-ListBox {
+	border: none;
+	border-top: 1px solid #999;
 	width: 100%;
-}
-
-.wizardStepList .gwt-HTML {
-	font-weight: bold;
-}
-
-.wizardStepList .gwt-ListBox {
-	width: 100%;
-	border: 1px solid #ccc;	
-}
-
-.wizardStepList .gwt-Button {
-	border: 1px solid #ccc;
-}
-
-.wizardStepListTextBox {
+	padding: 5px;
 }
 
 .wizardStepListHeader {
-	font-weight: bold;
+	padding: 5px;
+	spacing: 5px;
 }
 
+.wizardStepListButton {
+	cursor: pointer;
+	margin-left: 5px;
+}
 
+.gwt-PopupPanel {
+	background: white;
+	border: 1px solid #000;
+	width: 50%;
+}
+
+.wizardStepContent {
+	width: 80%;
+}
+
+.wizardStepIndentedContent {
+	margin-left: 20px;
+}
