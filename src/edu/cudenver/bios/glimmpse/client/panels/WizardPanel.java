@@ -132,9 +132,13 @@ implements NavigationListener, StepStatusListener
 		enterStep();
 		
 		// set up the form for saving study designs
+		VerticalPanel saveFormContainer = new VerticalPanel();
+		saveFormContainer.add(dataHidden);
+		saveFormContainer.add(filenameHidden);
 		saveForm.setAction(SAVEAS_URL);
 		saveForm.setMethod(FormPanel.METHOD_POST);
-		
+		saveForm.add(saveFormContainer);
+
 		// layout the wizard panel
 		//contentPanel.add(toolBar);
 		leftPanel.add(stepsLeftPanel);
@@ -349,7 +353,6 @@ implements NavigationListener, StepStatusListener
     {
     	dataHidden.setValue(data);
     	filenameHidden.setValue(filename);
-    	Window.alert(dataHidden.getValue());
     	saveForm.submit();
     }
 

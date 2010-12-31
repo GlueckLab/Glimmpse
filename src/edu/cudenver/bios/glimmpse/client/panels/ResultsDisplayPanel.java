@@ -15,8 +15,10 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hidden;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.NamedFrame;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -38,17 +40,23 @@ import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
 public class ResultsDisplayPanel extends WizardStepPanel
 implements OptionsListener, SolvingForListener
 {	
+	private static final String STYLE_RESULT_BUTTON = "resultsPanelButton";
+	private static final String STYLE_SEPARATOR = "separator";
 	private static final int STATUS_CODE_OK = 200;
 	private static final int STATUS_CODE_CREATED = 201;
 	private static final String POWER_URL = "/webapps/power/power";
 	private static final String SAMPLE_SIZE_URL = "/webapps/power/samplesize";
-	private static final String EFFECT_SIZE_URL = "/webapps/power/difference";
 	private static final String CURVE_URL = "/webapps/chart/scatter";
+	private static final String LEGEND_URL = "/webapps/chart/legend";
 	private static final String IMAGE_FRAME_NAME_SUFFIX = "PowerCurveFrame";
+	private static final String LEGEND_FRAME_NAME_SUFFIX = "LegendFrame";
 	private static final String STYLE_POWER_CURVE_FRAME = "powerCurveFrame";
 	private static final String CHART_INPUT_NAME = "chart";
 	private static final String SAVE_INPUT_NAME = "save";
-	
+	private static final String FILENAME_INPUT_NAME = "filename";
+	private static final String SAVE_CSV_FILENAME = "powerResults.csv";
+	private static final String SAVE_CURVE_FILENAME = "powerCurve.jpeg";
+	private static final String SAVE_LEGEND_FILENAME = "legend.jpeg";
 	private NumberFormat doubleFormatter = NumberFormat.getFormat("0.0000");
 
 	// wait dialog
@@ -88,12 +96,16 @@ implements OptionsListener, SolvingForListener
 	protected NamedFrame imageFrame;
 	protected FormPanel curveForm;
 	protected Hidden curveEntityBodyHidden = new Hidden(CHART_INPUT_NAME);
+	// frame for curve legend info -see above: name must be unique
+	protected NamedFrame legendFrame;
+	protected FormPanel legendForm;
+	protected Hidden legendEntityBodyHidden = new Hidden(CHART_INPUT_NAME);
 	// this is a separate form for saving an image, since we have to resubmit the request to a 
 	// blank target window
 	protected FormPanel saveForm = new FormPanel("_blank");
 	protected Hidden saveEntityBodyHidden = new Hidden(CHART_INPUT_NAME);
+	protected Hidden saveFilenameHidden = new Hidden(FILENAME_INPUT_NAME);
 	protected Hidden saveHidden = new Hidden(SAVE_INPUT_NAME);
-
 	// options for display of data
 	protected boolean showTable = true;
 	protected boolean showCurve = false;
@@ -125,7 +137,6 @@ implements OptionsListener, SolvingForListener
 		panel.add(errorPanel);
 		panel.add(resultsCurvePanel);
 		panel.add(resultsTablePanel);
-		panel.add(showMatrixPopupButton);
 
 		// set style
 		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -159,42 +170,89 @@ implements OptionsListener, SolvingForListener
     	HTML header = new HTML("Power Curve");
     	HTML description = new HTML("");
 
-		// build the display panels
-		/* WARNING: this named frame must have a unique name or the curve will not display */
+		// build the power curve display
+		/* WARNING: these named frames must have a unique name or the curve will not display */
 		imageFrame = new NamedFrame(manager.getModeName() + IMAGE_FRAME_NAME_SUFFIX);
 		curveForm = new FormPanel(imageFrame);
-		
 		// setup the form for submitting curve requests to the target IFrame
 		curveForm.setAction(CURVE_URL);
 		curveForm.setMethod(FormPanel.METHOD_POST);
-		VerticalPanel formContainer = new VerticalPanel();
-		formContainer.add(curveEntityBodyHidden);
-		curveForm.add(formContainer);
+		VerticalPanel curveFormContainer = new VerticalPanel();
+		curveFormContainer.add(curveEntityBodyHidden);
+		curveForm.add(curveFormContainer);
 		curveForm.addSubmitCompleteHandler(new SubmitCompleteHandler() {
+			@Override
+			public void onSubmitComplete(SubmitCompleteEvent event)
+			{
+				Window.alert("Curve form complete!");
+				legendEntityBodyHidden.setValue(buildCurveRequestXML());
+				
+				legendForm.submit();
+			}
+		});
+		// build the Iframe and form for the legend image (separated since these can become quite large)
+		legendFrame = new NamedFrame(manager.getModeName() + LEGEND_FRAME_NAME_SUFFIX);
+		legendForm = new FormPanel(legendFrame);
+		legendForm.setAction(LEGEND_URL);
+		legendForm.setMethod(FormPanel.METHOD_POST);
+		VerticalPanel legendFormContainer = new VerticalPanel();
+		legendFormContainer.add(legendEntityBodyHidden);
+		legendForm.add(legendFormContainer);
+		legendForm.addSubmitCompleteHandler(new SubmitCompleteHandler() {
 			@Override
 			public void onSubmitComplete(SubmitCompleteEvent event)
 			{
 				hideWorkingDialog();
 			}
 		});
+		// layout the image / legend
+		Grid grid = new Grid(1,2);
+		grid.setWidget(0,0,imageFrame);
+		grid.setWidget(0,1,legendFrame);
+
 		// setup the form for saving curve data - you can't dynamically change a form target,
 		// so we need the separate one for saving
-		saveForm.setAction(CURVE_URL);
 		saveForm.setMethod(FormPanel.METHOD_POST);
 		VerticalPanel saveFormContainer = new VerticalPanel();
-		formContainer.add(saveEntityBodyHidden);
-		formContainer.add(saveHidden);
+		saveFormContainer.add(saveEntityBodyHidden);
+		saveFormContainer.add(saveHidden);
+		saveFormContainer.add(saveFilenameHidden);
 		saveForm.add(saveFormContainer);
     
+		// tools for saving the curve and legend images
+    	HorizontalPanel panel = new HorizontalPanel();
+    	Button saveCurveButton = new Button(Glimmpse.constants.toolsSaveCurve(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				saveCurveData();
+			}
+    	});
+    	Button saveLegendButton = new Button(Glimmpse.constants.toolsSaveLegend(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				saveLegendData();
+			}
+    	});
+    	panel.add(saveCurveButton);
+    	panel.add(saveLegendButton);
+				
     	// layout the sub panel
     	resultsCurvePanel.add(header);
     	resultsCurvePanel.add(description);
-    	resultsCurvePanel.add(imageFrame);
+    	resultsCurvePanel.add(grid);
+    	resultsCurvePanel.add(panel);
     	resultsCurvePanel.add(curveForm);
+    	resultsCurvePanel.add(legendForm);
     	resultsCurvePanel.add(saveForm);		
 		
         // set style
-		//imageFrame.setStyleName(STYLE_POWER_CURVE_FRAME);
+		saveCurveButton.setStyleName(STYLE_RESULT_BUTTON);
+		saveCurveButton.addStyleDependentName(STYLE_SEPARATOR);
+		saveLegendButton.setStyleName(STYLE_RESULT_BUTTON);
+		imageFrame.setStyleName(STYLE_POWER_CURVE_FRAME);
+		legendFrame.setStyleName(STYLE_POWER_CURVE_FRAME);
     	resultsCurvePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
     	resultsCurvePanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
@@ -208,13 +266,33 @@ implements OptionsListener, SolvingForListener
     	HTML header = new HTML("Power Results");
     	HTML description = new HTML("");
     	
+		// tools for saving the results as csv and viewing as a matrix
+    	HorizontalPanel panel = new HorizontalPanel();
+    	Button saveButton = new Button(Glimmpse.constants.toolsSaveCSV(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				saveTableData();
+			}
+    	});
+    	Button viewMatrixButton = new Button(Glimmpse.constants.toolsViewMatrices(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				matrixPopup.center();
+			}
+    	});
+    	panel.add(saveButton);
+    	panel.add(viewMatrixButton);
     	// layout the sub panel
     	resultsTablePanel.add(header);
     	resultsTablePanel.add(description);
     	resultsTablePanel.add(resultsTable);
-		
+    	resultsTablePanel.add(panel);
         // set style
-		imageFrame.setStyleName(STYLE_POWER_CURVE_FRAME);
+		saveButton.setStyleName(STYLE_RESULT_BUTTON);
+		saveButton.addStyleDependentName(STYLE_SEPARATOR);
+		viewMatrixButton.setStyleName(STYLE_RESULT_BUTTON);
 		resultsTablePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
 		resultsTablePanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
@@ -238,6 +316,9 @@ implements OptionsListener, SolvingForListener
 	public void onEnter()
 	{
 		reset();
+		// TODO: REMOVE next 2 lines
+		resultsTablePanel.setVisible(true);
+		resultsCurvePanel.setVisible(true);
 		sendPowerRequest();
 	}
 
@@ -463,9 +544,10 @@ implements OptionsListener, SolvingForListener
 	private void showCurveResults()
 	{
 		// submit the result to the chart service
-		curveEntityBodyHidden.setValue(buildCurveRequestXML());
-		curveForm.submit();
 		resultsCurvePanel.setVisible(true);
+		String xml = buildCurveRequestXML();
+		curveEntityBodyHidden.setValue(xml);
+		curveForm.submit();
 	}
 
 
@@ -627,21 +709,35 @@ implements OptionsListener, SolvingForListener
 		return buffer.toString();
 	}
 	
+	public void saveTableData()
+	{
+		// submit the result to the file service
+		manager.sendSaveRequest(dataTableToCSV(), SAVE_CSV_FILENAME);
+	}
+	
 	public void saveCurveData()
 	{
-		if (showCurve)
-		{
-			// submit the result to the chart service
-			saveEntityBodyHidden.setValue(buildCurveRequestXML());
-			saveHidden.setValue("true");
-			saveForm.submit();
-		}
+		// submit the result to the chart service
+		saveForm.setAction(CURVE_URL);
+		saveEntityBodyHidden.setValue(buildCurveRequestXML());
+		saveFilenameHidden.setValue(SAVE_CURVE_FILENAME);
+		saveHidden.setValue("true");
+		saveForm.submit();
+	}
+	
+	public void saveLegendData()
+	{
+		// submit the result to the chart service
+		saveForm.setAction(LEGEND_URL);
+		saveEntityBodyHidden.setValue(buildCurveRequestXML());
+		saveFilenameHidden.setValue(SAVE_LEGEND_FILENAME);
+		saveHidden.setValue("true");
+		saveForm.submit();
 	}
 
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
-		
+		// nothing to do here. regenerated each time.
 	}
 }
