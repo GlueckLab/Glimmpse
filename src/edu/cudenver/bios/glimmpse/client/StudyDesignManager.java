@@ -6,4 +6,6 @@ public interface StudyDesignManager
 	public String getPowerRequestXML();
 	
 	public String getModeName();
+	
+	public void sendSaveRequest(String data, String filename);
 }

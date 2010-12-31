@@ -128,6 +128,10 @@ public interface GlimmpseConstants extends Constants
     public String toolsSaveStudy();
     public String toolsCancel();
     public String toolsHelp();
+    public String toolsSaveCSV();
+    public String toolsSaveCurve();
+    public String toolsSaveLegend();
+    public String toolsViewMatrices();
     // miscellaneous words
     public String and();
     // left navigation / steps left panel

@@ -273,4 +273,10 @@ implements StudyDesignManager, SaveListener
 	{
 		wizardPanel.sendSaveRequest(getStudyDesignXML(), DEFAULT_STUDY_FILENAME);
 	}
+	
+	@Override
+	public void sendSaveRequest(String data, String filename)
+	{
+		wizardPanel.sendSaveRequest(data, filename);
+	}
 }

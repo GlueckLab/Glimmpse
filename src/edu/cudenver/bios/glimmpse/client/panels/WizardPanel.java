@@ -131,6 +131,10 @@ implements NavigationListener, StepStatusListener
 		navPanel.addNavigationListener(this);
 		enterStep();
 		
+		// set up the form for saving study designs
+		saveForm.setAction(SAVEAS_URL);
+		saveForm.setMethod(FormPanel.METHOD_POST);
+		
 		// layout the wizard panel
 		//contentPanel.add(toolBar);
 		leftPanel.add(stepsLeftPanel);
@@ -139,7 +143,8 @@ implements NavigationListener, StepStatusListener
 		contentPanel.add(navPanel);
 		panel.add(leftPanel);		
 		panel.add(contentPanel);
-
+		panel.add(saveForm);
+		
 		// add style
 		contentPanel.setStyleName(STYLE_CONTENT_PANEL);
 		panel.setStyleName(STYLE_CONTENT_PANEL);
