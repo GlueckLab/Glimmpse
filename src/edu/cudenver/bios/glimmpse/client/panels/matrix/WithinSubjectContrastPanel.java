@@ -33,7 +33,7 @@ implements MatrixResizeListener
         panel.add(withinSubjectMatrix);
 
         // only allow resize of the row dimension of the fixed matrix since this depends on beta
-        withinSubjectMatrix.setEnabledColumnDimension(false);
+        withinSubjectMatrix.setEnabledRowDimension(false);
 
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);

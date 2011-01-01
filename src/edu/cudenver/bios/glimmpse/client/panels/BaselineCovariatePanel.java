@@ -34,6 +34,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -115,8 +116,21 @@ public class BaselineCovariatePanel extends WizardStepPanel
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
-
+		
+		if (GlimmpseConstants.TAG_ESSENCE_MATRIX.equals(node.getNodeName())) 
+		{
+			NodeList children = node.getChildNodes();
+			for(int i = 0; i < children.getLength(); i++)
+			{
+				Node child = children.item(i);
+				if (GlimmpseConstants.TAG_RANDOM_COLUMN_META_DATA.equals(child.getNodeName()))
+				{
+					covariateCheckBox.setValue(true);
+					for(CovariateListener listener : listeners) listener.onHasCovariate(covariateCheckBox.getValue());
+					break;
+				}
+			}
+		}
 	}
 
 }

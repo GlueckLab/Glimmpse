@@ -53,6 +53,7 @@ public interface GlimmpseConstants extends Constants
     public static final String TAG_SAMPLE_SIZE_LIST = "sampleSizeList";
     public static final String TAG_MATRIX = "matrix";
     public static final String TAG_ROW_META_DATA = "rowMetaData";
+    public static final String TAG_RANDOM_COLUMN_META_DATA = "randomColumnMetaData";
     public static final String TAG_ESSENCE_MATRIX = "essenceMatrix";
     public static final String TAG_FIXED_RANDOM_MATRIX = "fixedRandomMatrix";
     public static final String TAG_BETA_SCALE_LIST = "betaScaleList";
@@ -67,7 +68,8 @@ public interface GlimmpseConstants extends Constants
     public static final String ATTR_ROWS = "rows";
     public static final String ATTR_COLUMNS = "columns";
     public static final String ATTR_COMBINE_HORIZONTAL = "combineHorizontal";
-
+    public static final String ATTR_RATIO = "ratio";
+    
     // mode names
     public static final String MODE_MATRIX = "matrix";
     public static final String MODE_GUIDED = "guided";

@@ -79,6 +79,7 @@ implements ListValidator, SolvingForListener
 	public void loadFromNode(Node node)
 	{
 		perGroupNListPanel.loadFromNode(node);
+		onValidRowCount(perGroupNListPanel.getValidRowCount());
 	}
 	
 	public String toXML()

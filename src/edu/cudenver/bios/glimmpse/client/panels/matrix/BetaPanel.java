@@ -2,17 +2,15 @@ package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
-import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
-import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
-import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
-import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class BetaPanel extends WizardStepPanel
@@ -81,7 +79,8 @@ implements MatrixResizeListener, CovariateListener
 		
     public void reset()
     {
-    	betaFixed.reset(); // TODO
+    	betaFixed.reset(GlimmpseConstants.DEFAULT_Q, 
+    			GlimmpseConstants.DEFAULT_P); 
     }
 
 	public void addMatrixResizeListener(MatrixResizeListener listener)
@@ -109,7 +108,7 @@ implements MatrixResizeListener, CovariateListener
 	@Override
 	public void onHasCovariate(boolean hasCovariate)
 	{
-		betaRandom.setVisible(hasCovariate);		
+		this.hasCovariate = hasCovariate;
 	}
 	
 	public String toXML()
@@ -117,7 +116,7 @@ implements MatrixResizeListener, CovariateListener
 		StringBuffer buffer = new StringBuffer();
 		XMLUtilities.fixedRandomMatrixOpenTag(buffer, GlimmpseConstants.MATRIX_BETA, false);
 		buffer.append(betaFixed.toXML(GlimmpseConstants.MATRIX_FIXED));
-		if (betaRandom.isVisible())
+		if (hasCovariate)
 		{
 			buffer.append(betaRandom.toXML(GlimmpseConstants.MATRIX_RANDOM));
 		}
@@ -129,7 +128,26 @@ implements MatrixResizeListener, CovariateListener
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
-		
+		if (GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX.equals(node.getNodeName()))
+		{
+			NodeList children = node.getChildNodes();
+			for(int i = 0; i < children.getLength(); i++)
+			{
+				Node child = children.item(i);
+				String childName = child.getNodeName();
+				if (GlimmpseConstants.TAG_MATRIX.equals(childName))
+				{
+					NamedNodeMap attrs = child.getAttributes();
+					Node nameNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
+					if (nameNode != null)
+					{
+						if (GlimmpseConstants.MATRIX_FIXED.equals(nameNode.getNodeValue()))
+						{
+							betaFixed.loadFromDomNode(child);
+						}
+					}
+				}
+			}
+		}
 	}
 }

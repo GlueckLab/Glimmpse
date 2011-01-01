@@ -19,7 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package edu.cudenver.bios.glimmpse.client.panels;
+package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -29,6 +29,10 @@ import com.google.gwt.xml.client.NodeList;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
+import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
+import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
+import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
+import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 /**
  * Panel for entering type I error values
@@ -39,7 +43,6 @@ import edu.cudenver.bios.glimmpse.client.TextValidation;
 public class AlphaPanel extends WizardStepPanel
 implements ListValidator
 {
-	private static final String TAG_ALPHA_LIST = "alphaList";
     // list of alpha values
     protected ListEntryPanel alphaListPanel = 
     	new ListEntryPanel(Glimmpse.constants.alphaTableColumn() , this);
@@ -78,7 +81,7 @@ implements ListValidator
      */
     public String toXML()
     {
-    	return alphaListPanel.toXML(TAG_ALPHA_LIST);
+    	return alphaListPanel.toXML(GlimmpseConstants.TAG_ALPHA_LIST);
     }
     
     /**
@@ -129,10 +132,10 @@ implements ListValidator
     @Override
     public void loadFromNode(Node node)
     {
-    	if (TAG_ALPHA_LIST.equals(node.getNodeName()))
+    	if (GlimmpseConstants.TAG_ALPHA_LIST.equalsIgnoreCase(node.getNodeName()))
     	{
     		alphaListPanel.loadFromNode(node);
+        	onValidRowCount(alphaListPanel.getValidRowCount());
     	}
-    	onValidRowCount(alphaListPanel.getValidRowCount());
     }
 }

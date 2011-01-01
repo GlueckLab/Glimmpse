@@ -47,6 +47,7 @@ implements ListValidator
 	public void loadFromNode(Node node)
 	{
 		sigmaScaleListPanel.loadFromNode(node);
+		onValidRowCount(sigmaScaleListPanel.getValidRowCount());
 	}
 
 	@Override

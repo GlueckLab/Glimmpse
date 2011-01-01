@@ -42,7 +42,6 @@ implements CovariateListener, MatrixResizeListener
 	@Override
 	public void reset()
 	{
-		// TODO Auto-generated method stub
 		sigmaError.reset(GlimmpseConstants.DEFAULT_P, 
     			GlimmpseConstants.DEFAULT_P);
 	}

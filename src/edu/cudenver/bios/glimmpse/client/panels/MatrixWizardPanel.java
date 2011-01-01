@@ -21,9 +21,11 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 
@@ -33,6 +35,7 @@ import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
 import edu.cudenver.bios.glimmpse.client.panels.guided.PerGroupSampleSizePanel;
+import edu.cudenver.bios.glimmpse.client.panels.matrix.AlphaPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.BetaPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.BetaScalePanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.BetweenSubjectContrastPanel;
@@ -94,7 +97,8 @@ implements StudyDesignManager, SaveListener
 			{betaPanel, betaScalePanel},
 			{betweenContrastPanel, withinContrastPanel},
 			{thetaPanel},
-			{sigmaErrorPanel, sigmaOutcomesPanel, sigmaOutcomeCovariatePanel, sigmaCovariatePanel, sigmaScalePanel},
+			{sigmaErrorPanel, sigmaOutcomesPanel, sigmaOutcomeCovariatePanel, 
+				sigmaCovariatePanel, sigmaScalePanel},
 			{optionsTestsPanel, optionsPowerMethodsPanel, optionsDisplayPanel},
 			{resultsPanel}
 	};
@@ -131,6 +135,7 @@ implements StudyDesignManager, SaveListener
 		solvingForPanel.addSolvingForListener(powerPanel);
 		solvingForPanel.addSolvingForListener(betaScalePanel);
 		solvingForPanel.addSolvingForListener(resultsPanel);
+		solvingForPanel.addSolvingForListener(perGroupSampleSizePanel);
 		designPanel.addMatrixResizeListener(betaPanel);
 		designPanel.addMatrixResizeListener(betweenContrastPanel);
 		covariatePanel.addCovariateListener(designPanel);
@@ -170,18 +175,65 @@ implements StudyDesignManager, SaveListener
 			{
 				Node child = children.item(i);
 				String childName = child.getNodeName();
-				if (GlimmpseConstants.TAG_SOLVING_FOR.equals(childName))
+				Window.alert(childName);
+				if (GlimmpseConstants.TAG_SOLVING_FOR.equalsIgnoreCase(childName))
 					solvingForPanel.loadFromNode(child);
-				else if (GlimmpseConstants.TAG_ALPHA_LIST.equals(childName))
+				else if (GlimmpseConstants.TAG_ALPHA_LIST.equalsIgnoreCase(childName))
 					alphaPanel.loadFromNode(child);
-				else if (GlimmpseConstants.TAG_TEST_LIST.equals(childName))
+				else if (GlimmpseConstants.TAG_TEST_LIST.equalsIgnoreCase(childName))
 					optionsTestsPanel.loadFromNode(child);
-				else if (GlimmpseConstants.TAG_QUANTILE_LIST.equals(childName))
+				else if (GlimmpseConstants.TAG_QUANTILE_LIST.equalsIgnoreCase(childName))
 					optionsPowerMethodsPanel.loadFromNode(child);
-					
+				else if (GlimmpseConstants.TAG_POWER_LIST.equalsIgnoreCase(childName))
+					powerPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_POWER_METHOD_LIST.equalsIgnoreCase(childName))
+					optionsPowerMethodsPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_SAMPLE_SIZE_LIST.equalsIgnoreCase(childName))
+					perGroupSampleSizePanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_BETA_SCALE_LIST.equalsIgnoreCase(childName))
+					betaScalePanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_SIGMA_SCALE_LIST.equalsIgnoreCase(childName))
+					sigmaScalePanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_ESSENCE_MATRIX.equalsIgnoreCase(childName))
+					designPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX.equalsIgnoreCase(childName))
+				{
+					NamedNodeMap attrs = child.getAttributes();
+					Node nameNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
+					if (nameNode != null)
+					{
+						String name = nameNode.getNodeValue();
+						Window.alert(name);
+						if (GlimmpseConstants.MATRIX_BETA.equalsIgnoreCase(name))
+							betaPanel.loadFromNode(child);
+						else if (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST.equalsIgnoreCase(name))
+							betweenContrastPanel.loadFromNode(child);
+					}
+				}
+				else if (GlimmpseConstants.TAG_MATRIX.equalsIgnoreCase(childName))
+				{
+					NamedNodeMap attrs = child.getAttributes();
+					Node nameNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
+					if (nameNode != null)
+					{
+						String name = nameNode.getNodeValue();
+						Window.alert("matrix = " + name);
+						if (GlimmpseConstants.MATRIX_WITHIN_CONTRAST.equalsIgnoreCase(name))
+							withinContrastPanel.loadFromNode(child);
+						else if (GlimmpseConstants.MATRIX_SIGMA_ERROR.equalsIgnoreCase(name))
+							sigmaErrorPanel.loadFromNode(child);
+						else if (GlimmpseConstants.MATRIX_SIGMA_OUTCOME.equalsIgnoreCase(name))
+							sigmaOutcomesPanel.loadFromNode(child);
+						else if (GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE.equalsIgnoreCase(name))
+							sigmaOutcomeCovariatePanel.loadFromNode(child);
+						else if (GlimmpseConstants.MATRIX_SIGMA_COVARIATE.equalsIgnoreCase(name))
+							sigmaCovariatePanel.loadFromNode(child);
+						else if (GlimmpseConstants.MATRIX_THETA.equalsIgnoreCase(name))
+							thetaPanel.loadFromNode(child);
+					}
+				}
 			}
 		}
-		
 	}
     
     public void reset()
@@ -235,6 +287,7 @@ implements StudyDesignManager, SaveListener
 		buffer.append(getModeName());
 		buffer.append("'>");
 
+		buffer.append(solvingForPanel.toStudyXML());
 		buffer.append(alphaPanel.toXML());
 		buffer.append(betaScalePanel.toXML());
 		buffer.append(powerPanel.toRequestXML());

@@ -2,7 +2,9 @@ package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -55,7 +57,27 @@ implements MatrixResizeListener, CovariateListener
 	@Override
 	public void loadFromNode(Node node)
 	{
-		betweenSubjectFixed.loadFromDomNode(node);
+		if (GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX.equals(node.getNodeName()))
+		{
+			NodeList children = node.getChildNodes();
+			for(int i = 0; i < children.getLength(); i++)
+			{
+				Node child = children.item(i);
+				String childName = child.getNodeName();
+				if (GlimmpseConstants.TAG_MATRIX.equals(childName))
+				{
+					NamedNodeMap attrs = child.getAttributes();
+					Node nameNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
+					if (nameNode != null)
+					{
+						if (GlimmpseConstants.MATRIX_FIXED.equals(nameNode.getNodeValue()))
+						{
+							betweenSubjectFixed.loadFromDomNode(child);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@Override

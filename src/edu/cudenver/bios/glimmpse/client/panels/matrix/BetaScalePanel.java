@@ -47,6 +47,7 @@ implements ListValidator, SolvingForListener
 	public void loadFromNode(Node node)
 	{
 		betaScaleListPanel.loadFromNode(node);
+		onValidRowCount(betaScaleListPanel.getValidRowCount());
 	}
 
 	@Override

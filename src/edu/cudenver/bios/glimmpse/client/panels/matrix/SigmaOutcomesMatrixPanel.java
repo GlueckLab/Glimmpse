@@ -42,13 +42,13 @@ implements CovariateListener, MatrixResizeListener
 	@Override
 	public void reset()
 	{
-		// TODO Auto-generated method stub
+		sigmaY.reset(GlimmpseConstants.DEFAULT_P, 
+    			GlimmpseConstants.DEFAULT_P);
 	}
 
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
 		sigmaY.loadFromDomNode(node);
 	}
 

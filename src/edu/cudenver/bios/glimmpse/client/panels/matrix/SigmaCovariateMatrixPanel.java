@@ -45,8 +45,7 @@ implements CovariateListener, MatrixResizeListener
 	@Override
 	public void reset()
 	{
-		// TODO Auto-generated method stub
-
+		sigmaG.reset(1, 1);
 	}
 
 	@Override

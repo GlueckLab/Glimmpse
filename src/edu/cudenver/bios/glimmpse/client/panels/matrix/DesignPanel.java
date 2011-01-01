@@ -2,13 +2,15 @@ package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
 import java.util.List;
 
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.HasVerticalAlignment.VerticalAlignmentConstant;
+import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -16,12 +18,7 @@ import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
-import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
 import edu.cudenver.bios.glimmpse.client.listener.VariabilityListener;
-import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
-import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
-import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
-import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class DesignPanel extends WizardStepPanel
@@ -33,7 +30,7 @@ implements MatrixResizeListener, CovariateListener, VariabilityListener
     protected ResizableMatrix essenceFixed = new ResizableMatrix(GlimmpseConstants.MATRIX_DESIGN_FIXED,
 			GlimmpseConstants.DEFAULT_N, 
 			GlimmpseConstants.DEFAULT_Q, "0", Glimmpse.constants.matrixCategoricalEffectsLabel());
-   	protected Grid rowMDGrid;
+   	protected FlexTable rowMDTable;
     
    	boolean hasCovariate = false;
    	double mean = 0;
@@ -68,7 +65,7 @@ implements MatrixResizeListener, CovariateListener, VariabilityListener
 	 * 
 	 * @return listbox widget
 	 */
-    private ListBox createRowMDTextBox()
+    private ListBox createRowMDListBox()
     {
     	ListBox list = new ListBox();
     	list.setStyleName(GlimmpseConstants.STYLE_MATRIX_CELL);
@@ -86,12 +83,12 @@ implements MatrixResizeListener, CovariateListener, VariabilityListener
     	// build the row meta data panel
     	VerticalPanel rowMDPanel = new VerticalPanel();
     	rowMDPanel.add(new HTML(Glimmpse.constants.relativeGroupSizeTableColumn()));
-    	rowMDGrid = new Grid(GlimmpseConstants.DEFAULT_N, 1);
+    	rowMDTable = new FlexTable();
     	for(int r = 0; r < GlimmpseConstants.DEFAULT_N; r++)
     	{
-    		rowMDGrid.setWidget(r, 0, createRowMDTextBox());
+    		rowMDTable.setWidget(r, 0, createRowMDListBox());
     	}
-    	rowMDPanel.add(rowMDGrid);
+    	rowMDPanel.add(rowMDTable);
     	// layout the matrices and row meta data
     	Grid layoutGrid = new Grid(1,2);
     	layoutGrid.setWidget(0, 0, rowMDPanel);
@@ -107,46 +104,48 @@ implements MatrixResizeListener, CovariateListener, VariabilityListener
     	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
     	panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
     	rowMDPanel.setStyleName(STYLE_ROWMD_PANEL);
-    	rowMDGrid.setStyleName(STYLE_ROWMD_DATA);
+    	rowMDTable.setStyleName(STYLE_ROWMD_DATA);
     	return panel;
     }
     
 	public void reset()
 	{
-		// TODO
+		essenceFixed.reset(GlimmpseConstants.DEFAULT_N, GlimmpseConstants.DEFAULT_Q);
+		rowMDTable.removeAllRows();
+    	for(int r = 0; r < GlimmpseConstants.DEFAULT_N; r++)
+    	{
+    		rowMDTable.setWidget(r, 0, createRowMDListBox());
+    	}
 	}
 	
+	@Override
     public void onHasCovariate(boolean hasCovariate) 
     {
     	this.hasCovariate = hasCovariate;
     }
     
-    public void onMean(double mean) 
-    {
-    	this.mean = mean;
-    }
-    
-    public void onVariance(double variance) 
-    {
-    	this.variance = variance;
-    }
-    
 	public void onRows(String name, int newRows) 
 	{
-		int currentRows = rowMDGrid.getRowCount();
-		if (currentRows != newRows)
+		int currentRows = rowMDTable.getRowCount();
+		if (currentRows < newRows)
 		{
-			rowMDGrid.resizeRows(newRows);
 			for(int r = currentRows; r < newRows; r++)
 			{
-				rowMDGrid.setWidget(r, 0, createRowMDTextBox());
+				rowMDTable.setWidget(r, 0, createRowMDListBox());
+			}
+		}
+		else if (currentRows > newRows)
+		{
+			for(int r = currentRows-1; r >= newRows; r--)
+			{
+				rowMDTable.removeRow(r);
 			}
 		}
 	}
 	
 	public void onColumns(String name, int newCols) 
 	{
-		
+		// no action needed
 	}
 	
 	public void validate(String value) throws IllegalArgumentException
@@ -179,25 +178,26 @@ implements MatrixResizeListener, CovariateListener, VariabilityListener
 	{
 		StringBuffer buffer = new StringBuffer();
 		
-		buffer.append("<essenceMatrix>");
+		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_ESSENCE_MATRIX);
 		// list row meta data
-		buffer.append("<rowMetaData>");
-		for(int r = 0; r < rowMDGrid.getRowCount(); r++)
+		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_ROW_META_DATA);
+		for(int r = 0; r < rowMDTable.getRowCount(); r++)
 		{
-			ListBox lb = (ListBox) rowMDGrid.getWidget(r, 0);
+			ListBox lb = (ListBox) rowMDTable.getWidget(r, 0);
 			buffer.append("<r ratio='" + lb.getItemText(lb.getSelectedIndex()) + "' />");
 		}
-		buffer.append("</rowMetaData>");
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ROW_META_DATA);
 		// if controlling for a covariate, add meta info for the random column
 		if (hasCovariate)
 		{
 			// list random column meta data
-			buffer.append("<randomColumnMetaData>");
+			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_RANDOM_COLUMN_META_DATA);
 			buffer.append("<c mean='");
 			buffer.append(mean);
 			buffer.append("' variance='");
 			buffer.append(variance);
-			buffer.append("'></c></randomColumnMetaData>");
+			buffer.append("'></c>");
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_RANDOM_COLUMN_META_DATA);
 		}
 		// add fixed effects matrix
 		buffer.append(essenceFixed.toXML(GlimmpseConstants.MATRIX_FIXED));
@@ -218,10 +218,79 @@ implements MatrixResizeListener, CovariateListener, VariabilityListener
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
-		
+		if (GlimmpseConstants.TAG_ESSENCE_MATRIX.equals(node.getNodeName()))
+		{
+			NodeList children = node.getChildNodes();
+			for(int i = 0; i < children.getLength(); i++)
+			{
+				Node child = children.item(i);
+				String childName = child.getNodeName();
+				if (GlimmpseConstants.TAG_MATRIX.equals(childName))
+				{
+					NamedNodeMap attrs = child.getAttributes();
+					Node nameNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
+					if (nameNode != null)
+					{
+						if (GlimmpseConstants.MATRIX_FIXED.equals(nameNode.getNodeValue()))
+						{
+							essenceFixed.loadFromDomNode(child);
+						}
+					}
+				}
+				else if (GlimmpseConstants.TAG_ROW_META_DATA.equals(childName))
+				{
+					loadRowMetaDataFromNode(child);
+				}
+			}
+			// double check that the size of the row meta data equals the #rows in the fixed matrix
+			// if a discrepancy occurs, we adjust the size of the row meta data
+			int matrixRows = essenceFixed.getRowDimension();
+			int metaDataRows = rowMDTable.getRowCount();
+			if (matrixRows > metaDataRows)
+			{
+				for(int row = metaDataRows; row < matrixRows; row++)
+				{
+					rowMDTable.setWidget(row, 0, createRowMDListBox());
+				}
+			}
+			else if (matrixRows < metaDataRows)
+			{
+				for(int row = metaDataRows-1; row >= matrixRows; row--)
+				{
+					rowMDTable.removeRow(row);
+				}
+			}
+		}
 	}
 
+	public void loadRowMetaDataFromNode(Node node)
+	{
+		reset();
+		NodeList children = node.getChildNodes();
+		for(int i = 0; i < children.getLength(); i++)
+		{
+			Node child = children.item(i);
+			NamedNodeMap attrs = child.getAttributes();
+			Node ratioNode = attrs.getNamedItem(GlimmpseConstants.ATTR_RATIO);
+			ListBox tb = createRowMDListBox();
+			if (ratioNode != null)
+			{
+				try
+				{
+					int value = Integer.parseInt(ratioNode.getNodeValue());
+					if (value >= 1 || value <= MAX_RATIO) tb.setSelectedIndex(value-1);
+				}
+				catch (NumberFormatException nfe) 
+				{ 
+					// catch, but no action needed for this exception
+				}
+				
+			}
+			rowMDTable.setWidget(i, 0, tb);
+		}
+	
+	}
+	
 	@Override
 	public void onOutcomeVariance(List<Double> variancesOfOutcomes)
 	{

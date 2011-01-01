@@ -63,6 +63,7 @@ public class ResizableMatrix extends Composite
 	protected HTML errorHTML = new HTML();
 	protected ArrayList<MatrixResizeListener> resizeListeners = new ArrayList<MatrixResizeListener>();
 	protected String name = null;
+	
 	public ResizableMatrix(String name, int rows, int cols, String defaultValue, String title) 
 	{	
 		

@@ -42,7 +42,8 @@ implements MatrixResizeListener
 	
 	public void reset()
 	{
-		
+		theta.reset(GlimmpseConstants.DEFAULT_A, 
+    			GlimmpseConstants.DEFAULT_B);
 	}
 	
 	@Override
@@ -76,7 +77,6 @@ implements MatrixResizeListener
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
-		
+		theta.loadFromDomNode(node);
 	}
 }
