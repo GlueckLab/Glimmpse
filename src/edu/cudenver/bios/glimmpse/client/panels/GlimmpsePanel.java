@@ -110,14 +110,13 @@ implements ModeSelectionListener, CancelListener
         {
         	try
         	{
-        		// for debug only - removes
-        		uploadedStudy = uploadedStudy.replaceFirst("<pre>", "");
-        		uploadedStudy = uploadedStudy.replaceFirst("</pre>", "");
-        		uploadedStudy = uploadedStudy.replaceAll("&lt;", "<");
-        		uploadedStudy = uploadedStudy.replaceAll("&gt;", ">");
-        		Window.alert("["+uploadedStudy+"]");
-        		// TODO: REMOVE TO HERE
-
+//        		// for debug only - removes crap GWT wraps on ajax requests
+//        		Window.alert("before ["+uploadedStudy+"]");
+//        		uploadedStudy = uploadedStudy.replaceFirst("<pre>", "");
+//        		uploadedStudy = uploadedStudy.replaceFirst("</pre>", "");
+//        		uploadedStudy = uploadedStudy.replaceAll("&lt;", "<");
+//        		uploadedStudy = uploadedStudy.replaceAll("&gt;", ">");
+//        		Window.alert("after ["+uploadedStudy+"]");
         		
            		Document doc = XMLParser.parse(uploadedStudy);
         		Node studyNode = doc.getElementsByTagName(GlimmpseConstants.TAG_STUDY).item(0);

@@ -184,7 +184,7 @@ implements MatrixResizeListener, CovariateListener, VariabilityListener
 		for(int r = 0; r < rowMDTable.getRowCount(); r++)
 		{
 			ListBox lb = (ListBox) rowMDTable.getWidget(r, 0);
-			buffer.append("<r ratio='" + lb.getItemText(lb.getSelectedIndex()) + "' />");
+			buffer.append("<r ratio='" + lb.getItemText(lb.getSelectedIndex()) + "'></r>");
 		}
 		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ROW_META_DATA);
 		// if controlling for a covariate, add meta info for the random column
@@ -211,21 +211,21 @@ implements MatrixResizeListener, CovariateListener, VariabilityListener
 		// if the user is controlling for a baseline covariate, add the random meta data
 		// and random effects matrix to the output
 
-		buffer.append("</essenceMatrix>");
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ESSENCE_MATRIX);
 		return buffer.toString();
 	}
 
 	@Override
 	public void loadFromNode(Node node)
 	{
-		if (GlimmpseConstants.TAG_ESSENCE_MATRIX.equals(node.getNodeName()))
+		if (GlimmpseConstants.TAG_ESSENCE_MATRIX.equalsIgnoreCase(node.getNodeName()))
 		{
 			NodeList children = node.getChildNodes();
 			for(int i = 0; i < children.getLength(); i++)
 			{
 				Node child = children.item(i);
 				String childName = child.getNodeName();
-				if (GlimmpseConstants.TAG_MATRIX.equals(childName))
+				if (GlimmpseConstants.TAG_MATRIX.equalsIgnoreCase(childName))
 				{
 					NamedNodeMap attrs = child.getAttributes();
 					Node nameNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
@@ -237,7 +237,7 @@ implements MatrixResizeListener, CovariateListener, VariabilityListener
 						}
 					}
 				}
-				else if (GlimmpseConstants.TAG_ROW_META_DATA.equals(childName))
+				else if (GlimmpseConstants.TAG_ROW_META_DATA.equalsIgnoreCase(childName))
 				{
 					loadRowMetaDataFromNode(child);
 				}

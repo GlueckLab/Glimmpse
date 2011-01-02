@@ -21,7 +21,6 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
@@ -175,7 +174,6 @@ implements StudyDesignManager, SaveListener
 			{
 				Node child = children.item(i);
 				String childName = child.getNodeName();
-				Window.alert(childName);
 				if (GlimmpseConstants.TAG_SOLVING_FOR.equalsIgnoreCase(childName))
 					solvingForPanel.loadFromNode(child);
 				else if (GlimmpseConstants.TAG_ALPHA_LIST.equalsIgnoreCase(childName))
@@ -203,7 +201,6 @@ implements StudyDesignManager, SaveListener
 					if (nameNode != null)
 					{
 						String name = nameNode.getNodeValue();
-						Window.alert(name);
 						if (GlimmpseConstants.MATRIX_BETA.equalsIgnoreCase(name))
 							betaPanel.loadFromNode(child);
 						else if (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST.equalsIgnoreCase(name))
@@ -217,7 +214,6 @@ implements StudyDesignManager, SaveListener
 					if (nameNode != null)
 					{
 						String name = nameNode.getNodeValue();
-						Window.alert("matrix = " + name);
 						if (GlimmpseConstants.MATRIX_WITHIN_CONTRAST.equalsIgnoreCase(name))
 							withinContrastPanel.loadFromNode(child);
 						else if (GlimmpseConstants.MATRIX_SIGMA_ERROR.equalsIgnoreCase(name))
