@@ -231,8 +231,8 @@
 
 .rowMetaDataPanel {
 	border: 1px solid #ccc;
-	background: #E0ECF8;
-	padding: 5px;
+	background: #ebf0f5;
+	width: 75px;
 }
 
 .rowMetaDataPanelData {
@@ -249,8 +249,8 @@
 
 .matrixPanel {
 	border: 1px solid #ccc;
-	background: #E0ECF8;
-	padding: 5px;
+	background: #ebf0f5;
+	margin-left: 5px;
 }
 
 .matrixData {
@@ -405,3 +405,17 @@
 .wizardStepIndentedContent {
 	margin-left: 20px;
 }
+
+.resultsPanelButton {
+	margin-top: 5px;
+	font: smaller;
+	border: none;
+	color: #005C84;
+	cursor: pointer;
+	background: white;
+}
+
+.resultsPanelButton-separator {
+	border-right: 1px solid #ccc;
+}
+
