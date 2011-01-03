@@ -365,6 +365,7 @@ public interface GlimmpseConstants extends Constants
     public String errorInvalidAlpha();
     public String errorInvalidMean();
     public String errorInvalidStandardDeviation();
+    public String errorInvalidSampleSize();
     public String errorInvalidQuantile();
     public String errorInvalidPower();
     public String errorInvalidNumber();

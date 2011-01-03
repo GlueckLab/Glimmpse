@@ -1,5 +1,6 @@
 package edu.cudenver.bios.glimmpse.client.panels;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Grid;
@@ -11,6 +12,7 @@ import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
+import com.google.gwt.xml.client.impl.DOMParseException;
 
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 
@@ -33,45 +35,52 @@ public class MatrixDisplayPanel extends Composite
 	
 	public void loadFromXML(String matrixXML)
 	{
-		Document doc = XMLParser.parse(matrixXML);
-		
-		int row = 0;
-		
-		Node paramsNode = doc.getFirstChild();
-		if (paramsNode != null)
+		try
 		{
-			NodeList children = paramsNode.getChildNodes();
-			for(int i = 0; i < children.getLength(); i++)
-			{
-				Node child = children.item(i);
-				if (GlimmpseConstants.TAG_ESSENCE_MATRIX.equals(child.getNodeName()))
-				{
-					tableOfMatrices.setWidget(row, 0, new HTML("X \"Essence\""));
-					tableOfMatrices.setWidget(row++, 1, buildFixedRandomMatrixGrid(child, "*"));
-				}
-				else if (GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX.equals(child.getNodeName()))
-				{
-					// TODO: matrix names
-					NamedNodeMap attrs = child.getAttributes();
-					Node nameNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
-					tableOfMatrices.setWidget(row, 0, new HTML(nameNode.getNodeValue()));
-					tableOfMatrices.setWidget(row++, 1, buildFixedRandomMatrixGrid(child, "1"));
-				}
-				else if (GlimmpseConstants.TAG_MATRIX.equals(child.getNodeName()))
-				{
-					NamedNodeMap attrs = child.getAttributes();
-					Node nameNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
-					if (nameNode != null)
-					{
-						tableOfMatrices.setWidget(row, 0, new HTML(nameNode.getNodeValue()));
-					}
+			Document doc = XMLParser.parse(matrixXML);
 
-					FlexTable table = new FlexTable();
-					table.setBorderWidth(1);
-					addMatrixData(child, table, 0, 0);
-					tableOfMatrices.setWidget(row++, 1, table);
+			int row = 0;
+
+			Node paramsNode = doc.getFirstChild();
+			if (paramsNode != null)
+			{
+				NodeList children = paramsNode.getChildNodes();
+				for(int i = 0; i < children.getLength(); i++)
+				{
+					Node child = children.item(i);
+					if (GlimmpseConstants.TAG_ESSENCE_MATRIX.equals(child.getNodeName()))
+					{
+						tableOfMatrices.setWidget(row, 0, new HTML("X \"Essence\""));
+						tableOfMatrices.setWidget(row++, 1, buildFixedRandomMatrixGrid(child, "*"));
+					}
+					else if (GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX.equals(child.getNodeName()))
+					{
+						// TODO: matrix names
+						NamedNodeMap attrs = child.getAttributes();
+						Node nameNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
+						tableOfMatrices.setWidget(row, 0, new HTML(nameNode.getNodeValue()));
+						tableOfMatrices.setWidget(row++, 1, buildFixedRandomMatrixGrid(child, "1"));
+					}
+					else if (GlimmpseConstants.TAG_MATRIX.equals(child.getNodeName()))
+					{
+						NamedNodeMap attrs = child.getAttributes();
+						Node nameNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
+						if (nameNode != null)
+						{
+							tableOfMatrices.setWidget(row, 0, new HTML(nameNode.getNodeValue()));
+						}
+
+						FlexTable table = new FlexTable();
+						table.setBorderWidth(1);
+						addMatrixData(child, table, 0, 0);
+						tableOfMatrices.setWidget(row++, 1, table);
+					}
 				}
 			}
+		}
+		catch (DOMParseException e)
+		{
+			Window.alert(e.getMessage());
 		}
 	}
 	

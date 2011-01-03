@@ -576,9 +576,9 @@ implements OptionsListener, SolvingForListener
 
 	private void sendPowerRequest()
 	{
-		showWorkingDialog();
 		//showWorkingDialog();
 		String requestEntityBody = manager.getPowerRequestXML();
+		Window.alert(requestEntityBody);
 		matrixDisplayPanel.loadFromXML(requestEntityBody);
 		RequestBuilder builder = null;
 		switch(solutionType)

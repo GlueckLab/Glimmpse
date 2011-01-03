@@ -231,6 +231,7 @@ public class ListEntryPanel extends Composite
     public void reset()
     {
     	listBox.clear();
+    	TextValidation.displayOkay(errorHTML, "");
     }
     
     public void setMaxRows(int maxRows)

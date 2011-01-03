@@ -144,7 +144,7 @@ implements PredictorsListener, VariabilityListener, CovariateListener
 		for(int row = 1; row <= size; row++)
 		{
 			ListBox lb = (ListBox) groupSizesTable.getWidget(row, 0);
-			if (lb != null) buffer.append("<r ratio='" + lb.getItemText(lb.getSelectedIndex()) + "'><r/>");
+			if (lb != null) buffer.append("<r ratio='" + lb.getItemText(lb.getSelectedIndex()) + "'></r>");
 		}
 
 		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ROW_META_DATA);

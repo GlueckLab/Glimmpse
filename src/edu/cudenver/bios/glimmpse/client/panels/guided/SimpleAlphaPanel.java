@@ -99,15 +99,15 @@ implements ListValidator, ClickHandler
     	XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_ALPHA_LIST);
     	if (alpha05CheckBox.getValue())
     	{
-        	buffer.append("<c>0.05</c>");
+        	buffer.append("<v>0.05</v>");
     	}
     	else if (alpha01CheckBox.getValue())
     	{
-        	buffer.append("<c>0.01</c>");
+        	buffer.append("<v>0.01</v>");
     	}
     	else if (alpha10CheckBox.getValue())
     	{
-        	buffer.append("<c>0.10</c>");
+        	buffer.append("<v>0.10</v>");
     	}
     	XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ALPHA_LIST);
     	return buffer.toString();

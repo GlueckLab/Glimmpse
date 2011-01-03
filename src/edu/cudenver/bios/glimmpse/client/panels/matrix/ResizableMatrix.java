@@ -141,7 +141,7 @@ public class ResizableMatrix extends Composite
 		matrixPanel.setStyleName(GlimmpseConstants.STYLE_MATRIX_PANEL);
 		matrixDimensions.setStyleName(GlimmpseConstants.STYLE_MATRIX_DIMENSION);
 		matrixData.setStyleName(GlimmpseConstants.STYLE_MATRIX_DATA);
-		
+        errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
 		// initialize the widget
 		initWidget(matrixPanel);
 	}
@@ -241,7 +241,30 @@ public class ResizableMatrix extends Composite
 		textBox.setValue(value);
 		textBox.setStyleName(GlimmpseConstants.STYLE_MATRIX_CELL);
 		textBox.setEnabled(enabled);
+		textBox.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent event)
+			{
+				TextBox source = (TextBox) event.getSource();
+				try
+				{
+					TextValidation.parseDouble(source.getText(), Double.NEGATIVE_INFINITY, 
+							Double.POSITIVE_INFINITY, false);
+					TextValidation.displayOkay(errorHTML, "");
+				}
+				catch (NumberFormatException nfe)
+				{
+					TextValidation.displayError(errorHTML, Glimmpse.constants.errorInvalidNumber());
+					source.setText(getDefaultValue());
+				}
+			}
+		});
 		matrixData.setWidget(row, col, textBox);
+	}
+	
+	private String getDefaultValue()
+	{
+		return this.defaultValue;
 	}
 	
 	public double getData(int row, int col)

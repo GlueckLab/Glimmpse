@@ -58,7 +58,7 @@ implements ListValidator, SolvingForListener
     	}
     	catch (NumberFormatException nfe)
     	{
-    		throw new IllegalArgumentException(Glimmpse.constants.errorInvalidAlpha());
+    		throw new IllegalArgumentException(Glimmpse.constants.errorInvalidSampleSize());
     	}
 	}
 	
