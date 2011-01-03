@@ -96,8 +96,8 @@ implements StudyDesignManager, SaveListener
 			{betaPanel, betaScalePanel},
 			{betweenContrastPanel, withinContrastPanel},
 			{thetaPanel},
-			{sigmaErrorPanel, sigmaOutcomesPanel, sigmaOutcomeCovariatePanel, 
-				sigmaCovariatePanel, sigmaScalePanel},
+			{sigmaErrorPanel, sigmaOutcomesPanel, sigmaCovariatePanel, 
+				sigmaOutcomeCovariatePanel, sigmaScalePanel},
 			{optionsTestsPanel, optionsPowerMethodsPanel, optionsDisplayPanel},
 			{resultsPanel}
 	};
@@ -193,7 +193,10 @@ implements StudyDesignManager, SaveListener
 				else if (GlimmpseConstants.TAG_SIGMA_SCALE_LIST.equalsIgnoreCase(childName))
 					sigmaScalePanel.loadFromNode(child);
 				else if (GlimmpseConstants.TAG_ESSENCE_MATRIX.equalsIgnoreCase(childName))
+				{
 					designPanel.loadFromNode(child);
+					covariatePanel.loadFromNode(child);
+				}
 				else if (GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX.equalsIgnoreCase(childName))
 				{
 					NamedNodeMap attrs = child.getAttributes();

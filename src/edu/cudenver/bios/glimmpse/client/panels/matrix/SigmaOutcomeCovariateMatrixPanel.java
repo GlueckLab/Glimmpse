@@ -4,6 +4,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
 
+import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
@@ -15,7 +16,7 @@ implements CovariateListener, MatrixResizeListener
     protected ResizableMatrix sigmaYG = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE,
     			GlimmpseConstants.DEFAULT_P, 
-    			GlimmpseConstants.DEFAULT_P, "0", "&Sigma; YG (Outcomes)"); 
+    			GlimmpseConstants.DEFAULT_P, "0", Glimmpse.constants.sigmaOutcomeCovariateMatrixName()); 
     
     public SigmaOutcomeCovariateMatrixPanel()
     {
@@ -23,14 +24,18 @@ implements CovariateListener, MatrixResizeListener
 		// regardless of input, forward navigation is allowed from this panel
 		complete = true;
 		skip = true;
-        HTML header = new HTML("Error variability");
-        HTML description = new HTML("Enter the error covariance matrix below");
+        HTML header = new HTML(Glimmpse.constants.sigmaOutcomeCovariateTitle());
+        HTML description = new HTML(Glimmpse.constants.sigmaOutcomeCovariateDescription());
 		VerticalPanel panel = new VerticalPanel();
 		
         panel.add(header);
         panel.add(description);
 		panel.add(sigmaYG);        
         
+		// disable resize
+		sigmaYG.setEnabledColumnDimension(false);
+		sigmaYG.setEnabledRowDimension(false);
+		
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);

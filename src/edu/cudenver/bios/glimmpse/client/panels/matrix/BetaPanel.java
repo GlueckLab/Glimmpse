@@ -71,8 +71,8 @@ implements MatrixResizeListener, CovariateListener
         betaRandom.setEnabledRowDimension(false);
         betaRandom.setEnabledColumnDimension(false);
     	
-    	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-    	panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+//    	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+//    	panel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         
     	return panel;
 	}

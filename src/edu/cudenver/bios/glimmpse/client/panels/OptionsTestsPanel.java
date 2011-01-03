@@ -246,7 +246,7 @@ implements ClickHandler, CovariateListener
 	@Override
 	public void loadFromNode(Node node)
 	{
-		if (TAG_TEST_LIST.equals(node.getNodeName()))
+		if (TAG_TEST_LIST.equalsIgnoreCase(node.getNodeName()))
 		{
 			NodeList testChildren = node.getChildNodes();
 			for(int ti = 0; ti < testChildren.getLength(); ti++)

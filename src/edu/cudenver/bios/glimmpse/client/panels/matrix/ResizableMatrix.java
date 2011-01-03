@@ -396,4 +396,5 @@ public class ResizableMatrix extends Composite
     {
     	reset(this.getRowDimension(), this.getColumnDimension());
     }
+
 }

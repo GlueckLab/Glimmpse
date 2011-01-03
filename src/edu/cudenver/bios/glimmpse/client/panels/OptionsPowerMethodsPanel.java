@@ -22,6 +22,7 @@
 package edu.cudenver.bios.glimmpse.client.panels;
 
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -162,18 +163,14 @@ implements CovariateListener, ClickHandler
 	public void onHasCovariate(boolean hasCovariate)
 	{
 		skip = !hasCovariate;
-		if (hasCovariate)
+		if (!hasCovariate)
 		{
-			conditionalPowerCheckBox.setValue(false);
+			// we always set conditional power for fixed designs
+			conditionalPowerCheckBox.setValue(true);
 			unconditionalPowerCheckBox.setValue(false);
 			quantilePowerCheckBox.setValue(false);
 			quantileListPanel.reset();
 			quantileListPanel.setVisible(false);
-		}
-		else
-		{
-			// we always set conditional power for fixed designs
-			conditionalPowerCheckBox.setValue(true);
 		}
 	}
 
@@ -282,7 +279,7 @@ implements CovariateListener, ClickHandler
 	@Override
 	public void loadFromNode(Node node)
 	{
-		if (GlimmpseConstants.TAG_POWER_METHOD_LIST.equals(node.getNodeName()))
+		if (GlimmpseConstants.TAG_POWER_METHOD_LIST.equalsIgnoreCase(node.getNodeName()))
 		{
 			NodeList pmChildren = node.getChildNodes();
 			for(int pmi = 0; pmi < pmChildren.getLength(); pmi++)
@@ -303,8 +300,9 @@ implements CovariateListener, ClickHandler
 				}
 			}
 		}
-		else if (GlimmpseConstants.TAG_QUANTILE_LIST.equals(node.getNodeName()))
+		else if (GlimmpseConstants.TAG_QUANTILE_LIST.equalsIgnoreCase(node.getNodeName()))
 		{
+			GWT.log(node.getNodeName());
 			quantileListPanel.loadFromNode(node);
 		}
 

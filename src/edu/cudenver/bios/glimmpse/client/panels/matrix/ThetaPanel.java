@@ -4,6 +4,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
 
+import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
@@ -15,7 +16,7 @@ implements MatrixResizeListener
     protected ResizableMatrix theta = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_THETA,
     			GlimmpseConstants.DEFAULT_A, 
-    			GlimmpseConstants.DEFAULT_B, "0", "&Theta; (null hypotheses)"); 
+    			GlimmpseConstants.DEFAULT_B, "0", Glimmpse.constants.thetaNullMatrixName()); 
     
 	public ThetaPanel()
 	{
@@ -26,9 +27,13 @@ implements MatrixResizeListener
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text
-        HTML header = new HTML("Specify your &Theta; Matrix");
-        HTML description = new HTML("The &Theta; matrix represents your null hypotheses. ");
+        HTML header = new HTML(Glimmpse.constants.thetaNullTitle());
+        HTML description = new HTML(Glimmpse.constants.thetaNullDescription());
 
+        // disabled resizing to ensure matrix conformance
+        theta.setEnabledColumnDimension(false);
+        theta.setEnabledRowDimension(false);
+        
         panel.add(header);
         panel.add(description);
         panel.add(theta);

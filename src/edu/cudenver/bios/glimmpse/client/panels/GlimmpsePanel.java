@@ -112,10 +112,10 @@ implements ModeSelectionListener, CancelListener
         	{
 //        		// for debug only - removes crap GWT wraps on ajax requests
 //        		Window.alert("before ["+uploadedStudy+"]");
-//        		uploadedStudy = uploadedStudy.replaceFirst("<pre>", "");
-//        		uploadedStudy = uploadedStudy.replaceFirst("</pre>", "");
-//        		uploadedStudy = uploadedStudy.replaceAll("&lt;", "<");
-//        		uploadedStudy = uploadedStudy.replaceAll("&gt;", ">");
+        		uploadedStudy = uploadedStudy.replaceFirst("<pre>", "");
+        		uploadedStudy = uploadedStudy.replaceFirst("</pre>", "");
+        		uploadedStudy = uploadedStudy.replaceAll("&lt;", "<");
+        		uploadedStudy = uploadedStudy.replaceAll("&gt;", ">");
 //        		Window.alert("after ["+uploadedStudy+"]");
         		
            		Document doc = XMLParser.parse(uploadedStudy);

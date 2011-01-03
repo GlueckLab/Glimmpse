@@ -340,6 +340,25 @@ public interface GlimmpseConstants extends Constants
     public String withinSubjectContrastDescription();
     public String withinSubjectContrastMatrixName();
     
+    // theta null
+    public String thetaNullTitle();
+    public String thetaNullDescription();
+    public String thetaNullMatrixName();
+    
+    // sigma matrices
+    public String sigmaErrorTitle();
+    public String sigmaErrorDescription();
+    public String sigmaErrorMatrixName();
+    public String sigmaCovariateTitle();
+    public String sigmaCovariateDescription();
+    public String sigmaCovariateMatrixName();
+    public String sigmaOutcomeTitle();
+    public String sigmaOutcomeDescription();
+    public String sigmaOutcomeMatrixName();
+    public String sigmaOutcomeCovariateTitle();
+    public String sigmaOutcomeCovariateDescription();
+    public String sigmaOutcomeCovariateMatrixName();
+    
     // error messages
     public String errorUploadFailed();
     public String errorUploadInvalidStudyFile();

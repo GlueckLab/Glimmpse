@@ -23,6 +23,7 @@ package edu.cudenver.bios.glimmpse.client.panels;
 
 import java.util.ArrayList;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -117,13 +118,13 @@ public class BaselineCovariatePanel extends WizardStepPanel
 	public void loadFromNode(Node node)
 	{
 		
-		if (GlimmpseConstants.TAG_ESSENCE_MATRIX.equals(node.getNodeName())) 
+		if (GlimmpseConstants.TAG_ESSENCE_MATRIX.equalsIgnoreCase(node.getNodeName())) 
 		{
 			NodeList children = node.getChildNodes();
 			for(int i = 0; i < children.getLength(); i++)
 			{
 				Node child = children.item(i);
-				if (GlimmpseConstants.TAG_RANDOM_COLUMN_META_DATA.equals(child.getNodeName()))
+				if (GlimmpseConstants.TAG_RANDOM_COLUMN_META_DATA.equalsIgnoreCase(child.getNodeName()))
 				{
 					covariateCheckBox.setValue(true);
 					for(CovariateListener listener : listeners) listener.onHasCovariate(covariateCheckBox.getValue());
