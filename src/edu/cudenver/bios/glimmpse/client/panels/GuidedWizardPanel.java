@@ -21,6 +21,7 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
@@ -30,6 +31,7 @@ import com.google.gwt.xml.client.NodeList;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
+import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
 import edu.cudenver.bios.glimmpse.client.panels.guided.CategoricalPredictorsPanel;
@@ -37,7 +39,6 @@ import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisDoublyRepeatedM
 import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisIndependentMeasuresPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisRepeatedMeasuresPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesIndependentMeasuresPanel;
-import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesPatternPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesRepeatedMeasuresPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesScalePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.OutcomesPanel;
@@ -228,17 +229,44 @@ implements StudyDesignManager, SaveListener
 			for(int i = 0; i < children.getLength(); i++)
 			{
 				Node child = children.item(i);
-				String childName = child.getNodeName();
-				if (GlimmpseConstants.TAG_SOLVING_FOR.equals(childName))
+				String childName = child.getNodeName();	
+				if (GlimmpseConstants.TAG_SOLVING_FOR.equalsIgnoreCase(childName))
 					solvingForPanel.loadFromNode(child);
-				else if (GlimmpseConstants.TAG_ALPHA_LIST.equals(childName))
+				else if (GlimmpseConstants.TAG_ALPHA_LIST.equalsIgnoreCase(childName))
 					alphaPanel.loadFromNode(child);
-				else if (GlimmpseConstants.TAG_TEST_LIST.equals(childName))
+				else if (GlimmpseConstants.TAG_TEST_LIST.equalsIgnoreCase(childName))
 					optionsTestsPanel.loadFromNode(child);
-				else if (GlimmpseConstants.TAG_TEST_LIST.equals(childName))
-					optionsTestsPanel.loadFromNode(child);
-				else if (GlimmpseConstants.TAG_QUANTILE_LIST.equals(childName))
-					optionsPowerMethodsPanel.loadFromNode(child);				
+				else if (GlimmpseConstants.TAG_QUANTILE_LIST.equalsIgnoreCase(childName))
+					optionsPowerMethodsPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_POWER_LIST.equalsIgnoreCase(childName))
+					powerPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_POWER_METHOD_LIST.equalsIgnoreCase(childName))
+					optionsPowerMethodsPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_SAMPLE_SIZE_LIST.equalsIgnoreCase(childName))
+					perGroupSampleSizePanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_CATEGORICAL_PREDICTORS.equalsIgnoreCase(childName))
+					catPredictorsPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_RELATIVE_GROUP_SIZE_LIST.equalsIgnoreCase(childName))
+					relativeGroupSizePanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_OUTCOMES_LIST.equalsIgnoreCase(childName))
+					outcomesPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_HYPOTHESIS.equalsIgnoreCase(childName))
+					hypothesisIndependentPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_REPEATED_MEASURES.equalsIgnoreCase(childName))
+					repeatedMeasuresPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_BETA_SCALE_LIST.equalsIgnoreCase(childName))
+					meanDifferencesScalePanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_SIGMA_SCALE_LIST.equalsIgnoreCase(childName))
+					variabilityScalePanel.loadFromNode(child);
+
+				/*
+				TODO: finish upload for these panels
+				{hypothesisRepeatedPanel, hypothesisDoublyRepeatedPanel},
+				{meanDifferencesIndependentPanel,	meanDifferencesRepeatedPanel, },
+				{variabilityIndependentPanel, variabilityRepeatedPanel,
+						variabilityCovariatePanel, variabilityCovariateOutcomePanel, },
+				
+				*/
 			}
 		}
 	}
@@ -258,10 +286,10 @@ implements StudyDesignManager, SaveListener
 	public String getPowerRequestXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("<" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
+		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_POWER_PARAMETERS);
 		buffer.append(solvingForPanel.toRequestXML());
 		buffer.append(alphaPanel.toXML());
-		buffer.append(powerPanel.toRequestXML());
+		buffer.append(powerPanel.toXML());
 		buffer.append(perGroupSampleSizePanel.toXML());
 		buffer.append(meanDifferencesScalePanel.toRequestXML());
 		buffer.append(variabilityScalePanel.toRequestXML());
@@ -277,7 +305,8 @@ implements StudyDesignManager, SaveListener
 		buffer.append(variabilityCovariatePanel.toRequestXML());
 		buffer.append(variabilityCovariateOutcomePanel.toRequestXML());
 		
-		buffer.append("</" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_POWER_PARAMETERS);
+		
 		return buffer.toString();
 	}
 
@@ -286,16 +315,39 @@ implements StudyDesignManager, SaveListener
 	{
 		StringBuffer buffer = new StringBuffer();
 		
-		buffer.append("<" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
+		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_STUDY, 
+				GlimmpseConstants.ATTR_MODE + "='" + getModeName() + "'");
+		
 		buffer.append(solvingForPanel.toStudyXML());
 		buffer.append(alphaPanel.toXML());
-//		buffer.append(designPanel.toXML());
-//		buffer.append(betaPanel.toXML());
-//		buffer.append(contrastPanel.toXML());
-//		buffer.append(thetaPanel.toXML());
-//		buffer.append(covariancePanel.toXML());
+		buffer.append(powerPanel.toXML());
 		buffer.append(optionsTestsPanel.toStudyXML());
-		buffer.append("</" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
+		buffer.append(optionsPowerMethodsPanel.toStudyXML());
+		buffer.append(optionsDisplayPanel.toStudyXML());
+		// note: order matters between cat predictors and relative group size here
+		// for upload to work properly
+		buffer.append(catPredictorsPanel.toStudyXML());
+		buffer.append(relativeGroupSizePanel.toStudyXML());
+		buffer.append(perGroupSampleSizePanel.toXML());
+		buffer.append(outcomesPanel.toStudyXML());
+		buffer.append(hypothesisIndependentPanel.toStudyXML());
+		buffer.append(repeatedMeasuresPanel.toStudyXML());
+		buffer.append(meanDifferencesScalePanel.toStudyXML());
+		buffer.append(variabilityScalePanel.toStudyXML());
+		// TODO	
+/*
+
+		{hypothesisRepeatedPanel, hypothesisDoublyRepeatedPanel},
+		{meanDifferencesIndependentPanel,	meanDifferencesRepeatedPanel, },
+		{variabilityIndependentPanel, variabilityRepeatedPanel,
+				variabilityCovariatePanel, variabilityCovariateOutcomePanel, },
+		
+		*/
+
+
+
+		
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_STUDY);
 		
 		return buffer.toString();
 	}
@@ -315,6 +367,7 @@ implements StudyDesignManager, SaveListener
 	@Override
 	public void onSave()
 	{
+		Window.alert(getStudyDesignXML());
 		wizardPanel.sendSaveRequest(getStudyDesignXML(), DEFAULT_STUDY_FILENAME);
 	}
 

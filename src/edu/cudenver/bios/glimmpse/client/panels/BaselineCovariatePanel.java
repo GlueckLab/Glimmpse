@@ -40,6 +40,7 @@ import com.google.gwt.xml.client.NodeList;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
+import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 
 /**
@@ -117,21 +118,27 @@ public class BaselineCovariatePanel extends WizardStepPanel
 	@Override
 	public void loadFromNode(Node node)
 	{
-		
-		if (GlimmpseConstants.TAG_ESSENCE_MATRIX.equalsIgnoreCase(node.getNodeName())) 
+		if (GlimmpseConstants.TAG_COVARIATE.equalsIgnoreCase(node.getNodeName())) 
 		{
-			NodeList children = node.getChildNodes();
-			for(int i = 0; i < children.getLength(); i++)
+			Node valueNode = node.getFirstChild();
+			if (valueNode != null)
 			{
-				Node child = children.item(i);
-				if (GlimmpseConstants.TAG_RANDOM_COLUMN_META_DATA.equalsIgnoreCase(child.getNodeName()))
-				{
-					covariateCheckBox.setValue(true);
-					for(CovariateListener listener : listeners) listener.onHasCovariate(covariateCheckBox.getValue());
-					break;
-				}
+				boolean value = Boolean.parseBoolean(valueNode.getNodeValue());
+				covariateCheckBox.setValue(value);
+				for(CovariateListener listener : listeners) listener.onHasCovariate(value);
 			}
 		}
 	}
 
+	public String toStudyXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_COVARIATE);
+		if (covariateCheckBox.getValue())
+			buffer.append(true);
+		else
+			buffer.append(false);
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_COVARIATE);
+		return buffer.toString();
+	}
 }

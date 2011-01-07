@@ -1,35 +1,32 @@
 package edu.cudenver.bios.glimmpse.client.panels.guided;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
-import edu.cudenver.bios.glimmpse.client.TextValidation;
-import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
+import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.RepeatedMeasuresListener;
-import edu.cudenver.bios.glimmpse.client.panels.DynamicListPanel;
-import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
-import edu.cudenver.bios.glimmpse.client.panels.RowCheckBox;
-import edu.cudenver.bios.glimmpse.client.panels.RowTextBox;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class RepeatedMeasuresPanel extends WizardStepPanel
-implements OutcomesListener, ClickHandler, ChangeHandler
+implements ClickHandler, ChangeHandler
 {
+	private static final String NON_REPEATED = "0";
+	private static final String SINGLY_REPEATED = "1";
+	private static final String DOUBLY_REPEATED = "2";
 	private static final String REPEATED_MEAUSRES_RADIO_GROUP = "repeatedMeasuresGroup";
 	protected RadioButton singleMeasureRadioButton = 
 		new RadioButton(REPEATED_MEAUSRES_RADIO_GROUP, Glimmpse.constants.singleMeasureLabel());
@@ -173,15 +170,79 @@ implements OutcomesListener, ClickHandler, ChangeHandler
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onOutcomes(List<String> outcomes)
-	{
-		// TODO Auto-generated method stub
-		
+		if (GlimmpseConstants.TAG_REPEATED_MEASURES.equalsIgnoreCase(node.getNodeName()))
+		{
+			NamedNodeMap attrs = node.getAttributes();
+			Node typeNode = attrs.getNamedItem(GlimmpseConstants.ATTR_TYPE);
+			if (typeNode != null)
+			{
+				if (NON_REPEATED.equals(typeNode.getNodeValue()))
+				{
+					singleMeasureRadioButton.setValue(true);
+				}
+				else if (SINGLY_REPEATED.equals(typeNode.getNodeValue()))
+				{
+					repeatedMeasures1DRadioButton.setValue(true);
+					repetitions1DTextBox.setEnabled(true);
+					units1DTextBox.setEnabled(true);
+					Node dimensionNode = node.getFirstChild();
+					if (dimensionNode != null)
+					{
+						NamedNodeMap dimAttrs = dimensionNode.getAttributes();
+						Node timesNode = dimAttrs.getNamedItem(GlimmpseConstants.ATTR_TIMES);
+						if (timesNode != null)
+						{
+							repetitions1DTextBox.setText(timesNode.getNodeValue());
+						}
+						Node unitsNode = dimensionNode.getFirstChild();
+						if (unitsNode != null)
+						{
+							units1DTextBox.setText(unitsNode.getNodeValue());
+						}
+					}
+				}
+				else if (DOUBLY_REPEATED.equals(typeNode.getNodeValue()))
+				{
+					repeatedMeasures2DRadioButton.setValue(true);
+					repetitions2DOuterTextBox.setEnabled(true);
+					units2DOuterTextBox.setEnabled(true);
+					repetitions2DInnerTextBox.setEnabled(true);
+					units2DInnerTextBox.setEnabled(true);
+					NodeList children = node.getChildNodes();
+					Node outerDimensionNode = children.item(0);
+					if (outerDimensionNode != null)
+					{
+						NamedNodeMap dimAttrs = outerDimensionNode.getAttributes();
+						Node timesNode = dimAttrs.getNamedItem(GlimmpseConstants.ATTR_TIMES);
+						if (timesNode != null)
+						{
+							repetitions2DOuterTextBox.setText(timesNode.getNodeValue());
+						}
+						Node unitsNode = outerDimensionNode.getFirstChild();
+						if (unitsNode != null)
+						{
+							units2DOuterTextBox.setText(unitsNode.getNodeValue());
+						}
+					}
+					Node innerDimensionNode = children.item(1);
+					if (innerDimensionNode != null)
+					{
+						NamedNodeMap dimAttrs = innerDimensionNode.getAttributes();
+						Node timesNode = dimAttrs.getNamedItem(GlimmpseConstants.ATTR_TIMES);
+						if (timesNode != null)
+						{
+							repetitions2DInnerTextBox.setText(timesNode.getNodeValue());
+						}
+						Node unitsNode = innerDimensionNode.getFirstChild();
+						if (unitsNode != null)
+						{
+							units2DInnerTextBox.setText(unitsNode.getNodeValue());
+						}
+					}
+				}
+			}
+		}
+		checkComplete();
 	}
 
 	@Override
@@ -216,7 +277,6 @@ implements OutcomesListener, ClickHandler, ChangeHandler
 		}
 		else if (repeatedMeasures2DRadioButton.getValue())
 		{
-			Window.alert(repetitions2DOuterTextBox.getText() + " empty? " + repetitions2DOuterTextBox.getText().isEmpty());
 			if (!repetitions2DOuterTextBox.getText().isEmpty() && 
 					!units2DOuterTextBox.getText().isEmpty() &&
 					!repetitions2DInnerTextBox.getText().isEmpty() &&
@@ -229,6 +289,44 @@ implements OutcomesListener, ClickHandler, ChangeHandler
 				notifyInProgress();
 			}
 		}
+	}
+	
+	public String toStudyXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		if (singleMeasureRadioButton.getValue())
+		{
+			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_REPEATED_MEASURES,
+					GlimmpseConstants.ATTR_TYPE + "='0'");
+		}
+		else if (repeatedMeasures1DRadioButton.getValue())
+		{
+			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_REPEATED_MEASURES,
+					GlimmpseConstants.ATTR_TYPE + "='1'");
+			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_DIMENSION, 
+					GlimmpseConstants.ATTR_TIMES + "='" + repetitions1DTextBox.getText() + "'");
+			buffer.append(units1DTextBox.getText());
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_DIMENSION);
+			
+		}
+		else if (repeatedMeasures2DRadioButton.getValue())
+		{
+			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_REPEATED_MEASURES,
+					GlimmpseConstants.ATTR_TYPE + "='2'");
+			
+			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_DIMENSION, 
+					GlimmpseConstants.ATTR_TIMES + "='" + repetitions2DOuterTextBox.getText() + "'");
+			buffer.append(units2DOuterTextBox.getText());
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_DIMENSION);
+			
+			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_DIMENSION, 
+					GlimmpseConstants.ATTR_TIMES + "='" + repetitions2DInnerTextBox.getText() + "'");
+			buffer.append(units2DInnerTextBox.getText());
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_DIMENSION);
+		}
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_REPEATED_MEASURES);
+		
+		return buffer.toString();
 	}
 
 	@Override

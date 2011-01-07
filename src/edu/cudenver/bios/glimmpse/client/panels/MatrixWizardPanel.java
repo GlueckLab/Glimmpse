@@ -193,10 +193,9 @@ implements StudyDesignManager, SaveListener
 				else if (GlimmpseConstants.TAG_SIGMA_SCALE_LIST.equalsIgnoreCase(childName))
 					sigmaScalePanel.loadFromNode(child);
 				else if (GlimmpseConstants.TAG_ESSENCE_MATRIX.equalsIgnoreCase(childName))
-				{
 					designPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_COVARIATE.equalsIgnoreCase(childName))
 					covariatePanel.loadFromNode(child);
-				}
 				else if (GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX.equalsIgnoreCase(childName))
 				{
 					NamedNodeMap attrs = child.getAttributes();
@@ -253,7 +252,7 @@ implements StudyDesignManager, SaveListener
 		buffer.append("<" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
 		buffer.append(alphaPanel.toXML());
 		buffer.append(betaScalePanel.toXML());
-		buffer.append(powerPanel.toRequestXML());
+		buffer.append(powerPanel.toXML());
 		buffer.append(optionsTestsPanel.toRequestXML());
 		buffer.append(optionsPowerMethodsPanel.toRequestXML());
 		buffer.append(perGroupSampleSizePanel.toXML());
@@ -289,12 +288,14 @@ implements StudyDesignManager, SaveListener
 		buffer.append(solvingForPanel.toStudyXML());
 		buffer.append(alphaPanel.toXML());
 		buffer.append(betaScalePanel.toXML());
-		buffer.append(powerPanel.toRequestXML());
-		buffer.append(optionsTestsPanel.toRequestXML());
-		buffer.append(optionsPowerMethodsPanel.toRequestXML());
+		buffer.append(powerPanel.toXML());
+		buffer.append(optionsTestsPanel.toStudyXML());
+		buffer.append(optionsPowerMethodsPanel.toStudyXML());
+		buffer.append(optionsDisplayPanel.toStudyXML());
 		buffer.append(perGroupSampleSizePanel.toXML());
 		buffer.append(sigmaScalePanel.toXML());
 		buffer.append(designPanel.toXML());
+		buffer.append(covariatePanel.toStudyXML());
 		buffer.append(betaPanel.toXML());
 		buffer.append(betweenContrastPanel.toXML());
 		buffer.append(withinContrastPanel.toXML());

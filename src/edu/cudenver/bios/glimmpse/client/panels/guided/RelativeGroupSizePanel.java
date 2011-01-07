@@ -8,8 +8,11 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -59,14 +62,40 @@ implements PredictorsListener, VariabilityListener, CovariateListener
 	@Override
 	public void reset()
 	{
-		groupSizesTable.clear();
+		groupSizesTable.removeAllRows();
 	}
 
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
-
+		if (GlimmpseConstants.TAG_RELATIVE_GROUP_SIZE_LIST.equalsIgnoreCase(node.getNodeName()))
+		{
+			NodeList children = node.getChildNodes();
+			for(int i = 0, row = 1; i < children.getLength(); i++, row++)
+			{
+				Node child = children.item(i);
+				Node valueNode = child.getFirstChild();
+				if (valueNode != null)
+				{
+					Widget w = groupSizesTable.getWidget(row, 0);
+					if (w != null)
+					{
+						try
+						{
+							Integer value = Integer.parseInt(valueNode.getNodeValue());
+							if (value > 0 && value <= MAX_RELATIVE_SIZE)
+							{
+								((ListBox) w).setSelectedIndex(value-1);
+							}
+						}
+						catch (NumberFormatException e)
+						{
+							// catch, but ignore
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -171,6 +200,30 @@ implements PredictorsListener, VariabilityListener, CovariateListener
 		
 		// close tag for essence matrix
 		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ESSENCE_MATRIX);
+		
+		return buffer.toString();
+	}
+	
+	
+	public String toStudyXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		int numRows = groupSizesTable.getRowCount();
+		// convert the relative group size table to XML
+		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_RELATIVE_GROUP_SIZE_LIST);
+		// add the list of relative sizes (skip header row)
+		for(int row = 1; row < numRows; row++)
+		{
+			ListBox lb = (ListBox) groupSizesTable.getWidget(row, 0);
+			if (lb != null) 
+			{
+				XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_VALUE);
+				buffer.append(lb.getItemText(lb.getSelectedIndex()));
+				XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_VALUE);
+			}
+		}
+
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_RELATIVE_GROUP_SIZE_LIST);
 		
 		return buffer.toString();
 	}

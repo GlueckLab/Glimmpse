@@ -53,21 +53,13 @@ public class XMLUtilities
 		buffer.append(tagName);
 		buffer.append(">");
 	}
-//	
-//	public static void openTag(StringBuffer buffer, String tagName, 
-//			Properties props)
-//	{
-//		buffer.append("<");
-//		buffer.append(tagName);
-//		for(String k)
-//		for(int i = 0; i < attributeNames.length && i < attributeValues.length; i++)
-//		{
-//			buffer.append(" ");
-//			buffer.append(attributeNames[i]);
-//			buffer.append("='");
-//			buffer.append(attributeValues[i]);
-//			buffer.append("'");
-//		}
-//		buffer.append(">");
-//	}
+	
+	public static void openTag(StringBuffer buffer, String tagName, String attrs)
+	{
+		buffer.append("<");
+		buffer.append(tagName);
+		buffer.append(" ");
+		buffer.append(attrs);
+		buffer.append(">");
+	}
 }

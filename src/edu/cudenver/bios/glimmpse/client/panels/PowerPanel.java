@@ -73,7 +73,7 @@ implements ListValidator, SolvingForListener
      * 
      * @return XML representation of the nominal power list
      */
-    public String toRequestXML()
+    public String toXML()
     {
     	if (skip)
     		return "";
@@ -90,7 +90,7 @@ implements ListValidator, SolvingForListener
 	@Override
 	public void loadFromNode(Node node)
 	{
-    	if (GlimmpseConstants.TAG_POWER_LIST.equals(node.getNodeName()))
+    	if (GlimmpseConstants.TAG_POWER_LIST.equalsIgnoreCase(node.getNodeName()))
     	{
     		nominalPowerListPanel.loadFromNode(node);
     	}

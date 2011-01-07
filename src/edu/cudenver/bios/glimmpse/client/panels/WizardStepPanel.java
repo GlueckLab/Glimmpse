@@ -40,6 +40,9 @@ public abstract class WizardStepPanel extends Composite
 	protected boolean skip = false;
 	// if true, the panel is complete and the user may navigate forward
 	protected boolean complete = false;
+	// if true, indicates that a change has been made on the screen.  Allows users to
+	// navigate back/forward without re-issuing onExit events
+	protected boolean changed = false;
 	// if true, this panel is a non-visible separator.  Used to indicate the
 	// start and end of a panel group
 	protected boolean separator = false;

@@ -1,10 +1,12 @@
 package edu.cudenver.bios.glimmpse.client.panels.guided;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -54,8 +56,11 @@ public class VariabilityScalePanel extends WizardStepPanel
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
-
+		if (GlimmpseConstants.TAG_SIGMA_SCALE_LIST.equalsIgnoreCase(node.getNodeName()))
+		{
+			NodeList children = node.getChildNodes();
+			scaleCheckBox.setValue(children.getLength() > 1);
+		}
 	}
 	
 	public String toRequestXML()
@@ -69,6 +74,11 @@ public class VariabilityScalePanel extends WizardStepPanel
 		}
 		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_SIGMA_SCALE_LIST);
 		return buffer.toString();
+	}
+	
+	public String toStudyXML()
+	{
+		return toRequestXML();
 	}
 
 }

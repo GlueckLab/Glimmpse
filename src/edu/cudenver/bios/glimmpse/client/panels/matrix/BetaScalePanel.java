@@ -77,7 +77,7 @@ implements ListValidator, SolvingForListener
 	{
 		switch (solutionType)
 		{
-		case EFFECT_SIZE:
+		case DETECTABLE_DIFFERENCE:
 			skip = true;
 			break;
 		default:	

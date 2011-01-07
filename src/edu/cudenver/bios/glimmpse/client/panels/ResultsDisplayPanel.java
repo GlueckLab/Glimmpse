@@ -433,7 +433,8 @@ implements OptionsListener, SolvingForListener
 				{
 					resultsData.setCell(row, col, Double.parseDouble(betaScaleNode.getNodeValue()), 
 							betaScaleNode.getNodeValue(), null);
-					if (xaxisType != XAxisType.EFFECT_SIZE && solutionType != SolutionType.EFFECT_SIZE)
+					if (xaxisType != XAxisType.EFFECT_SIZE && 
+							solutionType != SolutionType.DETECTABLE_DIFFERENCE)
 					{
 						curveColumnId.append(",Effect Size Scale=");
 						curveColumnId.append(betaScaleNode.getNodeValue());

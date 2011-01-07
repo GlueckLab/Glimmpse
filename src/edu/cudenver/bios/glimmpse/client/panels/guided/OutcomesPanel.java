@@ -61,6 +61,7 @@ public class OutcomesPanel extends WizardStepPanel
 
     		public void onValidRowCount(int validRowCount)
     		{
+    			changed = true;
     			if (validRowCount > 0)
     				notifyComplete();
     			else
@@ -121,15 +122,23 @@ public class OutcomesPanel extends WizardStepPanel
     @Override
     public void onExit()
     {
-    	notifyOutcomes();
+    	if (changed) notifyOutcomes();
     }
 
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
-		
+		outcomesListPanel.loadFromNode(node);
+		if (outcomesListPanel.getValidRowCount() > 0)
+			notifyComplete();
+		else
+			notifyInProgress();
+		notifyOutcomes();
+		changed = false;
 	}
 
-
+	public String toStudyXML()
+	{
+		return outcomesListPanel.toXML(GlimmpseConstants.TAG_OUTCOMES_LIST);
+	}
 }

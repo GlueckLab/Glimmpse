@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -57,8 +58,11 @@ public class MeanDifferencesScalePanel extends WizardStepPanel
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
-
+		if (GlimmpseConstants.TAG_BETA_SCALE_LIST.equalsIgnoreCase(node.getNodeName()))
+		{
+			NodeList children = node.getChildNodes();
+			scaleCheckBox.setValue(children.getLength() > 1);
+		}
 	}
 	
 	public String toRequestXML()
@@ -74,4 +78,8 @@ public class MeanDifferencesScalePanel extends WizardStepPanel
 		return buffer.toString();
 	}
 
+	public String toStudyXML()
+	{
+		return toRequestXML();
+	}
 }

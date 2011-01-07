@@ -6,7 +6,7 @@ public interface SolvingForListener
 	{
 		POWER,
 		TOTAL_N,
-		EFFECT_SIZE
+		DETECTABLE_DIFFERENCE
 	};
 	
 	public void onSolvingFor(SolutionType solutionType);

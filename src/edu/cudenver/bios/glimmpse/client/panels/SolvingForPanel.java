@@ -37,6 +37,7 @@ import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
+import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener.SolutionType;
 
 /**
  * WizardStepPanel which allows the user to select whether they are solving for
@@ -206,7 +207,7 @@ implements ClickHandler
 	@Override
 	public void loadFromNode(Node node)
 	{
-		if (node != null && GlimmpseConstants.TAG_SOLVING_FOR.equals(node.getNodeName()))
+		if (node != null && GlimmpseConstants.TAG_SOLVING_FOR.equalsIgnoreCase(node.getNodeName()))
 		{
 			NamedNodeMap attrs = node.getAttributes();
 			Node typeNode = attrs.getNamedItem(GlimmpseConstants.ATTR_TYPE);
@@ -214,10 +215,17 @@ implements ClickHandler
 			{
 				String value = typeNode.getNodeValue();
 				if (GlimmpseConstants.SOLUTION_TYPE_SAMPLE_SIZE.equals(value))
+				{
 					solvingForSampleSizeRadioButton.setValue(true);
+					for(SolvingForListener listener: listeners) listener.onSolvingFor(SolutionType.TOTAL_N);
+				}
 				else
+				{
 					solvingForPowerRadioButton.setValue(true);
+					for(SolvingForListener listener: listeners) listener.onSolvingFor(SolutionType.POWER);
+				}
 			}
 		}
+		
 	}
 }

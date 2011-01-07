@@ -163,7 +163,7 @@ implements ListValidator, ClickHandler
     @Override
     public void loadFromNode(Node node)
     {
-    	if (GlimmpseConstants.TAG_ALPHA_LIST.equals(node.getNodeName()))
+    	if (GlimmpseConstants.TAG_ALPHA_LIST.equalsIgnoreCase(node.getNodeName()))
     	{
     		NodeList children = node.getChildNodes();
     		for(int i = 0; i < children.getLength(); i++)
@@ -189,11 +189,11 @@ implements ListValidator, ClickHandler
     			}
     		}
     	}
+    	checkComplete();
     }
 
-	@Override
-	public void onClick(ClickEvent event)
-	{
+    private void checkComplete()
+    {
 		if (alpha05CheckBox.getValue() || 
 				alpha01CheckBox.getValue() ||
 				alpha10CheckBox.getValue())
@@ -204,5 +204,11 @@ implements ListValidator, ClickHandler
 		{
 			notifyInProgress();
 		}
+    }
+    
+	@Override
+	public void onClick(ClickEvent event)
+	{
+		checkComplete();
 	}
 }

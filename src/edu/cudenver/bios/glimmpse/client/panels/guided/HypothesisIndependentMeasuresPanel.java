@@ -6,11 +6,14 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
@@ -30,6 +33,7 @@ implements OutcomesListener, PredictorsListener, RepeatedMeasuresListener,
 RelativeGroupSizeListener, CovariateListener
 {
 	private static final String HYPOTHESIS_RADIO_GROUP = "hypothesisIndependentGroup";
+	private static final String TYPE_INTERACTION = "interaction";
 	protected ArrayList<HypothesisListener> listeners = new ArrayList<HypothesisListener>();
 	protected List<String> outcomes = null;
 	protected HashMap<String, ArrayList<String>> predictorMap = null;
@@ -102,10 +106,75 @@ RelativeGroupSizeListener, CovariateListener
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
-
+		if (GlimmpseConstants.TAG_HYPOTHESIS.equalsIgnoreCase(node.getNodeName()))
+		{
+			NamedNodeMap attr = node.getAttributes();
+			Node typeNode = attr.getNamedItem(GlimmpseConstants.ATTR_TYPE);
+			if (typeNode != null)
+			{
+				Node valueNode = node.getFirstChild();
+				if (valueNode != null)
+				{
+					try
+					{
+						int selected = Integer.parseInt(valueNode.getNodeValue());
+						Widget w = null;
+						if (TYPE_INTERACTION.equals(typeNode.getNodeValue()))
+							w = interactionsTable.getWidget(selected, 0);
+						else
+							w = mainEffectsTable.getWidget(selected, 0);	
+						if (w != null)
+						{
+							((RadioButton) w).setValue(true);
+						}
+					}
+					catch (NumberFormatException e)
+					{
+						// catch but ignore
+					}
+				}
+			}
+		}
 	}
 
+	public String toStudyXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		if (!skip)
+		{
+			HypothesisRadioButton selectedRb = null;
+			// find the selected hypothesis
+			for(int i = 0; i < interactionsTable.getRowCount(); i++)
+			{
+				HypothesisRadioButton currentRb = (HypothesisRadioButton) interactionsTable.getWidget(i, 0);
+				if (currentRb.getValue())
+				{
+					selectedRb = currentRb;
+					XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_HYPOTHESIS,
+							GlimmpseConstants.ATTR_TYPE + "='interaction'");
+					buffer.append(i);
+					XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_HYPOTHESIS);
+					break;
+				}
+			}
+			if (selectedRb == null)
+			{
+				for(int i = 0; i < mainEffectsTable.getRowCount(); i++)
+				{
+					HypothesisRadioButton currentRb = (HypothesisRadioButton) mainEffectsTable.getWidget(i, 0);
+					if (currentRb.getValue())
+					{
+						XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_HYPOTHESIS,
+								GlimmpseConstants.ATTR_TYPE + "='main'");
+						buffer.append(i);
+						XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_HYPOTHESIS);
+						break;
+					}
+				}
+			}
+		}
+		return buffer.toString();
+	}
 	@Override
 	public void onHasCovariate(boolean hasCovariate)
 	{

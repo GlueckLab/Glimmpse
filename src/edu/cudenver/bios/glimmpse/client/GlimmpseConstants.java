@@ -70,6 +70,18 @@ public interface GlimmpseConstants extends Constants
     public static final String ATTR_COMBINE_HORIZONTAL = "combineHorizontal";
     public static final String ATTR_RATIO = "ratio";
     
+    // guided mode tags/attributes - only used for save/upload and not part of the power REST api
+    public static final String TAG_CATEGORICAL_PREDICTORS = "categoricalPredictors";
+    public static final String TAG_CATEGORY = "category";
+    public static final String TAG_PREDICTOR = "predictor";
+    public static final String TAG_COVARIATE = "covariate";
+    public static final String TAG_RELATIVE_GROUP_SIZE_LIST = "relativeGroupSizeList";
+    public static final String TAG_OUTCOMES_LIST = "outcomesList";
+    public static final String TAG_HYPOTHESIS = "hypothesis";
+    public static final String TAG_HYPOTHESIS_REPEATED = "hypothesisRepeated";
+    public static final String TAG_REPEATED_MEASURES = "repeatedMeasures";
+    public static final String TAG_DIMENSION = "dimension";
+    public static final String ATTR_TIMES = "times";
     // mode names
     public static final String MODE_MATRIX = "matrix";
     public static final String MODE_GUIDED = "guided";

@@ -281,6 +281,10 @@ implements CovariateListener, ClickHandler
 	{
 		if (GlimmpseConstants.TAG_POWER_METHOD_LIST.equalsIgnoreCase(node.getNodeName()))
 		{
+			conditionalPowerCheckBox.setValue(false);
+			unconditionalPowerCheckBox.setValue(false);
+			quantilePowerCheckBox.setValue(false);
+			
 			NodeList pmChildren = node.getChildNodes();
 			for(int pmi = 0; pmi < pmChildren.getLength(); pmi++)
 			{
@@ -302,8 +306,8 @@ implements CovariateListener, ClickHandler
 		}
 		else if (GlimmpseConstants.TAG_QUANTILE_LIST.equalsIgnoreCase(node.getNodeName()))
 		{
-			GWT.log(node.getNodeName());
 			quantileListPanel.loadFromNode(node);
+			numQuantiles = quantileListPanel.getValidRowCount();
 		}
 
 		// check if the options are complete

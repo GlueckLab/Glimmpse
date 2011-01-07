@@ -7,6 +7,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -17,10 +18,13 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
+import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
+import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
@@ -220,6 +224,7 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     	{
     		predictorList.addItem(name);
     		predictorCategoryMap.put(name, new ArrayList<String>());
+    		changed = true;
     	}
     }
     
@@ -237,6 +242,7 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     private void deletePredictor(String name)
     {
     	predictorCategoryMap.remove(name);
+		changed = true;
     }
     
     private void addCategory(String predictor, String category)
@@ -246,6 +252,7 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     	{
     		categories.add(category);
 			categoryList.addItem(category);
+    		changed = true;
     	}
 		checkComplete();
     }
@@ -253,7 +260,11 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     private void deleteCategory(String predictor, String category)
     {
     	ArrayList<String> categories = predictorCategoryMap.get(predictor);
-    	if (categories != null)  categories.remove(category);
+    	if (categories != null)  
+    	{
+    		categories.remove(category);
+    		changed = true;
+    	}
 		checkComplete();
     }
     
@@ -313,8 +324,12 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     
     public void onExit()
     {
-    	DataTable groups = buildGroupTable();
-    	for(PredictorsListener listener: listeners) listener.onPredictors(predictorCategoryMap, groups);
+    	if (changed)
+    	{
+    		DataTable groups = buildGroupTable();
+    		for(PredictorsListener listener: listeners) listener.onPredictors(predictorCategoryMap, groups);
+    		changed = false;
+    	}
     }
     
     
@@ -325,7 +340,7 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     
     public void checkComplete()
     {
-    	boolean isComplete = true;
+    	boolean isComplete = !predictorCategoryMap.isEmpty();
     	for(ArrayList<String> categories: predictorCategoryMap.values())
     	{
     		if (categories.size() < 1) 
@@ -345,13 +360,84 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     	predictorList.clear();
     	categoryList.clear();
     	predictorCategoryMap.clear();
+    	changed = false;
+    	checkComplete();
     }
 
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
-		
+		if (GlimmpseConstants.TAG_CATEGORICAL_PREDICTORS.equalsIgnoreCase(node.getNodeName()))
+		{
+			NodeList children = node.getChildNodes();
+			for(int i = 0; i < children.getLength(); i++)
+			{
+				Node child = children.item(i);
+				String childName = child.getNodeName();
+				if (GlimmpseConstants.TAG_PREDICTOR.equalsIgnoreCase(childName))
+				{
+					NamedNodeMap attrs = child.getAttributes();
+					Node nameNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
+					if (nameNode != null && !nameNode.getNodeValue().isEmpty())
+					{
+						String predictor = nameNode.getNodeValue();
+						addPredictor(predictor);
+						loadCategoriesFromNode(child, predictor);
+					}
+				}
+			}
+			// notify listeners and reset changed to false after initial setup
+    		DataTable groups = buildGroupTable();
+    		for(PredictorsListener listener: listeners) listener.onPredictors(predictorCategoryMap, groups);
+    		changed = false;
+		}
+		checkComplete();
+	}
+	
+	private void loadCategoriesFromNode(Node node, String predictor)
+	{
+		NodeList children = node.getChildNodes();
+		ArrayList<String> categories = predictorCategoryMap.get(predictor);
+		for(int i = 0; i < children.getLength(); i++)
+		{
+			Node child = children.item(i);
+			String childName = child.getNodeName();
+			if (GlimmpseConstants.TAG_CATEGORY.equalsIgnoreCase(childName))
+			{
+				Node valueNode = child.getFirstChild();
+				if (valueNode != null)
+				{
+		    		categories.add(valueNode.getNodeValue());
+				}
+			}
+		}
 	}
 
+	public String toStudyXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		
+		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_CATEGORICAL_PREDICTORS);
+		
+		for(String predictor: predictorCategoryMap.keySet())
+		{
+			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_PREDICTOR, 
+					GlimmpseConstants.ATTR_NAME + "='" + predictor + "'");
+			ArrayList<String> categories = predictorCategoryMap.get(predictor);
+			if (categories != null)
+			{
+				for(String category: categories)
+				{
+					XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_CATEGORY);
+					buffer.append(category);
+					XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_CATEGORY);
+				}
+			}
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_PREDICTOR);
+		}
+		
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_CATEGORICAL_PREDICTORS);
+		return buffer.toString();
+	}
+	
 }
