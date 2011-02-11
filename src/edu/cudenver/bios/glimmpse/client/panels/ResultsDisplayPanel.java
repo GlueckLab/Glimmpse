@@ -1,9 +1,13 @@
 package edu.cudenver.bios.glimmpse.client.panels;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.LoadEvent;
+import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -19,6 +23,7 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.NamedFrame;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -40,6 +45,17 @@ import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
 public class ResultsDisplayPanel extends WizardStepPanel
 implements OptionsListener, SolvingForListener
 {	
+	// columns associated with each quantity in the data table
+	private static final int COLUMN_ID_TEST = 0;
+	private static final int COLUMN_ID_ACTUAL_POWER = 1;
+	private static final int COLUMN_ID_TOTAL_SAMPLE_SIZE = 2;
+	private static final int COLUMN_ID_BETA_SCALE = 3;
+	private static final int COLUMN_ID_SIGMA_SCALE = 4;
+	private static final int COLUMN_ID_ALPHA = 5;
+	private static final int COLUMN_ID_NOMINAL_POWER = 6;
+	private static final int COLUMN_ID_POWER_METHOD = 7;
+	private static final int COLUMN_ID_QUANTILE = 8;
+	
 	private static final String STYLE_RESULT_BUTTON = "resultsPanelButton";
 	private static final String STYLE_SEPARATOR = "separator";
 	private static final int STATUS_CODE_OK = 200;
@@ -47,16 +63,14 @@ implements OptionsListener, SolvingForListener
 	private static final String POWER_URL = "/webapps/power/power";
 	private static final String SAMPLE_SIZE_URL = "/webapps/power/samplesize";
 	private static final String CURVE_URL = "/webapps/chart/scatter";
+	private static final String CURVE_3D_URL = "/webapps/chart/scatter3d";
 	private static final String LEGEND_URL = "/webapps/chart/legend";
-	private static final String IMAGE_FRAME_NAME_SUFFIX = "PowerCurveFrame";
-	private static final String LEGEND_FRAME_NAME_SUFFIX = "LegendFrame";
+
 	private static final String STYLE_POWER_CURVE_FRAME = "powerCurveFrame";
 	private static final String CHART_INPUT_NAME = "chart";
 	private static final String SAVE_INPUT_NAME = "save";
 	private static final String FILENAME_INPUT_NAME = "filename";
 	private static final String SAVE_CSV_FILENAME = "powerResults.csv";
-	private static final String SAVE_CURVE_FILENAME = "powerCurve.jpeg";
-	private static final String SAVE_LEGEND_FILENAME = "legend.jpeg";
 	private NumberFormat doubleFormatter = NumberFormat.getFormat("0.0000");
 
 	// wait dialog
@@ -71,12 +85,16 @@ implements OptionsListener, SolvingForListener
 
 	// curve display
 	protected VerticalPanel resultsCurvePanel = new VerticalPanel();
-	protected HashMap<String,StringBuffer> curveXMLByColumn = new HashMap<String,StringBuffer>();
+	protected HashMap<String,ArrayList<Integer>> curveGroupsByColumn = new HashMap<String,ArrayList<Integer>>();
 	
 	// error display
 	protected VerticalPanel errorPanel = new VerticalPanel();
 	protected HTML errorHTML = new HTML();
-
+	// I tried to build the curves with Google Chart Api, but the scatter chart
+	// didn't have enough control over line types, etc.  Thus, I rolled my own
+	// restlet on top of JFreeChart.  Images are retrieved via GET
+	protected Image powerCurveImage = new Image();
+	protected Image legendImage = new Image();
 	// matrix popup panel - allows users to view the actual matrices produced for the calculations
 	// and hey, it sure is nice for debugging
 	protected PopupPanel matrixPopup = new PopupPanel();
@@ -88,20 +106,8 @@ implements OptionsListener, SolvingForListener
 			matrixPopup.center();
 		}
 	});
-	// we have to use a form submission to display image data
-	// I tried to build the curves with Google Chart Api, but the scatter chart
-	// didn't have enough control over line types, etc.  Thus, I rolled my own
-	// restlet on top of JFreeChart
-	// hidden iframe to hold the power curve image data
-	protected NamedFrame imageFrame;
-	protected FormPanel curveForm;
-	protected Hidden curveEntityBodyHidden = new Hidden(CHART_INPUT_NAME);
-	// frame for curve legend info -see above: name must be unique
-	protected NamedFrame legendFrame;
-	protected FormPanel legendForm;
-	protected Hidden legendEntityBodyHidden = new Hidden(CHART_INPUT_NAME);
-	// this is a separate form for saving an image, since we have to resubmit the request to a 
-	// blank target window
+
+	// blank target window - for saving images
 	protected FormPanel saveForm = new FormPanel("_blank");
 	protected Hidden saveEntityBodyHidden = new Hidden(CHART_INPUT_NAME);
 	protected Hidden saveFilenameHidden = new Hidden(FILENAME_INPUT_NAME);
@@ -170,89 +176,29 @@ implements OptionsListener, SolvingForListener
     	HTML header = new HTML("Power Curve");
     	HTML description = new HTML("");
 
-		// build the power curve display
-		/* WARNING: these named frames must have a unique name or the curve will not display */
-		imageFrame = new NamedFrame(manager.getModeName() + IMAGE_FRAME_NAME_SUFFIX);
-		curveForm = new FormPanel(imageFrame);
-		// setup the form for submitting curve requests to the target IFrame
-		curveForm.setAction(CURVE_URL);
-		curveForm.setMethod(FormPanel.METHOD_POST);
-		VerticalPanel curveFormContainer = new VerticalPanel();
-		curveFormContainer.add(curveEntityBodyHidden);
-		curveForm.add(curveFormContainer);
-		curveForm.addSubmitCompleteHandler(new SubmitCompleteHandler() {
+    	// add load callbacks
+    	powerCurveImage.addLoadHandler(new LoadHandler() {
 			@Override
-			public void onSubmitComplete(SubmitCompleteEvent event)
-			{
-				Window.alert("Curve form complete!");
-				legendEntityBodyHidden.setValue(buildCurveRequestXML());
-				
-				legendForm.submit();
-			}
-		});
-		// build the Iframe and form for the legend image (separated since these can become quite large)
-		legendFrame = new NamedFrame(manager.getModeName() + LEGEND_FRAME_NAME_SUFFIX);
-		legendForm = new FormPanel(legendFrame);
-		legendForm.setAction(LEGEND_URL);
-		legendForm.setMethod(FormPanel.METHOD_POST);
-		VerticalPanel legendFormContainer = new VerticalPanel();
-		legendFormContainer.add(legendEntityBodyHidden);
-		legendForm.add(legendFormContainer);
-		legendForm.addSubmitCompleteHandler(new SubmitCompleteHandler() {
-			@Override
-			public void onSubmitComplete(SubmitCompleteEvent event)
+			public void onLoad(LoadEvent event)
 			{
 				hideWorkingDialog();
 			}
-		});
+    	});
+    	// TODO legend images
+    	
 		// layout the image / legend
 		Grid grid = new Grid(1,2);
-		grid.setWidget(0,0,imageFrame);
-		grid.setWidget(0,1,legendFrame);
-
-		// setup the form for saving curve data - you can't dynamically change a form target,
-		// so we need the separate one for saving
-		saveForm.setMethod(FormPanel.METHOD_POST);
-		VerticalPanel saveFormContainer = new VerticalPanel();
-		saveFormContainer.add(saveEntityBodyHidden);
-		saveFormContainer.add(saveHidden);
-		saveFormContainer.add(saveFilenameHidden);
-		saveForm.add(saveFormContainer);
-    
-		// tools for saving the curve and legend images
-    	HorizontalPanel panel = new HorizontalPanel();
-    	Button saveCurveButton = new Button(Glimmpse.constants.toolsSaveCurve(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				saveCurveData();
-			}
-    	});
-    	Button saveLegendButton = new Button(Glimmpse.constants.toolsSaveLegend(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				saveLegendData();
-			}
-    	});
-    	panel.add(saveCurveButton);
-    	panel.add(saveLegendButton);
+		grid.setWidget(0,0,powerCurveImage);
+		grid.setWidget(0,1,legendImage);
 				
     	// layout the sub panel
     	resultsCurvePanel.add(header);
     	resultsCurvePanel.add(description);
     	resultsCurvePanel.add(grid);
-    	resultsCurvePanel.add(panel);
-    	resultsCurvePanel.add(curveForm);
-    	resultsCurvePanel.add(legendForm);
-    	resultsCurvePanel.add(saveForm);		
 		
         // set style
-		saveCurveButton.setStyleName(STYLE_RESULT_BUTTON);
-		saveCurveButton.addStyleDependentName(STYLE_SEPARATOR);
-		saveLegendButton.setStyleName(STYLE_RESULT_BUTTON);
-		imageFrame.setStyleName(STYLE_POWER_CURVE_FRAME);
-		legendFrame.setStyleName(STYLE_POWER_CURVE_FRAME);
+		powerCurveImage.setStyleName(STYLE_POWER_CURVE_FRAME);
+		legendImage.setStyleName(STYLE_POWER_CURVE_FRAME);
     	resultsCurvePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
     	resultsCurvePanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
@@ -304,7 +250,7 @@ implements OptionsListener, SolvingForListener
 	@Override
 	public void reset()
 	{
-		curveXMLByColumn.clear();
+		curveGroupsByColumn.clear();
 		matrixDisplayPanel.reset();
 		resultsData.removeRows(0, resultsData.getNumberOfRows());
 		resultsTablePanel.setVisible(false);
@@ -316,9 +262,6 @@ implements OptionsListener, SolvingForListener
 	public void onEnter()
 	{
 		reset();
-		// TODO: REMOVE next 2 lines
-		resultsTablePanel.setVisible(true);
-		resultsCurvePanel.setVisible(true);
 		sendPowerRequest();
 	}
 
@@ -385,40 +328,37 @@ implements OptionsListener, SolvingForListener
 
 			// fill the google visualization data table
 			NodeList glmmPowerList = doc.getElementsByTagName("glmmPower");
-			for(int i = 0; i < count; i++)
+			for(int powerIdx = 0; powerIdx < count; powerIdx++)
 			{
-				Node glmmPower = glmmPowerList.item(i);
+				Node glmmPower = glmmPowerList.item(powerIdx);
 				NamedNodeMap attrs = glmmPower.getAttributes();
 
 				// add a blank row to the data table
 				int row = resultsData.addRow();
 				StringBuffer curveColumnId = new StringBuffer();
 
-				// fill in the columns
-				int col = 0;
-
 				Node testNode = attrs.getNamedItem("test");
 				if (testNode != null) 
 				{
-					resultsData.setCell(row, col, testNode.getNodeValue(), 
+					resultsData.setCell(row, COLUMN_ID_TEST, testNode.getNodeValue(), 
 							formatTestName(testNode.getNodeValue()), null);
 					curveColumnId.append("Test=");
 					curveColumnId.append(formatTestName(testNode.getNodeValue()));
 				}
-				col++;
 
 				Node actualPowerNode = attrs.getNamedItem("actualPower");
 				if (actualPowerNode != null) 
 				{
-					resultsData.setCell(row, col, Double.parseDouble(actualPowerNode.getNodeValue()), 
+					resultsData.setCell(row, COLUMN_ID_ACTUAL_POWER, 
+							Double.parseDouble(actualPowerNode.getNodeValue()), 
 							formatDouble(actualPowerNode.getNodeValue()), null);
 				}
-				col++;
 
 				Node sampleSizeNode = attrs.getNamedItem("sampleSize");
 				if (sampleSizeNode != null) 
 				{
-					resultsData.setCell(row, col, Integer.parseInt(sampleSizeNode.getNodeValue()), 
+					resultsData.setCell(row, COLUMN_ID_TOTAL_SAMPLE_SIZE, 
+							Integer.parseInt(sampleSizeNode.getNodeValue()), 
 							sampleSizeNode.getNodeValue(), null);
 					if (xaxisType != XAxisType.TOTAL_N && solutionType != SolutionType.TOTAL_N)
 					{
@@ -426,26 +366,26 @@ implements OptionsListener, SolvingForListener
 						curveColumnId.append(sampleSizeNode.getNodeValue());
 					}
 				}
-				col++;
 
 				Node betaScaleNode = attrs.getNamedItem("betaScale");
 				if (betaScaleNode != null) 
 				{
-					resultsData.setCell(row, col, Double.parseDouble(betaScaleNode.getNodeValue()), 
+					resultsData.setCell(row, COLUMN_ID_BETA_SCALE, 
+							Double.parseDouble(betaScaleNode.getNodeValue()), 
 							betaScaleNode.getNodeValue(), null);
-					if (xaxisType != XAxisType.EFFECT_SIZE && 
+					if (xaxisType != XAxisType.BETA_SCALE && 
 							solutionType != SolutionType.DETECTABLE_DIFFERENCE)
 					{
 						curveColumnId.append(",Effect Size Scale=");
 						curveColumnId.append(betaScaleNode.getNodeValue());
 					}
 				}
-				col++;
 
 				Node sigmaScaleNode = attrs.getNamedItem("sigmaScale");
 				if (sigmaScaleNode != null) 
 				{
-					resultsData.setCell(row, col, Double.parseDouble(sigmaScaleNode.getNodeValue()), 
+					resultsData.setCell(row, COLUMN_ID_SIGMA_SCALE, 
+							Double.parseDouble(sigmaScaleNode.getNodeValue()), 
 							sigmaScaleNode.getNodeValue(), null);
 					if (xaxisType != XAxisType.VARIANCE)
 					{
@@ -453,76 +393,55 @@ implements OptionsListener, SolvingForListener
 						curveColumnId.append(sigmaScaleNode.getNodeValue());
 					}
 				}
-				col++;     	
 
 				Node alphaNode = attrs.getNamedItem("alpha");
 				if (alphaNode != null) 
 				{
-					resultsData.setCell(row, col, Double.parseDouble(alphaNode.getNodeValue()), 
+					resultsData.setCell(row, COLUMN_ID_ALPHA, 
+							Double.parseDouble(alphaNode.getNodeValue()), 
 							alphaNode.getNodeValue(), null);
 					curveColumnId.append("Alpha=");
 					curveColumnId.append(alphaNode.getNodeValue());
 				}
-				col++;
 
 				Node nominalPowerNode = attrs.getNamedItem("nominalPower");
 				if (nominalPowerNode != null) 
 				{
-					resultsData.setCell(row, col, Double.parseDouble(nominalPowerNode.getNodeValue()), 
+					resultsData.setCell(row, COLUMN_ID_NOMINAL_POWER, 
+							Double.parseDouble(nominalPowerNode.getNodeValue()), 
 							formatDouble(nominalPowerNode.getNodeValue()), null);
 					if (solutionType != SolutionType.POWER)
 					{
 						curveColumnId.append(",Nominal Power=");
 						curveColumnId.append(nominalPowerNode.getNodeValue());
 					}
-				}
-				col++;       
+				} 
 
 				Node powerMethodNode = attrs.getNamedItem("powerMethod");
 				if (powerMethodNode != null) 
 				{
-					resultsData.setCell(row, col, powerMethodNode.getNodeValue(), 
+					resultsData.setCell(row, COLUMN_ID_POWER_METHOD, 
+							powerMethodNode.getNodeValue(), 
 							formatPowerMethodName(powerMethodNode.getNodeValue()), null);
 					curveColumnId.append(",Power Method=");
 					curveColumnId.append(formatPowerMethodName(powerMethodNode.getNodeValue()));
 				}
-				col++;
 
 				Node quantileNode = attrs.getNamedItem("quantile");
 				if (quantileNode != null) 
 				{
-					resultsData.setCell(row, col, Double.parseDouble(quantileNode.getNodeValue()), 
+					resultsData.setCell(row, COLUMN_ID_QUANTILE, 
+							Double.parseDouble(quantileNode.getNodeValue()), 
 							quantileNode.getNodeValue(), null);
 					curveColumnId.append(",Quantile=");
 					curveColumnId.append(quantileNode.getNodeValue());
 				}
 
-				// update the series XML as we go
-				StringBuffer buffer = (StringBuffer) curveXMLByColumn.get(curveColumnId.toString());
-				if (buffer == null) 
-				{
-					buffer = new StringBuffer();
-					buffer.append("<series label='");
-					buffer.append(curveColumnId);
-					buffer.append("'>");
-					curveXMLByColumn.put(curveColumnId.toString(), buffer);
-				}
-				buffer.append("<p y='");
-				buffer.append(Double.parseDouble(actualPowerNode.getNodeValue()));
-				buffer.append("' x='");
-				switch(xaxisType)
-				{
-				case TOTAL_N:
-					buffer.append(Double.parseDouble(sampleSizeNode.getNodeValue()));
-					break;
-				case EFFECT_SIZE:
-					buffer.append(Double.parseDouble(betaScaleNode.getNodeValue()));
-					break;
-				case VARIANCE:
-					buffer.append(Double.parseDouble(sigmaScaleNode.getNodeValue()));
-					break;
-				}
-				buffer.append("' />");
+				// keep track of which rows of the power table represent unique groups
+				ArrayList<Integer> rowsForCurrentGroup = curveGroupsByColumn.get(curveColumnId.toString());
+				if (rowsForCurrentGroup == null) rowsForCurrentGroup = new ArrayList<Integer>();
+				rowsForCurrentGroup.add(powerIdx);
+				curveGroupsByColumn.put(curveColumnId.toString(), rowsForCurrentGroup);
 			}            	
 
 			if (showCurve)
@@ -534,7 +453,6 @@ implements OptionsListener, SolvingForListener
 				resultsTable.draw(resultsData);
 				resultsTablePanel.setVisible(true);
 			}
-			hideWorkingDialog();
 		}
 		catch (Exception e)
 		{
@@ -546,11 +464,8 @@ implements OptionsListener, SolvingForListener
 	{
 		// submit the result to the chart service
 		resultsCurvePanel.setVisible(true);
-		String xml = buildCurveRequestXML();
-		curveEntityBodyHidden.setValue(xml);
-		curveForm.submit();
+		powerCurveImage.setUrl(buildCurveRequest());
 	}
-
 
 	private String formatPowerMethodName(String name)
 	{
@@ -577,7 +492,7 @@ implements OptionsListener, SolvingForListener
 
 	private void sendPowerRequest()
 	{
-		//showWorkingDialog();
+		showWorkingDialog();
 		String requestEntityBody = manager.getPowerRequestXML();
 		matrixDisplayPanel.loadFromXML(requestEntityBody);
 		RequestBuilder builder = null;
@@ -677,34 +592,54 @@ implements OptionsListener, SolvingForListener
 		return buffer.toString();
 	}
 
-	private String buildCurveRequestXML()
+	private String buildCurveRequest()
 	{
 		// build the full chart xml
 		StringBuffer buffer = new StringBuffer();
-
-		buffer.append("<chart title='Power Curve' legend='false' >");
-		buffer.append("<yaxis label='Power' />");
-		buffer.append("<xaxis label='"); 
+		int xColumn = -1;
+		buffer.append(CURVE_URL);
+		buffer.append("?chtt=Power%20Curve&chxl=");
 		switch(xaxisType)
 		{
 		case TOTAL_N:
-			buffer.append("Total Sample Size");
+			xColumn = COLUMN_ID_TOTAL_SAMPLE_SIZE;
+			buffer.append("Total%20Sample%20Size");
 			break;
-		case EFFECT_SIZE:
-			buffer.append("Effect Size Scale Factor");
+		case BETA_SCALE:
+			xColumn = COLUMN_ID_BETA_SCALE;
+			buffer.append("Difference%20Scale%20Factor");
 			break;
 		case VARIANCE:
-			buffer.append("Variance Scale Factor");
+			xColumn = COLUMN_ID_SIGMA_SCALE;
+			buffer.append("Variance%20Scale%20Factor");
 			break;
 		}
-		buffer.append("' />");
-		for(StringBuffer columnBuffer: curveXMLByColumn.values())
+		buffer.append("|Power&chd=t:");
+		boolean firstSeries = true;
+		for(ArrayList<Integer> groupRows: curveGroupsByColumn.values())
 		{
-			buffer.append(columnBuffer);
-			buffer.append("</series>");
+			if (!firstSeries) buffer.append("|"); 
+			firstSeries = false;
+			
+			StringBuffer xBuffer = new StringBuffer();
+			StringBuffer yBuffer = new StringBuffer();
+			boolean first = true;
+			for(Integer row: groupRows)
+			{
+				if (!first)
+				{
+					xBuffer.append(",");
+					yBuffer.append(",");
+				}
+				first =false;
+				xBuffer.append(resultsData.getValueString(row, xColumn));
+				yBuffer.append(resultsData.getValueDouble(row, COLUMN_ID_ACTUAL_POWER));
+			}
+			buffer.append(xBuffer);
+			buffer.append("|");
+			buffer.append(yBuffer);
 		}
-
-		buffer.append("</chart>");
+		
 		return buffer.toString();
 	}
 	
@@ -712,26 +647,6 @@ implements OptionsListener, SolvingForListener
 	{
 		// submit the result to the file service
 		manager.sendSaveRequest(dataTableToCSV(), SAVE_CSV_FILENAME);
-	}
-	
-	public void saveCurveData()
-	{
-		// submit the result to the chart service
-		saveForm.setAction(CURVE_URL);
-		saveEntityBodyHidden.setValue(buildCurveRequestXML());
-		saveFilenameHidden.setValue(SAVE_CURVE_FILENAME);
-		saveHidden.setValue("true");
-		saveForm.submit();
-	}
-	
-	public void saveLegendData()
-	{
-		// submit the result to the chart service
-		saveForm.setAction(LEGEND_URL);
-		saveEntityBodyHidden.setValue(buildCurveRequestXML());
-		saveFilenameHidden.setValue(SAVE_LEGEND_FILENAME);
-		saveHidden.setValue("true");
-		saveForm.submit();
 	}
 
 	@Override
