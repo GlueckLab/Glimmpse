@@ -4,13 +4,13 @@ public interface OptionsListener
 {
 	public enum XAxisType {
 		TOTAL_N,
-		EFFECT_SIZE,
+		BETA_SCALE,
 		VARIANCE
 	};
 	
 	public enum CurveSubset {
 		TOTAL_N,
-		EFFECT_SIZE,
+		BETA_SCALE,
 		VARIANCE,
 		TEST,
 		POWER_METHOD,

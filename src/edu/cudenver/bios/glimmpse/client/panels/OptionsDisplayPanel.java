@@ -230,7 +230,7 @@ implements ClickHandler
 		}
 		else
 		{
-			xaxisType = XAxisType.EFFECT_SIZE;
+			xaxisType = XAxisType.BETA_SCALE;
 		}
 		
 		

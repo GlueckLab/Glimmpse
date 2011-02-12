@@ -280,6 +280,7 @@ public interface GlimmpseConstants extends Constants
     // sigma outcome panel
     public String variabilityOutcomeTitle();
     public String variabilityOutcomeDescription();
+    public String variabilityOutcomeQuestion();
     // sigma covariate outcome panel
     public String variabilityCovariateOutcomeTitle();
     public String variabilityCovariateOutcomeDescription();

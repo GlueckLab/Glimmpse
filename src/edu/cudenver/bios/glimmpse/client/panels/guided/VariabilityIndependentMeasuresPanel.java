@@ -43,7 +43,7 @@ implements OutcomesListener, CovariateListener
         HTML description = new HTML(Glimmpse.constants.variabilityOutcomeDescription());
         // create the standard deviation entry form
         // TODO: constants!!
-        standardDeviationContainer.add(new HTML("What is the estimated standard deviation for the following outcomes?"));
+        standardDeviationContainer.add(new HTML(Glimmpse.constants.variabilityOutcomeQuestion()));
         standardDeviationContainer.add(standardDeviationTable);
         standardDeviationContainer.add(standardDeviationErrorHTML);
         // create the correlation entry form

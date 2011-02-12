@@ -105,7 +105,7 @@ implements CovariateListener, VariabilityListener, OutcomesListener, ChangeHandl
 		int i = 0;
 		for(String outcome: outcomes)
 		{
-			correlationTable.setWidget(i, COLUMN_LABEL, new HTML(outcome + Glimmpse.constants.and() + " covariate"));
+			correlationTable.setWidget(i, COLUMN_LABEL, new HTML(outcome + " " + Glimmpse.constants.and() + " covariate"));
 			TextBox tb = new TextBox();
 			correlationTable.setWidget(i, COLUMN_TEXTBOX, tb);
 			tb.addChangeHandler(new ChangeHandler() {
