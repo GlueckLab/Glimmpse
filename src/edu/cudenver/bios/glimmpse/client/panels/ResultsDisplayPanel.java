@@ -6,6 +6,8 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.ErrorEvent;
+import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.http.client.Request;
@@ -177,6 +179,14 @@ implements OptionsListener, SolvingForListener
     	HTML description = new HTML("");
 
     	// add load callbacks
+    	powerCurveImage.addErrorHandler(new ErrorHandler() {
+
+			@Override
+			public void onError(ErrorEvent event)
+			{
+				hideWorkingDialog();
+			}
+    	});
     	powerCurveImage.addLoadHandler(new LoadHandler() {
 			@Override
 			public void onLoad(LoadEvent event)
@@ -184,8 +194,22 @@ implements OptionsListener, SolvingForListener
 				hideWorkingDialog();
 			}
     	});
-    	// TODO legend images
-    	
+    	// legend images
+    	legendImage.addLoadHandler(new LoadHandler() {
+			@Override
+			public void onLoad(LoadEvent event)
+			{
+				hideWorkingDialog();
+			}
+    	});
+    	legendImage.addErrorHandler(new ErrorHandler() {
+
+			@Override
+			public void onError(ErrorEvent event)
+			{
+				hideWorkingDialog();
+			}
+    	});
 		// layout the image / legend
 		Grid grid = new Grid(1,2);
 		grid.setWidget(0,0,powerCurveImage);
@@ -197,8 +221,8 @@ implements OptionsListener, SolvingForListener
     	resultsCurvePanel.add(grid);
 		
         // set style
-		powerCurveImage.setStyleName(STYLE_POWER_CURVE_FRAME);
-		legendImage.setStyleName(STYLE_POWER_CURVE_FRAME);
+//		powerCurveImage.setStyleName(STYLE_POWER_CURVE_FRAME);
+//		legendImage.setStyleName(STYLE_POWER_CURVE_FRAME);
     	resultsCurvePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
     	resultsCurvePanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
@@ -362,7 +386,7 @@ implements OptionsListener, SolvingForListener
 							sampleSizeNode.getNodeValue(), null);
 					if (xaxisType != XAxisType.TOTAL_N && solutionType != SolutionType.TOTAL_N)
 					{
-						curveColumnId.append("\nSample Size=");
+						curveColumnId.append("Total N=");
 						curveColumnId.append(sampleSizeNode.getNodeValue());
 					}
 				}
@@ -376,7 +400,7 @@ implements OptionsListener, SolvingForListener
 					if (xaxisType != XAxisType.BETA_SCALE && 
 							solutionType != SolutionType.DETECTABLE_DIFFERENCE)
 					{
-						curveColumnId.append(",Effect Size Scale=");
+						curveColumnId.append(",Beta-Scale=");
 						curveColumnId.append(betaScaleNode.getNodeValue());
 					}
 				}
@@ -389,7 +413,7 @@ implements OptionsListener, SolvingForListener
 							sigmaScaleNode.getNodeValue(), null);
 					if (xaxisType != XAxisType.VARIANCE)
 					{
-						curveColumnId.append(",Variance Scale=");
+						curveColumnId.append(",Sigma-Scale=");
 						curveColumnId.append(sigmaScaleNode.getNodeValue());
 					}
 				}
@@ -400,7 +424,7 @@ implements OptionsListener, SolvingForListener
 					resultsData.setCell(row, COLUMN_ID_ALPHA, 
 							Double.parseDouble(alphaNode.getNodeValue()), 
 							alphaNode.getNodeValue(), null);
-					curveColumnId.append("Alpha=");
+					curveColumnId.append(",Alpha=");
 					curveColumnId.append(alphaNode.getNodeValue());
 				}
 
@@ -463,8 +487,11 @@ implements OptionsListener, SolvingForListener
 	private void showCurveResults()
 	{
 		// submit the result to the chart service
+		String queryString = buildCurveQueryString();
 		resultsCurvePanel.setVisible(true);
-		powerCurveImage.setUrl(buildCurveRequest());
+		powerCurveImage.setUrl(CURVE_URL + "?" + queryString + buildSizeQueryString(300,300));
+		legendImage.setUrl(LEGEND_URL + "?" + queryString + buildLegendQueryString() +
+				buildSizeQueryString(600,300));
 	}
 
 	private String formatPowerMethodName(String name)
@@ -591,14 +618,14 @@ implements OptionsListener, SolvingForListener
 		}
 		return buffer.toString();
 	}
-
-	private String buildCurveRequest()
+	
+	private String buildCurveQueryString()
 	{
+		boolean firstSeries = true;
 		// build the full chart xml
 		StringBuffer buffer = new StringBuffer();
 		int xColumn = -1;
-		buffer.append(CURVE_URL);
-		buffer.append("?chtt=Power%20Curve&chxl=");
+		buffer.append("chxl=");
 		switch(xaxisType)
 		{
 		case TOTAL_N:
@@ -614,8 +641,8 @@ implements OptionsListener, SolvingForListener
 			buffer.append("Variance%20Scale%20Factor");
 			break;
 		}
+		// build the data series x..x|y...y|z...z
 		buffer.append("|Power&chd=t:");
-		boolean firstSeries = true;
 		for(ArrayList<Integer> groupRows: curveGroupsByColumn.values())
 		{
 			if (!firstSeries) buffer.append("|"); 
@@ -639,7 +666,31 @@ implements OptionsListener, SolvingForListener
 			buffer.append("|");
 			buffer.append(yBuffer);
 		}
-		
+
+		return buffer.toString();
+	}
+	
+	private String buildSizeQueryString(int width, int height)
+	{
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("&chs=");
+		buffer.append(width);
+		buffer.append("x");
+		buffer.append(height);
+		return buffer.toString();
+	}
+	
+	private String buildLegendQueryString()
+	{
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("&chdl=");
+		boolean first = true;
+		for(String seriesLabel: curveGroupsByColumn.keySet())
+		{
+			if (!first) buffer.append("|");
+			first = false;
+			buffer.append(seriesLabel);
+		}
 		return buffer.toString();
 	}
 	
