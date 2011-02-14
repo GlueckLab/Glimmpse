@@ -19,7 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package edu.cudenver.bios.glimmpse.client.panels.matrix;
+package edu.cudenver.bios.glimmpse.client.panels;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -29,10 +29,6 @@ import com.google.gwt.xml.client.NodeList;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
-import edu.cudenver.bios.glimmpse.client.panels.DynamicListValidator;
-import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
-import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
-import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 /**
  * Panel for entering type I error values

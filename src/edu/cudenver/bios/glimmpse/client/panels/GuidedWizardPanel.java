@@ -76,7 +76,7 @@ implements StudyDesignManager, SaveListener
 	// type I error
 	protected IntroPanel alphaIntroPanel = new IntroPanel(Glimmpse.constants.alphaIntroTitle(),
 			Glimmpse.constants.alphaIntroDescription());
-	protected SimpleAlphaPanel alphaPanel = new SimpleAlphaPanel();
+	protected AlphaPanel alphaPanel = new AlphaPanel();
 	// predictors
 	protected IntroPanel predictorIntroPanel = new IntroPanel(Glimmpse.constants.predictorsIntroTitle(),
 			Glimmpse.constants.predictorsIntroDescription());
@@ -129,7 +129,7 @@ implements StudyDesignManager, SaveListener
     // list of panels for the wizard
 	WizardStepPanel[][] panelList = {
 			{startIntroPanel, solvingForPanel, powerPanel},
-			{alphaIntroPanel, alphaPanel}, 
+			{alphaPanel}, 
 			{predictorIntroPanel, catPredictorsPanel, covariatePanel, 
 				relativeGroupSizePanel, perGroupSampleSizePanel}, 
 			{outcomesIntroPanel, outcomesPanel, repeatedMeasuresPanel}, 

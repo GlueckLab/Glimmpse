@@ -34,7 +34,6 @@ import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.CancelListener;
 import edu.cudenver.bios.glimmpse.client.listener.SaveListener;
 import edu.cudenver.bios.glimmpse.client.panels.guided.PerGroupSampleSizePanel;
-import edu.cudenver.bios.glimmpse.client.panels.matrix.AlphaPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.BetaPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.BetaScalePanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.BetweenSubjectContrastPanel;

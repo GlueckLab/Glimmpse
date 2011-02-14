@@ -51,6 +51,7 @@ implements ClickHandler, ChangeHandler
 	public RepeatedMeasuresPanel()
 	{
 		super();
+		skip = true; // TODO: remove once we get repeated measures going.
     	VerticalPanel panel = new VerticalPanel();
     	
         // create the repeated measures header/instruction text
