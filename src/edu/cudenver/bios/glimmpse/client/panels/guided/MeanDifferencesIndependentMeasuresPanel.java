@@ -38,10 +38,13 @@ OutcomesListener, PredictorsListener
     protected HTML interactionEffectHypothesisHTML = new HTML("");
     protected HTML interactionEffectQuestionHTML = new HTML("");
 
+    protected FlexTable meansTable = new FlexTable();
+    
     protected String predictor = null;
     protected String interactionPredictor = null;
     protected int numOutcomes = 0;
     protected int numGroups = 0;
+    protected DataTable groups = null;
     protected boolean hasCovariate = false;
     
     private class OutcomeTextBox extends TextBox 

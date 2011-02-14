@@ -39,6 +39,7 @@ import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisDoublyRepeatedM
 import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisIndependentMeasuresPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.HypothesisRepeatedMeasuresPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesIndependentMeasuresPanel;
+import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesRepeatedMeasuresPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.MeanDifferencesScalePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.OutcomesPanel;
@@ -101,6 +102,7 @@ implements StudyDesignManager, SaveListener
 	// mean differences
 	protected IntroPanel meanDifferencesIntroPanel = new IntroPanel(Glimmpse.constants.meanDifferenceIntroTitle(),
 			Glimmpse.constants.meanDifferenceIntroDescription());
+	protected MeanDifferencesPanel meanDifferencesPanel = new MeanDifferencesPanel();
 	protected MeanDifferencesIndependentMeasuresPanel meanDifferencesIndependentPanel =
 		new MeanDifferencesIndependentMeasuresPanel();
 	protected MeanDifferencesRepeatedMeasuresPanel meanDifferencesRepeatedPanel =
@@ -135,7 +137,7 @@ implements StudyDesignManager, SaveListener
 			{outcomesIntroPanel, outcomesPanel, repeatedMeasuresPanel}, 
 			{hypothesisIntroPanel, hypothesisIndependentPanel, hypothesisRepeatedPanel,
 				hypothesisDoublyRepeatedPanel},
-			{meanDifferencesIntroPanel, meanDifferencesIndependentPanel,
+			{meanDifferencesIntroPanel, meanDifferencesPanel,
 				meanDifferencesRepeatedPanel, meanDifferencesScalePanel},
 			{variabilityIntroPanel, variabilityIndependentPanel, variabilityRepeatedPanel,
 					variabilityCovariatePanel, variabilityCovariateOutcomePanel, variabilityScalePanel},
@@ -176,6 +178,7 @@ implements StudyDesignManager, SaveListener
 		outcomesPanel.addOutcomesListener(hypothesisIndependentPanel);
 		outcomesPanel.addOutcomesListener(hypothesisRepeatedPanel);
 		outcomesPanel.addOutcomesListener(meanDifferencesIndependentPanel);
+		outcomesPanel.addOutcomesListener(meanDifferencesPanel);
 		outcomesPanel.addOutcomesListener(variabilityIndependentPanel);
 		outcomesPanel.addOutcomesListener(variabilityRepeatedPanel);
 		outcomesPanel.addOutcomesListener(variabilityCovariateOutcomePanel);
@@ -184,12 +187,14 @@ implements StudyDesignManager, SaveListener
 		catPredictorsPanel.addPredictorsListener(hypothesisIndependentPanel);
 		catPredictorsPanel.addPredictorsListener(hypothesisRepeatedPanel);
 		catPredictorsPanel.addPredictorsListener(meanDifferencesIndependentPanel);
+		catPredictorsPanel.addPredictorsListener(meanDifferencesPanel);
 		// listeners for relative group sizes
 		relativeGroupSizePanel.addRelativeGroupSizeListener(hypothesisIndependentPanel);
 		relativeGroupSizePanel.addRelativeGroupSizeListener(hypothesisRepeatedPanel);
 		// listeners for baseline covariates
 		covariatePanel.addCovariateListener(relativeGroupSizePanel);
 		covariatePanel.addCovariateListener(meanDifferencesIndependentPanel);
+		covariatePanel.addCovariateListener(meanDifferencesPanel);
 		// TODO: covariatePanel.addCovariateListener(meanDifferencesRepeatedPanel);
 		covariatePanel.addCovariateListener(hypothesisIndependentPanel);
 		covariatePanel.addCovariateListener(hypothesisRepeatedPanel);
@@ -298,8 +303,9 @@ implements StudyDesignManager, SaveListener
 		buffer.append(relativeGroupSizePanel.toRequestXML()); // outputs design matrix
 		buffer.append(hypothesisIndependentPanel.toRequestXML());
 		buffer.append(hypothesisRepeatedPanel.toRequestXML());
-		buffer.append(meanDifferencesIndependentPanel.toRequestXML());
-		buffer.append(meanDifferencesRepeatedPanel.toRequestXML());
+		buffer.append(meanDifferencesPanel.toXML());
+//		buffer.append(meanDifferencesIndependentPanel.toRequestXML());
+//		buffer.append(meanDifferencesRepeatedPanel.toRequestXML());
 		buffer.append(variabilityIndependentPanel.toRequestXML());
 		buffer.append(variabilityRepeatedPanel.toRequestXML());
 		buffer.append(variabilityCovariatePanel.toRequestXML());
@@ -332,6 +338,7 @@ implements StudyDesignManager, SaveListener
 		buffer.append(outcomesPanel.toStudyXML());
 		buffer.append(hypothesisIndependentPanel.toStudyXML());
 		buffer.append(repeatedMeasuresPanel.toStudyXML());
+		buffer.append(meanDifferencesPanel.toXML());
 		buffer.append(meanDifferencesScalePanel.toStudyXML());
 		buffer.append(variabilityScalePanel.toStudyXML());
 		// TODO	
