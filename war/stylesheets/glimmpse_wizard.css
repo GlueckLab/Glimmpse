@@ -402,6 +402,11 @@
 	width: 80%;
 }
 
+.wizardStepParagraph {
+	width: 80%;
+	margin-top: 10px;
+}
+
 .wizardStepIndentedContent {
 	margin-left: 20px;
 }
