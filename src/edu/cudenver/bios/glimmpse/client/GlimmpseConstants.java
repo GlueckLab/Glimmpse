@@ -1,6 +1,7 @@
 package edu.cudenver.bios.glimmpse.client;
 
 import com.google.gwt.i18n.client.Constants;
+import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 
 import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener.SolutionType;
 
@@ -24,6 +25,7 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_STEP_TABLE_HEADER = "wizardStepTableHeader";
     public static final String STYLE_WIZARD_STEP_TABLE_ROW = "wizardStepTableRow";
     public static final String STYLE_WIZARD_CONTENT = "wizardStepContent";
+    public static final String STYLE_WIZARD_PARAGRAPH = "wizardStepParagraph";
     public static final String STYLE_WIZARD_INDENTED_CONTENT = "wizardStepIndentedContent";
 
     public static final String STYLE_WIZARD_STEP_LIST_PANEL = "wizardStepListPanel";
@@ -61,6 +63,7 @@ public interface GlimmpseConstants extends Constants
     public static final String TAG_ROW = "r";
     public static final String TAG_COLUMN = "c";
     public static final String TAG_VALUE = "v";
+    public static final String TAG_CONFIDENCE_INTERVAL = "confidenceInterval";
     
     public static final String ATTR_MODE = "mode";
     public static final String ATTR_TYPE = "type";
@@ -69,6 +72,12 @@ public interface GlimmpseConstants extends Constants
     public static final String ATTR_COLUMNS = "columns";
     public static final String ATTR_COMBINE_HORIZONTAL = "combineHorizontal";
     public static final String ATTR_RATIO = "ratio";
+    public static final String ATTR_CI_ALPHA_LOWER = "alphaLower";
+    public static final String ATTR_CI_ALPHA_UPPER = "alphaUpper";
+    public static final String ATTR_CI_LOWER = "ciLower";
+    public static final String ATTR_CI_UPPER = "ciUpper";
+    public static final String ATTR_CI_ESTIMATES_SAMPLE_SIZE = "estimatesSampleSize";
+    public static final String ATTR_CI_ESTIMATES_RANK = "estimatesRank";    
     
     // guided mode tags/attributes - only used for save/upload and not part of the power REST api
     public static final String TAG_CATEGORICAL_PREDICTORS = "categoricalPredictors";
@@ -85,7 +94,12 @@ public interface GlimmpseConstants extends Constants
     // mode names
     public static final String MODE_MATRIX = "matrix";
     public static final String MODE_GUIDED = "guided";
-
+    // types of confidence intervals
+    // known beta coefficients, sigma estimated
+    public static final String CONFIDENCE_INTERVAL_BETA_KNOWN_EST_SIGMA = "sigma";
+    // both beta and sigma are estimated
+    public static final String CONFIDENCE_INTERVAL_EST_BETA_SIGMA = "betaSigma";
+    
     // matrix names
     public static final String MATRIX_FIXED = "fixed";
     public static final String MATRIX_RANDOM = "random";
@@ -111,6 +125,17 @@ public interface GlimmpseConstants extends Constants
     public static final String TEST_PILLAI_BARTLETT_TRACE= "pbt";
     public static final String TEST_HOTELLING_LAWLEY_TRACE = "hlt";
 
+    // data table column names for power results
+    public static final String COLUMN_NAME_TEST = "test";
+    public static final String COLUMN_NAME_ALPHA = "alpha";
+    public static final String COLUMN_NAME_ACTUAL_POWER = "actualPower";
+    public static final String COLUMN_NAME_SAMPLE_SIZE = "sampleSize";
+    public static final String COLUMN_NAME_BETA_SCALE = "betaScale";
+    public static final String COLUMN_NAME_SIGMA_SCALE = "sigmaScale";
+    public static final String COLUMN_NAME_NOMINAL_POWER = "nominalPower";
+    public static final String COLUMN_NAME_POWER_METHOD = "powerMethod";
+    public static final String COLUMN_NAME_QUANTILE = "quantile";
+    
 	// dimension names derived from linear model theory.
 	// ensures that default matrix dimensions conform properly
     public static final int DEFAULT_N = 3;
@@ -311,15 +336,32 @@ public interface GlimmpseConstants extends Constants
     public String powerMethodUnconditionalLabel();
     public String quantilesTableColumn();
     // display constants
-    public String displayOptionsTitle();
-    public String displayOptionsDescription();
-    public String displayOptionsTableLabel();
-    public String displayOptionsCurveLabel();
-    public String displayOptionsXAxisLabel();
-    public String displayOptionsXAxisSampleSizeLabel();
-    public String displayOptionsXAxisEffectSizeLabel();
-    public String displayOptionsXAxisVarianceLabel();
-
+    public String curveOptionsTitle();
+    public String curveOptionsDescription();
+    public String curveOptionsNone();
+    public String curveOptionsXAxisLabel();
+    public String curveOptionsXAxisSampleSizeLabel();
+    public String curveOptionsXAxisBetaScaleLabel();
+    public String curveOptionsXAxisSigmaScaleLabel();
+//    public String curveOptionsFixedItemsLabel();
+//    public String curveOptionsFixedItemAlpha();
+//    public String curveOptionsFixedItemTest();    
+//    public String curveOptionsFixedItemPowerMethod();
+    
+    // confidence interval constants
+    public String confidenceIntervalOptionsTitle();
+    public String confidenceIntervalOptionsDescription();
+    public String confidenceIntervalOptionsNone();
+    public String confidenceIntervalOptionsTypeQuestion();
+    public String confidenceIntervalOptionsTypeSigma();
+    public String confidenceIntervalOptionsTypeBetaSigma();
+    public String confidenceIntervalOptionsAlphaQuestion();
+    public String confidenceIntervalOptionsAlphaLower();
+    public String confidenceIntervalOptionsAlphaUpper();
+    public String confidenceIntervalOptionsEstimatedDataQuestion();
+    public String confidenceIntervalOptionsSampleSize();
+    public String confidenceIntervalOptionsRank();
+    
     // matrix constants
     public String matrixDimensionSeparator();
     // matrix intro
@@ -385,6 +427,8 @@ public interface GlimmpseConstants extends Constants
     public String errorInvalidPositiveNumber();
     public String errorMaxRows();
     public String errorInvalidMatrixDimension();
+    public String errorInvalidTailProbability();
+    public String errorSampleSizeLessThanRank();
     // confirm messages
     public String confirmClearScreen();
     public String confirmClearAll();

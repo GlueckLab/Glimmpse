@@ -28,6 +28,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.NamedNodeMap;
@@ -36,7 +37,6 @@ import com.google.gwt.xml.client.Node;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.OptionsListener;
-import edu.cudenver.bios.glimmpse.client.listener.OptionsListener.XAxisType;
 
 /**
  * Panel which allows user to select display options
@@ -59,65 +59,43 @@ implements ClickHandler
 	private static final String ATTR_VALUE_XAXIS_EFFECT_SIZE = "effectSize";
 	private static final String ATTR_VALUE_XAXIS_VARIANCE = "variance";
 
+	protected String radioGroupSuffix  = "";
+	
 	protected static final String XAXIS_RADIO_GROUP = "xAxis";
 	protected ArrayList<OptionsListener> listeners = new ArrayList<OptionsListener>();
     
-    // options for results display
-    protected CheckBox showTableCheckBox = new CheckBox();
-    protected CheckBox showCurveCheckBox = new CheckBox();
-    protected HTML xaxisLabel = new HTML(Glimmpse.constants.displayOptionsXAxisLabel());
+	// skip curve button
+	protected CheckBox disableCheckbox = new CheckBox();
+	
+    // options for x-axis
     protected RadioButton xaxisTotalNRadioButton;
-    protected RadioButton xaxisVarianceRadioButton;
-    protected RadioButton xaxisEffectSizeRadioButton;
+    protected RadioButton xaxisSigmaScaleRadioButton;
+    protected RadioButton xaxisBetaScaleRadioButton;
 
+    // select boxes for items that must be fixed for the curve
+    
+    
     /**
      * Constructor
      * @param mode mode identifier (needed for unique widget identifiers)
      */
-    public OptionsDisplayPanel(String radioGroupPrefix)
+    public OptionsDisplayPanel(String radioGroupSuffix)
 	{
 		super();
+		this.radioGroupSuffix = radioGroupSuffix;
 		VerticalPanel panel = new VerticalPanel();
 
 		// create header, description
-		HTML header = new HTML(Glimmpse.constants.displayOptionsTitle());
-		HTML description = new HTML(Glimmpse.constants.displayOptionsDescription());        
-
-		String group = radioGroupPrefix + XAXIS_RADIO_GROUP;
-	    xaxisTotalNRadioButton = new RadioButton(group, Glimmpse.constants.displayOptionsXAxisSampleSizeLabel());
-	    xaxisVarianceRadioButton = new RadioButton(group, Glimmpse.constants.displayOptionsXAxisVarianceLabel());
-	    xaxisEffectSizeRadioButton = new RadioButton(group, Glimmpse.constants.displayOptionsXAxisEffectSizeLabel());
-		
-		Grid grid = new Grid(6,2);
-		grid.setWidget(0, 0, showTableCheckBox);
-		grid.setWidget(0, 1, new HTML(Glimmpse.constants.displayOptionsTableLabel()));
-		grid.setWidget(1, 0, showCurveCheckBox);
-		grid.setWidget(1, 1, new HTML(Glimmpse.constants.displayOptionsCurveLabel()));
-		grid.setWidget(2, 1, xaxisLabel);
-		grid.setWidget(3, 1, xaxisTotalNRadioButton);
-		grid.setWidget(4, 1, xaxisEffectSizeRadioButton);
-		grid.setWidget(5, 1, xaxisVarianceRadioButton);
-		xaxisTotalNRadioButton.setValue(true);
-		
-		// set conditional power on by default
-		showTableCheckBox.setValue(true);
-		
-		// callback to enable/disable the X-axis options when the user clicks the display curve box
-		showCurveCheckBox.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				CheckBox cb = (CheckBox) event.getSource();
-				xaxisTotalNRadioButton.setEnabled(cb.getValue());
-				xaxisEffectSizeRadioButton.setEnabled(cb.getValue());
-				xaxisVarianceRadioButton.setEnabled(cb.getValue());
-			}
-		});
+		HTML header = new HTML(Glimmpse.constants.curveOptionsTitle());
+		HTML description = new HTML(Glimmpse.constants.curveOptionsDescription());        
 
 		// layout the overall panel
 		panel.add(header);
 		panel.add(description);
-		panel.add(grid);
+		panel.add(createDisablePanel());
+		panel.add(createXAxisPanel());
+		panel.add(createCurveTypePanel());
+		panel.add(createFixedValuesPanel());
 		
 		// set defaults
 		reset();
@@ -131,20 +109,83 @@ implements ClickHandler
 		initWidget(panel);
 	}
     
+	private HorizontalPanel createDisablePanel()
+	{
+		HorizontalPanel panel = new HorizontalPanel();
+		
+		// add callbacks
+		disableCheckbox.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				CheckBox cb = (CheckBox) event.getSource();
+				enableOptions(!cb.getValue());
+			}
+		});
+		
+		panel.add(disableCheckbox);
+		panel.add(new HTML(Glimmpse.constants.curveOptionsNone()));
+		
+		// set style
+		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+		
+		return panel;
+	}
+    
+	private void enableOptions(boolean enable)
+	{
+		
+	}
+	
+    private VerticalPanel createXAxisPanel()
+    {
+    	VerticalPanel panel = new VerticalPanel();
+    	
+		String group = XAXIS_RADIO_GROUP + radioGroupSuffix;
+	    xaxisTotalNRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsXAxisSampleSizeLabel());
+	    xaxisSigmaScaleRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsXAxisSigmaScaleLabel());
+	    xaxisBetaScaleRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsXAxisBetaScaleLabel());
+		xaxisTotalNRadioButton.setValue(true);
 
+		// build panel
+	    panel.add(new HTML(Glimmpse.constants.curveOptionsXAxisLabel()));
+		panel.add(xaxisTotalNRadioButton);
+		panel.add(xaxisBetaScaleRadioButton);
+		panel.add(xaxisSigmaScaleRadioButton);
+		
+		// add style
+		xaxisTotalNRadioButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
+		xaxisBetaScaleRadioButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
+		xaxisSigmaScaleRadioButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
+		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+		
+		return panel;
+    }
 
+    private VerticalPanel createCurveTypePanel()
+    {
+    	VerticalPanel panel = new VerticalPanel();
+    	
+    	
+    	
+    	return panel;
+    }
+    
+    private VerticalPanel createFixedValuesPanel()
+    {
+    	VerticalPanel panel = new VerticalPanel();
+    	
+    	return panel;
+    }
+    
+    
 	/**
 	 * Clear the options panel
 	 */
 	public void reset()
 	{		
 		// set the display options to table only
-		showTableCheckBox.setValue(true);
-		showCurveCheckBox.setValue(false);
-		xaxisTotalNRadioButton.setValue(true);
-		xaxisTotalNRadioButton.setEnabled(false);
-		xaxisEffectSizeRadioButton.setEnabled(false);
-		xaxisVarianceRadioButton.setEnabled(false);
+		// TODO
 		
 		notifyComplete();
 	}
@@ -158,28 +199,28 @@ implements ClickHandler
 	public String toStudyXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-
-		// add display options - format: <display table=[T|F] curve=[T|F] xaxis=[totaln|effectSize|variance]/>
-		buffer.append("<");
-		buffer.append(TAG_DISPLAY);
-		buffer.append(" ");
-		buffer.append(ATTR_TABLE);
-		buffer.append("='");
-		buffer.append(showTableCheckBox.getValue());
-		buffer.append("' ");
-		buffer.append(ATTR_CURVE);
-		buffer.append("='");
-		buffer.append(showCurveCheckBox.getValue());
-		buffer.append("' ");
-		
-		buffer.append(ATTR_XAXIS);
-		buffer.append("='");
-		if (xaxisTotalNRadioButton.getValue())
-			buffer.append(ATTR_VALUE_XAXIS_TOTAL_N);
-		else if (xaxisEffectSizeRadioButton.getValue())
-			buffer.append(ATTR_VALUE_XAXIS_EFFECT_SIZE);
-		else
-			buffer.append(ATTR_VALUE_XAXIS_VARIANCE);
+//
+//		// add display options - format: <display table=[T|F] curve=[T|F] xaxis=[totaln|effectSize|variance]/>
+//		buffer.append("<");
+//		buffer.append(TAG_DISPLAY);
+//		buffer.append(" ");
+//		buffer.append(ATTR_TABLE);
+//		buffer.append("='");
+//		buffer.append(showTableCheckBox.getValue());
+//		buffer.append("' ");
+//		buffer.append(ATTR_CURVE);
+//		buffer.append("='");
+//		buffer.append(showCurveCheckBox.getValue());
+//		buffer.append("' ");
+//		
+//		buffer.append(ATTR_XAXIS);
+//		buffer.append("='");
+//		if (xaxisTotalNRadioButton.getValue())
+//			buffer.append(ATTR_VALUE_XAXIS_TOTAL_N);
+//		else if (xaxisEffectSizeRadioButton.getValue())
+//			buffer.append(ATTR_VALUE_XAXIS_EFFECT_SIZE);
+//		else
+//			buffer.append(ATTR_VALUE_XAXIS_VARIANCE);
 		buffer.append("' ");
 		buffer.append("/>");
 
@@ -203,14 +244,14 @@ implements ClickHandler
 	 */
 	private void checkComplete()
 	{
-		if (showTableCheckBox.getValue() || showCurveCheckBox.getValue())
-		{
-			notifyComplete();
-		}
-		else
-		{
-			notifyInProgress();
-		}
+//		if (showTableCheckBox.getValue() || showCurveCheckBox.getValue())
+//		{
+//			notifyComplete();
+//		}
+//		else
+//		{
+//			notifyInProgress();
+//		}
 	}
 	
 	/**
@@ -219,26 +260,25 @@ implements ClickHandler
 	@Override
 	public void onExit()
 	{
-		XAxisType xaxisType;
-		if (xaxisTotalNRadioButton.getValue())
-		{
-			xaxisType = XAxisType.TOTAL_N;
-		}
-		else if (xaxisVarianceRadioButton.getValue())
-		{
-			xaxisType = XAxisType.VARIANCE;
-		}
-		else
-		{
-			xaxisType = XAxisType.BETA_SCALE;
-		}
-		
-		
-		for(OptionsListener listener: listeners)
-		{
-			listener.onShowTable(showTableCheckBox.getValue());
-			listener.onShowCurve(showCurveCheckBox.getValue(), xaxisType, null);
-		}
+//		XAxisType xaxisType;
+//		if (xaxisTotalNRadioButton.getValue())
+//		{
+//			xaxisType = XAxisType.TOTAL_N;
+//		}
+//		else if (xaxisVarianceRadioButton.getValue())
+//		{
+//			xaxisType = XAxisType.VARIANCE;
+//		}
+//		else
+//		{
+//			xaxisType = XAxisType.BETA_SCALE;
+//		}
+//		
+//		
+//		for(OptionsListener listener: listeners)
+//		{
+//			listener.onShowCurve(showCurveCheckBox.getValue(), xaxisType, null);
+//		}
 	}
 	
 	/**
@@ -256,48 +296,48 @@ implements ClickHandler
 	@Override
 	public void loadFromNode(Node node)
 	{
-		if (TAG_DISPLAY.equals(node.getNodeName()))
-		{
-			NamedNodeMap attrs = node.getAttributes();
-			try
-			{
-				Node tableNode = attrs.getNamedItem(ATTR_TABLE);
-				if (tableNode != null) 
-					showTableCheckBox.setValue(Boolean.parseBoolean(tableNode.getNodeValue()));
-
-				Node curveNode = attrs.getNamedItem(ATTR_CURVE);
-				if (curveNode != null) 
-					showCurveCheckBox.setValue(Boolean.parseBoolean(curveNode.getNodeValue()));
-
-				Node xaxisNode = attrs.getNamedItem(ATTR_XAXIS);
-				if (xaxisNode != null)
-				{
-					if (ATTR_VALUE_XAXIS_TOTAL_N.equals(xaxisNode.getNodeValue()))
-					{
-						xaxisTotalNRadioButton.setValue(true);
-					}
-					else if (ATTR_VALUE_XAXIS_EFFECT_SIZE.equals(xaxisNode.getNodeValue()))
-					{
-						xaxisEffectSizeRadioButton.setValue(true);
-					}
-					else if (ATTR_VALUE_XAXIS_VARIANCE.equals(xaxisNode.getNodeValue()))
-					{
-						xaxisVarianceRadioButton.setValue(true);
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				// ignore parsing errors for now
-			}
-
-			// enable/disable the xaxis radio buttons
-			xaxisTotalNRadioButton.setEnabled(showCurveCheckBox.getValue());
-			xaxisEffectSizeRadioButton.setEnabled(showCurveCheckBox.getValue());
-			xaxisVarianceRadioButton.setEnabled(showCurveCheckBox.getValue());
+//		if (TAG_DISPLAY.equals(node.getNodeName()))
+//		{
+//			NamedNodeMap attrs = node.getAttributes();
+//			try
+//			{
+//				Node tableNode = attrs.getNamedItem(ATTR_TABLE);
+//				if (tableNode != null) 
+//					showTableCheckBox.setValue(Boolean.parseBoolean(tableNode.getNodeValue()));
+//
+//				Node curveNode = attrs.getNamedItem(ATTR_CURVE);
+//				if (curveNode != null) 
+//					showCurveCheckBox.setValue(Boolean.parseBoolean(curveNode.getNodeValue()));
+//
+//				Node xaxisNode = attrs.getNamedItem(ATTR_XAXIS);
+//				if (xaxisNode != null)
+//				{
+//					if (ATTR_VALUE_XAXIS_TOTAL_N.equals(xaxisNode.getNodeValue()))
+//					{
+//						xaxisTotalNRadioButton.setValue(true);
+//					}
+//					else if (ATTR_VALUE_XAXIS_EFFECT_SIZE.equals(xaxisNode.getNodeValue()))
+//					{
+//						xaxisEffectSizeRadioButton.setValue(true);
+//					}
+//					else if (ATTR_VALUE_XAXIS_VARIANCE.equals(xaxisNode.getNodeValue()))
+//					{
+//						xaxisVarianceRadioButton.setValue(true);
+//					}
+//				}
+//			}
+//			catch (Exception e)
+//			{
+//				// ignore parsing errors for now
+//			}
+//
+//			// enable/disable the xaxis radio buttons
+//			xaxisTotalNRadioButton.setEnabled(showCurveCheckBox.getValue());
+//			xaxisEffectSizeRadioButton.setEnabled(showCurveCheckBox.getValue());
+//			xaxisVarianceRadioButton.setEnabled(showCurveCheckBox.getValue());
 
 			// check if the options are complete
 			checkComplete();
-		}
+//		}
 	}
 }

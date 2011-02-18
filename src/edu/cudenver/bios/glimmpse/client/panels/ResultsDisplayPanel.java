@@ -38,6 +38,7 @@ import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
 
+import edu.cudenver.bios.glimmpse.client.ChartRequestBuilder;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
@@ -64,9 +65,7 @@ implements OptionsListener, SolvingForListener
 	private static final int STATUS_CODE_CREATED = 201;
 	private static final String POWER_URL = "/webapps/power/power";
 	private static final String SAMPLE_SIZE_URL = "/webapps/power/samplesize";
-	private static final String CURVE_URL = "/webapps/chart/scatter";
-	private static final String CURVE_3D_URL = "/webapps/chart/scatter3d";
-	private static final String LEGEND_URL = "/webapps/chart/legend";
+
 
 	private static final String STYLE_POWER_CURVE_FRAME = "powerCurveFrame";
 	private static final String CHART_INPUT_NAME = "chart";
@@ -87,7 +86,6 @@ implements OptionsListener, SolvingForListener
 
 	// curve display
 	protected VerticalPanel resultsCurvePanel = new VerticalPanel();
-	protected HashMap<String,ArrayList<Integer>> curveGroupsByColumn = new HashMap<String,ArrayList<Integer>>();
 	
 	// error display
 	protected VerticalPanel errorPanel = new VerticalPanel();
@@ -115,10 +113,8 @@ implements OptionsListener, SolvingForListener
 	protected Hidden saveFilenameHidden = new Hidden(FILENAME_INPUT_NAME);
 	protected Hidden saveHidden = new Hidden(SAVE_INPUT_NAME);
 	// options for display of data
-	protected boolean showTable = true;
 	protected boolean showCurve = false;
-	protected XAxisType xaxisType = XAxisType.TOTAL_N;
-	protected CurveSubset[] curveSubsets = null;
+	protected ChartRequestBuilder chartRequestBuilder = null;
 	// indicates whether we are solving for power, sample size, or effect size
 	protected SolutionType solutionType = GlimmpseConstants.DEFAULT_SOLUTION;
 	// pointer to the overall wizard panel which can generate the entity body from the other panels
@@ -274,7 +270,6 @@ implements OptionsListener, SolvingForListener
 	@Override
 	public void reset()
 	{
-		curveGroupsByColumn.clear();
 		matrixDisplayPanel.reset();
 		resultsData.removeRows(0, resultsData.getNumberOfRows());
 		resultsTablePanel.setVisible(false);
@@ -293,15 +288,23 @@ implements OptionsListener, SolvingForListener
 	{
 		// set up the columns in the data table
 		resultsData = DataTable.create();
-		resultsData.addColumn(ColumnType.STRING, "Test", "test");
-		resultsData.addColumn(ColumnType.NUMBER, "Actual Power", "actualPower");
-		resultsData.addColumn(ColumnType.NUMBER, "Total Sample Size", "sampleSize");
-		resultsData.addColumn(ColumnType.NUMBER, "&beta; Scale", "betaScale");
-		resultsData.addColumn(ColumnType.NUMBER, "&Sigma; Scale", "sigmaScale");
-		resultsData.addColumn(ColumnType.NUMBER, "Alpha", "alpha");
-		resultsData.addColumn(ColumnType.NUMBER, "Nominal Power", "nominalPower");
-		resultsData.addColumn(ColumnType.STRING, "Power Method", "powerMethod");
-		resultsData.addColumn(ColumnType.NUMBER, "Quantile", "quantile");
+		resultsData.addColumn(ColumnType.STRING, "Test", GlimmpseConstants.COLUMN_NAME_TEST);
+		resultsData.addColumn(ColumnType.NUMBER, "Actual Power", 
+				GlimmpseConstants.COLUMN_NAME_ACTUAL_POWER);
+		resultsData.addColumn(ColumnType.NUMBER, "Total Sample Size", 
+				GlimmpseConstants.COLUMN_NAME_SAMPLE_SIZE);
+		resultsData.addColumn(ColumnType.NUMBER, "Beta Scale", 
+				GlimmpseConstants.COLUMN_NAME_BETA_SCALE);
+		resultsData.addColumn(ColumnType.NUMBER, "Sigma Scale", 
+				GlimmpseConstants.COLUMN_NAME_SIGMA_SCALE);
+		resultsData.addColumn(ColumnType.NUMBER, "Alpha", 
+				GlimmpseConstants.COLUMN_NAME_ALPHA);
+		resultsData.addColumn(ColumnType.NUMBER, "Nominal Power", 
+				GlimmpseConstants.COLUMN_NAME_NOMINAL_POWER);
+		resultsData.addColumn(ColumnType.STRING, "Power Method", 
+				GlimmpseConstants.COLUMN_NAME_POWER_METHOD);
+		resultsData.addColumn(ColumnType.NUMBER, "Quantile", 
+				GlimmpseConstants.COLUMN_NAME_QUANTILE);
 	}
 
 	private void buildWaitDialog()
@@ -384,11 +387,6 @@ implements OptionsListener, SolvingForListener
 					resultsData.setCell(row, COLUMN_ID_TOTAL_SAMPLE_SIZE, 
 							Integer.parseInt(sampleSizeNode.getNodeValue()), 
 							sampleSizeNode.getNodeValue(), null);
-					if (xaxisType != XAxisType.TOTAL_N && solutionType != SolutionType.TOTAL_N)
-					{
-						curveColumnId.append("Total N=");
-						curveColumnId.append(sampleSizeNode.getNodeValue());
-					}
 				}
 
 				Node betaScaleNode = attrs.getNamedItem("betaScale");
@@ -397,12 +395,6 @@ implements OptionsListener, SolvingForListener
 					resultsData.setCell(row, COLUMN_ID_BETA_SCALE, 
 							Double.parseDouble(betaScaleNode.getNodeValue()), 
 							betaScaleNode.getNodeValue(), null);
-					if (xaxisType != XAxisType.BETA_SCALE && 
-							solutionType != SolutionType.DETECTABLE_DIFFERENCE)
-					{
-						curveColumnId.append(",Beta-Scale=");
-						curveColumnId.append(betaScaleNode.getNodeValue());
-					}
 				}
 
 				Node sigmaScaleNode = attrs.getNamedItem("sigmaScale");
@@ -411,11 +403,6 @@ implements OptionsListener, SolvingForListener
 					resultsData.setCell(row, COLUMN_ID_SIGMA_SCALE, 
 							Double.parseDouble(sigmaScaleNode.getNodeValue()), 
 							sigmaScaleNode.getNodeValue(), null);
-					if (xaxisType != XAxisType.VARIANCE)
-					{
-						curveColumnId.append(",Sigma-Scale=");
-						curveColumnId.append(sigmaScaleNode.getNodeValue());
-					}
 				}
 
 				Node alphaNode = attrs.getNamedItem("alpha");
@@ -460,23 +447,14 @@ implements OptionsListener, SolvingForListener
 					curveColumnId.append(",Quantile=");
 					curveColumnId.append(quantileNode.getNodeValue());
 				}
-
-				// keep track of which rows of the power table represent unique groups
-				ArrayList<Integer> rowsForCurrentGroup = curveGroupsByColumn.get(curveColumnId.toString());
-				if (rowsForCurrentGroup == null) rowsForCurrentGroup = new ArrayList<Integer>();
-				rowsForCurrentGroup.add(powerIdx);
-				curveGroupsByColumn.put(curveColumnId.toString(), rowsForCurrentGroup);
 			}            	
 
 			if (showCurve)
 			{
 				showCurveResults();
 			}
-			if (showTable)
-			{
-				resultsTable.draw(resultsData);
-				resultsTablePanel.setVisible(true);
-			}
+			resultsTable.draw(resultsData);
+			resultsTablePanel.setVisible(true);
 		}
 		catch (Exception e)
 		{
@@ -487,11 +465,10 @@ implements OptionsListener, SolvingForListener
 	private void showCurveResults()
 	{
 		// submit the result to the chart service
-		String queryString = buildCurveQueryString();
 		resultsCurvePanel.setVisible(true);
-		powerCurveImage.setUrl(CURVE_URL + "?" + queryString + buildSizeQueryString(300,300));
-		legendImage.setUrl(LEGEND_URL + "?" + queryString + buildLegendQueryString() +
-				buildSizeQueryString(600,300));
+		chartRequestBuilder.loadData(resultsData);
+		powerCurveImage.setUrl(chartRequestBuilder.buildChartRequestURL());
+		legendImage.setUrl(chartRequestBuilder.buildLegendRequestURL());
 	}
 
 	private String formatPowerMethodName(String name)
@@ -565,18 +542,9 @@ implements OptionsListener, SolvingForListener
 	}
 
 	@Override
-	public void onShowCurve(boolean showCurve, XAxisType axis,
-			CurveSubset[] curveSubsets)
+	public void onShowCurve(ChartRequestBuilder chartRequestBuilder)
 	{
-		this.showCurve = true;
-		this.xaxisType = axis;
-		this.curveSubsets = curveSubsets;
-	}
-
-	@Override
-	public void onShowTable(boolean showTable)
-	{
-		this.showTable = showTable;
+		this.chartRequestBuilder = chartRequestBuilder;
 	}
 
 	@Override
@@ -615,81 +583,6 @@ implements OptionsListener, SolvingForListener
 				}
 				buffer.append("\n");
 			}
-		}
-		return buffer.toString();
-	}
-	
-	private String buildCurveQueryString()
-	{
-		boolean firstSeries = true;
-		// build the full chart xml
-		StringBuffer buffer = new StringBuffer();
-		int xColumn = -1;
-		buffer.append("chxl=");
-		switch(xaxisType)
-		{
-		case TOTAL_N:
-			xColumn = COLUMN_ID_TOTAL_SAMPLE_SIZE;
-			buffer.append("Total%20Sample%20Size");
-			break;
-		case BETA_SCALE:
-			xColumn = COLUMN_ID_BETA_SCALE;
-			buffer.append("Difference%20Scale%20Factor");
-			break;
-		case VARIANCE:
-			xColumn = COLUMN_ID_SIGMA_SCALE;
-			buffer.append("Variance%20Scale%20Factor");
-			break;
-		}
-		// build the data series x..x|y...y|z...z
-		buffer.append("|Power&chd=t:");
-		for(ArrayList<Integer> groupRows: curveGroupsByColumn.values())
-		{
-			if (!firstSeries) buffer.append("|"); 
-			firstSeries = false;
-			
-			StringBuffer xBuffer = new StringBuffer();
-			StringBuffer yBuffer = new StringBuffer();
-			boolean first = true;
-			for(Integer row: groupRows)
-			{
-				if (!first)
-				{
-					xBuffer.append(",");
-					yBuffer.append(",");
-				}
-				first =false;
-				xBuffer.append(resultsData.getValueString(row, xColumn));
-				yBuffer.append(resultsData.getValueDouble(row, COLUMN_ID_ACTUAL_POWER));
-			}
-			buffer.append(xBuffer);
-			buffer.append("|");
-			buffer.append(yBuffer);
-		}
-
-		return buffer.toString();
-	}
-	
-	private String buildSizeQueryString(int width, int height)
-	{
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("&chs=");
-		buffer.append(width);
-		buffer.append("x");
-		buffer.append(height);
-		return buffer.toString();
-	}
-	
-	private String buildLegendQueryString()
-	{
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("&chdl=");
-		boolean first = true;
-		for(String seriesLabel: curveGroupsByColumn.keySet())
-		{
-			if (!first) buffer.append("|");
-			first = false;
-			buffer.append(seriesLabel);
 		}
 		return buffer.toString();
 	}

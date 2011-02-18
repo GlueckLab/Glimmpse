@@ -38,6 +38,7 @@ import edu.cudenver.bios.glimmpse.client.panels.matrix.BetaPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.BetaScalePanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.BetweenSubjectContrastPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.DesignPanel;
+import edu.cudenver.bios.glimmpse.client.panels.matrix.OptionsConfidenceIntervalsPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.SigmaCovariateMatrixPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.SigmaErrorMatrixPanel;
 import edu.cudenver.bios.glimmpse.client.panels.matrix.SigmaOutcomeCovariateMatrixPanel;
@@ -85,6 +86,8 @@ implements StudyDesignManager, SaveListener
 	protected OptionsPowerMethodsPanel optionsPowerMethodsPanel = 
 		new OptionsPowerMethodsPanel(getModeName());
 	protected OptionsDisplayPanel optionsDisplayPanel = new OptionsDisplayPanel(getModeName());
+	protected OptionsConfidenceIntervalsPanel optionsCIPanel =
+		new OptionsConfidenceIntervalsPanel(getModeName());
 	// results
 	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
     // list of panels for the wizard
@@ -97,7 +100,7 @@ implements StudyDesignManager, SaveListener
 			{thetaPanel},
 			{sigmaErrorPanel, sigmaOutcomesPanel, sigmaCovariatePanel, 
 				sigmaOutcomeCovariatePanel, sigmaScalePanel},
-			{optionsTestsPanel, optionsPowerMethodsPanel, optionsDisplayPanel},
+			{optionsTestsPanel, optionsPowerMethodsPanel, optionsCIPanel, optionsDisplayPanel},
 			{resultsPanel}
 	};
 	
@@ -249,6 +252,7 @@ implements StudyDesignManager, SaveListener
 		StringBuffer buffer = new StringBuffer();
 		
 		buffer.append("<" + GlimmpseConstants.TAG_POWER_PARAMETERS + ">");
+		buffer.append(optionsCIPanel.toRequestXML());
 		buffer.append(alphaPanel.toXML());
 		buffer.append(betaScalePanel.toXML());
 		buffer.append(powerPanel.toXML());
@@ -283,7 +287,7 @@ implements StudyDesignManager, SaveListener
 		buffer.append("='");
 		buffer.append(getModeName());
 		buffer.append("'>");
-
+		buffer.append(optionsCIPanel.toStudyXML());
 		buffer.append(solvingForPanel.toStudyXML());
 		buffer.append(alphaPanel.toXML());
 		buffer.append(betaScalePanel.toXML());
