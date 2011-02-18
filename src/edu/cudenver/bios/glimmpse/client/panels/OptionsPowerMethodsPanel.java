@@ -22,6 +22,9 @@
 package edu.cudenver.bios.glimmpse.client.panels;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -35,7 +38,10 @@ import com.google.gwt.xml.client.NodeList;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
+import edu.cudenver.bios.glimmpse.client.listener.AlphaListener;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
+import edu.cudenver.bios.glimmpse.client.listener.PowerMethodListener;
+import edu.cudenver.bios.glimmpse.client.listener.QuantileListener;
 
 /**
  * Panel which allows user to select statistical tests, display options
@@ -54,6 +60,12 @@ implements CovariateListener, ClickHandler
 	protected CheckBox unconditionalPowerCheckBox = new CheckBox();
 	protected CheckBox quantilePowerCheckBox = new CheckBox();
 	protected int numQuantiles = 0;
+	
+	// listeners for power methods
+	protected ArrayList<PowerMethodListener> powerMethodListeners = 
+		new ArrayList<PowerMethodListener>();
+	// listeners for quantile list changes
+	protected ArrayList<QuantileListener> quantileListeners = new ArrayList<QuantileListener>();
 	
 	// dynamic list of quantile values
     protected ListEntryPanel quantileListPanel = 
@@ -313,4 +325,45 @@ implements CovariateListener, ClickHandler
 		// check if the options are complete
 		checkComplete();
 	}
+	
+    /**
+     * Add a listener for the list of power methods
+     * @param listener power method listener object
+     */
+    public void addPowerMethodListener(PowerMethodListener listener)
+    {
+    	powerMethodListeners.add(listener);
+    }
+    
+    /**
+     * Add a listener for the list of quantiles
+     * @param listener quantile listener object
+     */
+    public void addQuantileListener(QuantileListener listener)
+    {
+    	quantileListeners.add(listener);
+    }
+	
+    /**
+     * Notify power method and quantile listeners of any changes
+     * as we leave this screen
+     */
+    @Override
+    public void onExit()
+    {
+    	ArrayList<String> powerMethods = new ArrayList<String>();
+    	
+    	if (conditionalPowerCheckBox.getValue()) 
+    		powerMethods.add(GlimmpseConstants.POWER_METHOD_CONDITIONAL);
+    	if (unconditionalPowerCheckBox.getValue())
+    		powerMethods.add(GlimmpseConstants.POWER_METHOD_UNCONDITIONAL);
+    	if (quantilePowerCheckBox.getValue())
+    	{
+    		powerMethods.add(GlimmpseConstants.POWER_METHOD_QUANTILE);
+    		List<String> values = quantileListPanel.getValues();
+    		for(QuantileListener listener: quantileListeners) listener.onQuantileList(values);
+    	}
+    	
+		for(PowerMethodListener listener: powerMethodListeners) listener.onPowerMethodList(powerMethods);
+    }
 }

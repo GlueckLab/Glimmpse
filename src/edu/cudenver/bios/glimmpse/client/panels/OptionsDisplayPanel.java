@@ -22,21 +22,37 @@
 package edu.cudenver.bios.glimmpse.client.panels;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.URL;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
 
+import edu.cudenver.bios.glimmpse.client.ChartRequestBuilder;
+import edu.cudenver.bios.glimmpse.client.ChartRequestBuilder.AxisType;
+import edu.cudenver.bios.glimmpse.client.ChartRequestBuilder.CurveType;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
-import edu.cudenver.bios.glimmpse.client.listener.OptionsListener;
+import edu.cudenver.bios.glimmpse.client.listener.AlphaListener;
+import edu.cudenver.bios.glimmpse.client.listener.BetaScaleListener;
+import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
+import edu.cudenver.bios.glimmpse.client.listener.ChartOptionsListener;
+import edu.cudenver.bios.glimmpse.client.listener.PowerMethodListener;
+import edu.cudenver.bios.glimmpse.client.listener.QuantileListener;
+import edu.cudenver.bios.glimmpse.client.listener.RelativeGroupSizeListener;
+import edu.cudenver.bios.glimmpse.client.listener.PerGroupSampleSizeListener;
+import edu.cudenver.bios.glimmpse.client.listener.SigmaScaleListener;
+import edu.cudenver.bios.glimmpse.client.listener.TestListener;
 
 /**
  * Panel which allows user to select display options
@@ -48,7 +64,10 @@ import edu.cudenver.bios.glimmpse.client.listener.OptionsListener;
  *
  */
 public class OptionsDisplayPanel extends WizardStepPanel
-implements ClickHandler
+implements ClickHandler, AlphaListener, BetaScaleListener,
+SigmaScaleListener, TestListener, PowerMethodListener,
+QuantileListener, PerGroupSampleSizeListener, RelativeGroupSizeListener,
+CovariateListener
 {
 	// constants for xml parsing
 	private static final String TAG_DISPLAY = "display";
@@ -62,8 +81,13 @@ implements ClickHandler
 	protected String radioGroupSuffix  = "";
 	
 	protected static final String XAXIS_RADIO_GROUP = "xAxis";
-	protected ArrayList<OptionsListener> listeners = new ArrayList<OptionsListener>();
+	protected static final String CURVE_TYPE_RADIO_GROUP = "curve";
+	protected ArrayList<ChartOptionsListener> listeners = new ArrayList<ChartOptionsListener>();
     
+	// mutliplier to get total sample size from relative sizes
+	protected int totalSampleSizeMultiplier = 1;
+	protected ArrayList<Integer> perGroupNList = new ArrayList<Integer>();
+	
 	// skip curve button
 	protected CheckBox disableCheckbox = new CheckBox();
 	
@@ -72,8 +96,29 @@ implements ClickHandler
     protected RadioButton xaxisSigmaScaleRadioButton;
     protected RadioButton xaxisBetaScaleRadioButton;
 
-    // select boxes for items that must be fixed for the curve
+    // options for the variable which the curves represent
+    protected RadioButton curveTotalNRadioButton;
+    protected RadioButton curveBetaScaleRadioButton;
+    protected RadioButton curveSigmaScaleRadioButton;
+    protected RadioButton curveTestRadioButton;
+    protected RadioButton curveAlphaRadioButton;
+    protected RadioButton curvePowerMethodRadioButton;
+    protected RadioButton curveQuantileRadioButton;
     
+    // need to hang onto the power method and quantile labels
+    // so we can actively hide / show depending on whether we are controlling
+    // for a baseline covariate
+    protected HTML powerMethodLabel = new HTML("Power Method");
+    protected HTML quantileLabel = new HTML("Quantiles");
+    
+    // select boxes for items that must be fixed for the curve
+    protected ListBox totalNListBox = new ListBox();
+    protected ListBox betaScaleListBox = new ListBox();
+    protected ListBox sigmaScaleListBox = new ListBox();
+    protected ListBox testListBox = new ListBox();
+    protected ListBox alphaListBox = new ListBox();
+    protected ListBox powerMethodListBox = new ListBox();
+    protected ListBox quantileListBox = new ListBox();
     
     /**
      * Constructor
@@ -93,9 +138,9 @@ implements ClickHandler
 		panel.add(header);
 		panel.add(description);
 		panel.add(createDisablePanel());
-		panel.add(createXAxisPanel());
-		panel.add(createCurveTypePanel());
-		panel.add(createFixedValuesPanel());
+		panel.add(createCurveParameterPanel());
+//		panel.add(createCurveTypePanel());
+//		panel.add(createFixedValuesPanel());
 		
 		// set defaults
 		reset();
@@ -132,6 +177,79 @@ implements ClickHandler
 		return panel;
 	}
     
+	private VerticalPanel createCurveParameterPanel()
+	{
+		VerticalPanel panel = new VerticalPanel();
+		
+		// create the radio buttons for the x-axis values
+		String group = XAXIS_RADIO_GROUP + radioGroupSuffix;
+	    xaxisTotalNRadioButton = new RadioButton(group);
+	    xaxisSigmaScaleRadioButton = new RadioButton(group);
+	    xaxisBetaScaleRadioButton = new RadioButton(group);
+		xaxisTotalNRadioButton.setValue(true);
+		// create the radio buttons for the curve types
+		group = CURVE_TYPE_RADIO_GROUP + radioGroupSuffix;
+	    curveTotalNRadioButton = new RadioButton(group);
+	    curveBetaScaleRadioButton = new RadioButton(group);
+	    curveSigmaScaleRadioButton = new RadioButton(group);
+	    curveTestRadioButton = new RadioButton(group);
+	    curveAlphaRadioButton = new RadioButton(group);
+	    curvePowerMethodRadioButton = new RadioButton(group);
+	    curveQuantileRadioButton = new RadioButton(group);
+		
+	    // hide the power method and quantile related boxes
+	    // only visible when controlling for a baseline covariate
+		powerMethodLabel.setVisible(false);
+		curvePowerMethodRadioButton.setVisible(false);
+		powerMethodListBox.setVisible(false);
+		quantileLabel.setVisible(false);
+		curveQuantileRadioButton.setVisible(false);
+		quantileListBox.setVisible(false);
+	    
+	    
+		Grid grid = new Grid(8,4);
+		
+		grid.setWidget(0, 1, new HTML("Horizonal Axis"));
+		grid.setWidget(0, 2, new HTML("Curve(s)"));
+		grid.setWidget(0, 3, new HTML("Remaining Values"));
+		
+		// set the radio buttons for possible x axis values
+		grid.setWidget(1, 1, xaxisTotalNRadioButton);
+		grid.setWidget(2, 1, xaxisBetaScaleRadioButton);
+		grid.setWidget(3, 1, xaxisSigmaScaleRadioButton);
+		// possible curve values
+		grid.setWidget(1, 2, curveTotalNRadioButton);
+		grid.setWidget(2, 2, curveBetaScaleRadioButton);
+		grid.setWidget(3, 2, curveSigmaScaleRadioButton);
+		grid.setWidget(4, 2, curveTestRadioButton);
+		grid.setWidget(5, 2, curveAlphaRadioButton);
+		grid.setWidget(6, 2, curvePowerMethodRadioButton);
+		grid.setWidget(7, 2, curveQuantileRadioButton);
+		// add drop down lists for remaining values that need to be fixed
+		grid.setWidget(1, 3, totalNListBox);
+		grid.setWidget(2, 3, betaScaleListBox);
+		grid.setWidget(3, 3, sigmaScaleListBox);
+		grid.setWidget(4, 3, testListBox);
+		grid.setWidget(5, 3, alphaListBox);
+		grid.setWidget(6, 3, powerMethodListBox);
+		grid.setWidget(7, 3, quantileListBox);
+		
+		grid.setWidget(1, 0, new HTML("Total Sample Size"));
+		grid.setWidget(2, 0, new HTML("Regression Coefficients Scale Factor"));
+		grid.setWidget(3, 0, new HTML("Variance Scale Factor"));
+		grid.setWidget(4, 0, new HTML("Test"));
+		grid.setWidget(5, 0, new HTML("Alpha"));
+		grid.setWidget(6, 0, powerMethodLabel);
+		grid.setWidget(7, 0, quantileLabel);
+		
+		panel.add(grid);
+		
+		// set style
+		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+		
+		return panel;
+	}
+	
 	private void enableOptions(boolean enable)
 	{
 		
@@ -260,32 +378,88 @@ implements ClickHandler
 	@Override
 	public void onExit()
 	{
-//		XAxisType xaxisType;
-//		if (xaxisTotalNRadioButton.getValue())
-//		{
-//			xaxisType = XAxisType.TOTAL_N;
-//		}
-//		else if (xaxisVarianceRadioButton.getValue())
-//		{
-//			xaxisType = XAxisType.VARIANCE;
-//		}
-//		else
-//		{
-//			xaxisType = XAxisType.BETA_SCALE;
-//		}
-//		
-//		
-//		for(OptionsListener listener: listeners)
-//		{
-//			listener.onShowCurve(showCurveCheckBox.getValue(), xaxisType, null);
-//		}
+		// create the ChartRequestBuilder and notify listeners
+		ChartRequestBuilder builder = null;
+		if (!disableCheckbox.getValue())
+		{
+			builder = new ChartRequestBuilder();
+			
+			setBuilderAxisType(builder);
+			setBuilderCurveType(builder);
+			
+			// curve group description			
+			builder.setAlpha(Double.parseDouble(alphaListBox.getItemText(alphaListBox.getSelectedIndex())));
+			builder.setTest(testListBox.getItemText(testListBox.getSelectedIndex()));
+			builder.setSampleSize(Integer.parseInt(totalNListBox.getItemText(totalNListBox.getSelectedIndex())));
+			builder.setBetaScale(Double.parseDouble(betaScaleListBox.getItemText(betaScaleListBox.getSelectedIndex())));
+			builder.setSigmaScale(Double.parseDouble(sigmaScaleListBox.getItemText(sigmaScaleListBox.getSelectedIndex())));
+			if (powerMethodListBox.isVisible())
+				builder.setPowerMethod(powerMethodListBox.getItemText(powerMethodListBox.getSelectedIndex()));
+			if (quantileListBox.isVisible())
+				builder.setQuantile(Double.parseDouble(quantileListBox.getItemText(quantileListBox.getSelectedIndex())));
+		}
+
+		for(ChartOptionsListener listener: listeners) listener.onShowCurve(builder);
+	}
+	
+	private void setBuilderAxisType(ChartRequestBuilder builder)
+	{
+		if (xaxisBetaScaleRadioButton.getValue())
+		{
+			builder.setXAxisType(AxisType.BETA_SCALE);
+			builder.addAxisLabel(URL.encode("Regression Coefficient Scale Factor"));
+		}
+		else if (xaxisSigmaScaleRadioButton.getValue())
+		{
+			builder.setXAxisType(AxisType.SIGMA_SCALE);
+			builder.addAxisLabel(URL.encode("Variance Scale Factor"));
+		}
+		else if (xaxisTotalNRadioButton.getValue())
+		{
+			builder.setXAxisType(AxisType.SAMPLE_SIZE);
+			builder.addAxisLabel(URL.encode("Total Sample Size"));
+		}
+		
+		builder.addAxisLabel("Power");
+	}
+	
+	private void setBuilderCurveType(ChartRequestBuilder builder)
+	{
+	    if (curveTotalNRadioButton.getValue())
+	    {
+	    	builder.setCurveType(CurveType.TOTAL_N);
+	    }
+	    else if (curveBetaScaleRadioButton.getValue())
+	    {
+	    	builder.setCurveType(CurveType.BETA_SCALE);
+	    }
+	    else if (curveSigmaScaleRadioButton.getValue())
+	    {
+	    	builder.setCurveType(CurveType.SIGMA_SCALE);
+	    }
+	    else if (curveTestRadioButton.getValue())
+	    {
+	    	builder.setCurveType(CurveType.TEST);
+	    }
+	    else if (curveAlphaRadioButton.getValue())
+	    {
+	    	builder.setCurveType(CurveType.ALPHA);
+	    }
+	    else if (curvePowerMethodRadioButton.getValue())
+	    {
+	    	builder.setCurveType(CurveType.POWER_METHOD);
+	    }
+	    else if (curveQuantileRadioButton.getValue())
+	    {
+	    	builder.setCurveType(CurveType.QUANTILE);
+	    }
 	}
 	
 	/**
 	 * Add a listener for Options panel events
 	 * @param listener class implementing the OptionsListener interface
 	 */
-	public void addOptionsListener(OptionsListener listener)
+	public void addChartOptionsListener(ChartOptionsListener listener)
 	{
 		listeners.add(listener);
 	}
@@ -339,5 +513,93 @@ implements ClickHandler
 			// check if the options are complete
 			checkComplete();
 //		}
+	}
+
+	/**
+	 * Fill the alpha list box with the current alpha values
+	 * @param alphaList current list of alpha values entered by the user
+	 */
+	@Override
+	public void onAlphaList(List<String> alphaList)
+	{
+		alphaListBox.clear();
+		for(String alpha: alphaList) alphaListBox.addItem(alpha);
+	}
+
+	@Override
+	public void onBetaScaleList(List<String> betaScaleList)
+	{
+		betaScaleListBox.clear();
+		for(String betaScale: betaScaleList) betaScaleListBox.addItem(betaScale);
+	}
+
+	@Override
+	public void onSigmaScaleList(List<String> sigmaScaleList)
+	{
+		sigmaScaleListBox.clear();
+		for(String sigmaScale: sigmaScaleList) sigmaScaleListBox.addItem(sigmaScale);
+	}
+
+	@Override
+	public void onTestList(List<String> testList)
+	{
+		testListBox.clear();
+		for(String test: testList) testListBox.addItem(test);
+	}
+
+	@Override
+	public void onQuantileList(List<String> quantileList)
+	{
+		quantileListBox.clear();
+		for(String quantile: quantileList) quantileListBox.addItem(quantile);
+	}
+
+	@Override
+	public void onPowerMethodList(List<String> powerMethodList)
+	{
+		powerMethodListBox.clear();
+		for(String powerMethod: powerMethodList) powerMethodListBox.addItem(powerMethod);
+	}
+
+	@Override
+	public void onHasCovariate(boolean hasCovariate)
+	{
+		powerMethodLabel.setVisible(hasCovariate);
+		curvePowerMethodRadioButton.setVisible(hasCovariate);
+		powerMethodListBox.setVisible(hasCovariate);
+		
+		quantileLabel.setVisible(hasCovariate);
+		curveQuantileRadioButton.setVisible(hasCovariate);
+		quantileListBox.setVisible(hasCovariate);
+	}
+
+	@Override
+	public void onRelativeGroupSize(List<Integer> relativeSizes)
+	{
+		totalSampleSizeMultiplier = 0;
+		for(Integer size: relativeSizes) totalSampleSizeMultiplier += size;
+	}
+
+	@Override
+	public void onPerGroupSampleSizeList(List<String> perGroupSampleSizeList)
+	{
+		perGroupNList.clear();
+		for(String value: perGroupSampleSizeList)
+		{
+			perGroupNList.add(Integer.parseInt(value));
+		}
+	}
+	
+	@Override
+	public void onEnter()
+	{
+		// we need to combine the relative group sizes and per group sample sizes
+		// on enter since we get this info from two difference screens
+		totalNListBox.clear();
+		for(Integer perGroupSize: perGroupNList)
+		{
+			int totalN = perGroupSize * totalSampleSizeMultiplier;
+			totalNListBox.addItem(Integer.toString(totalN));
+		}
 	}
 }

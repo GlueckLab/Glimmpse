@@ -216,7 +216,7 @@ implements StudyDesignManager, SaveListener
 		variabilityIndependentPanel.addVariabilityListener(variabilityCovariateOutcomePanel);
 		variabilityCovariatePanel.addVariabilityListener(variabilityCovariateOutcomePanel);
 		variabilityCovariatePanel.addVariabilityListener(relativeGroupSizePanel);
-		optionsDisplayPanel.addOptionsListener(resultsPanel);
+		optionsDisplayPanel.addChartOptionsListener(resultsPanel);
 		
 		// initialize
 		initWidget(panel);

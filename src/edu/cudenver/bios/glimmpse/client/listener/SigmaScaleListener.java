@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface SigmaScaleListener
 {
-	public void onSigmaScaleList(List<Double> sigmaScaleList);
+	public void onSigmaScaleList(List<String> sigmaScaleList);
 }

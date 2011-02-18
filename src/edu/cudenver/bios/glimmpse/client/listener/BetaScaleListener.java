@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface BetaScaleListener
 {
-	public void onBetaScaleList(List<Double> betaScaleList);
+	public void onBetaScaleList(List<String> betaScaleList);
 }

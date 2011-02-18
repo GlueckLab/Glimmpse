@@ -133,12 +133,19 @@ implements StudyDesignManager, SaveListener
 		// set up listener relationships between the matrix panels
 		// this maintains matrix conformance
 		// set up listener relationships
+		alphaPanel.addAlphaListener(optionsDisplayPanel);
+		betaScalePanel.addBetaScaleListener(optionsDisplayPanel);
+		sigmaScalePanel.addSigmaScaleListener(optionsDisplayPanel);
+		optionsTestsPanel.addTestListener(optionsDisplayPanel);
+		optionsPowerMethodsPanel.addPowerMethodListener(optionsDisplayPanel);
+		optionsPowerMethodsPanel.addQuantileListener(optionsDisplayPanel);
 		solvingForPanel.addSolvingForListener(powerPanel);
 		solvingForPanel.addSolvingForListener(betaScalePanel);
 		solvingForPanel.addSolvingForListener(resultsPanel);
 		solvingForPanel.addSolvingForListener(perGroupSampleSizePanel);
 		designPanel.addMatrixResizeListener(betaPanel);
 		designPanel.addMatrixResizeListener(betweenContrastPanel);
+		designPanel.addRelativeGroupSizeListener(optionsDisplayPanel);
 		covariatePanel.addCovariateListener(designPanel);
 		covariatePanel.addCovariateListener(betaPanel);
 		covariatePanel.addCovariateListener(betweenContrastPanel);
@@ -148,10 +155,12 @@ implements StudyDesignManager, SaveListener
 		covariatePanel.addCovariateListener(sigmaCovariatePanel);
 		covariatePanel.addCovariateListener(optionsTestsPanel);
 		covariatePanel.addCovariateListener(optionsPowerMethodsPanel);
+		covariatePanel.addCovariateListener(optionsDisplayPanel);
 		sigmaCovariatePanel.addVariabilityListener(designPanel);
 		betweenContrastPanel.addMatrixResizeListener(thetaPanel);
 		withinContrastPanel.addMatrixResizeListener(thetaPanel);
-		optionsDisplayPanel.addOptionsListener(resultsPanel);
+		optionsDisplayPanel.addChartOptionsListener(resultsPanel);
+		perGroupSampleSizePanel.addPerGroupSampleSizeListener(optionsDisplayPanel);
 		betaPanel.addMatrixResizeListener(betweenContrastPanel);
 		betaPanel.addMatrixResizeListener(withinContrastPanel);
 		betaPanel.addMatrixResizeListener(sigmaErrorPanel);

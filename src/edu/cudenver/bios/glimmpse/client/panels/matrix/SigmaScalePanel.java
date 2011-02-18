@@ -1,5 +1,8 @@
 package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
@@ -7,7 +10,8 @@ import com.google.gwt.xml.client.Node;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
-import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener.SolutionType;
+import edu.cudenver.bios.glimmpse.client.listener.BetaScaleListener;
+import edu.cudenver.bios.glimmpse.client.listener.SigmaScaleListener;
 import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
 import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
@@ -18,6 +22,8 @@ implements ListValidator
     // list of sigma scale factors
     protected ListEntryPanel sigmaScaleListPanel = 
     	new ListEntryPanel(Glimmpse.constants.sigmaScaleTableColumn(), this);
+    
+    protected ArrayList<SigmaScaleListener> listeners = new ArrayList<SigmaScaleListener>();
     
 	public SigmaScalePanel()
 	{
@@ -72,7 +78,22 @@ implements ListValidator
 			notifyInProgress();
 	}
 
+	@Override
+	public void onExit()
+	{
+    	List<String> values = sigmaScaleListPanel.getValues();
+    	for(SigmaScaleListener listener: listeners) listener.onSigmaScaleList(values);
+	}
 	
+    /**
+     * Add a listener for the list of sigma scale values
+     * @param listener sigma scale listener object
+     */
+    public void addSigmaScaleListener(SigmaScaleListener listener)
+    {
+    	listeners.add(listener);
+    }
+    
 	public String toXML()
 	{
 		return sigmaScaleListPanel.toXML(GlimmpseConstants.TAG_SIGMA_SCALE_LIST);

@@ -204,9 +204,9 @@ public class ChartRequestBuilder
 				double currentQuantile = powerResults.getValueDouble(row, col);
 				groupKey.append("quantile=" +  currentQuantile + "&");
 			}			
-			
+
 			ArrayList<Integer> groupRows = groups.get(groupKey.toString());
-			if (groupRows != null) 
+			if (groupRows == null) 
 			{
 				groupRows = new ArrayList<Integer>();
 				groups.put(groupKey.toString(), groupRows);
@@ -260,11 +260,11 @@ public class ChartRequestBuilder
 			xColumn = powerResults.getColumnIndex(GlimmpseConstants.COLUMN_NAME_SIGMA_SCALE);
 			break;
 		}
-		
+
 		appendPipeDelimitedList(buffer, "chxl=", axisLabels);
 		appendPipeDelimitedList(buffer, "chdl=", legendLabels);
 		appendPipeDelimitedList(buffer, "chls=", lineStyles);
-		
+
 		// build the data series x..x|y...y|z...z
 		buffer.append("&chd=t:");
 		boolean firstSeries = true;
@@ -272,19 +272,20 @@ public class ChartRequestBuilder
 		{
 			if (!firstSeries) buffer.append("|"); 
 			firstSeries = false;
-			
+
 			StringBuffer xBuffer = new StringBuffer();
 			StringBuffer yBuffer = new StringBuffer();
 			boolean first = true;
 			for(Integer row: groupRows)
 			{
+
 				if (!first)
 				{
 					xBuffer.append(",");
 					yBuffer.append(",");
 				}
 				first =false;
-				xBuffer.append(powerResults.getValueString(row, xColumn));
+				xBuffer.append(powerResults.getValueDouble(row, xColumn));
 				yBuffer.append(powerResults.getValueDouble(row, 
 						powerResults.getColumnIndex(GlimmpseConstants.COLUMN_NAME_ACTUAL_POWER)));
 			}
@@ -300,7 +301,7 @@ public class ChartRequestBuilder
 	{
 		if (labels.size() > 0)
 		{
-			boolean first = false;
+			boolean first = true;
 			for(String label: labels)
 			{
 				if (first)

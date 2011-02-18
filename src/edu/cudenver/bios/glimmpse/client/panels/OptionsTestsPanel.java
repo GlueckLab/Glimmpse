@@ -21,6 +21,8 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels;
 
+import java.util.ArrayList;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -33,6 +35,8 @@ import com.google.gwt.xml.client.NodeList;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
+import edu.cudenver.bios.glimmpse.client.listener.SigmaScaleListener;
+import edu.cudenver.bios.glimmpse.client.listener.TestListener;
 
 public class OptionsTestsPanel extends WizardStepPanel
 implements ClickHandler, CovariateListener
@@ -50,6 +54,8 @@ implements ClickHandler, CovariateListener
 	protected CheckBox unirepBoxCheckBox = new CheckBox();
 
 	protected boolean hasCovariate = false;
+	
+	protected ArrayList<TestListener> listeners = new ArrayList<TestListener>();
 	
     /**
      * Constructor
@@ -241,6 +247,48 @@ implements ClickHandler, CovariateListener
 	}
 
 	/**
+	 * Notify listeners of the currently selected tests
+	 */
+	@Override
+	public void onExit()
+	{
+		ArrayList<String> testList = new ArrayList<String>();
+
+		if (hotellingLawleyCheckBox.getValue())
+		{
+			testList.add(GlimmpseConstants.TEST_HOTELLING_LAWLEY_TRACE);
+		}
+		if (pillaiBartlettCheckBox.getValue())
+		{
+			testList.add(GlimmpseConstants.TEST_PILLAI_BARTLETT_TRACE);
+		}
+		if (wilksCheckBox.getValue())
+		{
+			testList.add(GlimmpseConstants.TEST_WILKS_LAMBDA);
+		}
+		if (unirepCheckBox.getValue())
+		{
+			testList.add(GlimmpseConstants.TEST_UNIREP);
+		}
+		if (unirepGGCheckBox.getValue())
+		{
+			testList.add(GlimmpseConstants.TEST_UNIREP_GEISSER_GRENNHOUSE);
+		}
+		if (unirepHFCheckBox.getValue())
+		{
+			testList.add(GlimmpseConstants.TEST_UNIREP_HUYNH_FELDT);
+		}
+		if (unirepBoxCheckBox.getValue())
+		{
+			testList.add(GlimmpseConstants.TEST_UNIREP_BOX);
+		}
+
+		for(TestListener listener: listeners) listener.onTestList(testList);
+	}
+
+	
+	
+	/**
 	 * Parse the saved study design information and set the appropriate options
 	 */
 	@Override
@@ -275,4 +323,13 @@ implements ClickHandler, CovariateListener
 		// check if the options are complete
 		checkComplete();
 	}
+	
+    /**
+     * Add a listener for the list of tests
+     * @param listener test listener object
+     */
+    public void addTestListener(TestListener listener)
+    {
+    	listeners.add(listener);
+    }
 }

@@ -21,6 +21,9 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
@@ -29,6 +32,7 @@ import com.google.gwt.xml.client.NodeList;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
+import edu.cudenver.bios.glimmpse.client.listener.AlphaListener;
 
 /**
  * Panel for entering type I error values
@@ -43,6 +47,8 @@ implements ListValidator
     protected ListEntryPanel alphaListPanel = 
     	new ListEntryPanel(Glimmpse.constants.alphaTableColumn() , this);
 
+    protected ArrayList<AlphaListener> listeners = new ArrayList<AlphaListener>();
+    
     /**
      * Create an empty type I error panel
      */
@@ -69,6 +75,15 @@ implements ListValidator
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
         // initialize the panel
         initWidget(panel);
+    }
+    
+    /**
+     * Add a listener for the list of alpha values
+     * @param listener alpha listener object
+     */
+    public void addAlphaListener(AlphaListener listener)
+    {
+    	listeners.add(listener);
     }
     
     /**
@@ -133,5 +148,15 @@ implements ListValidator
     		alphaListPanel.loadFromNode(node);
         	onValidRowCount(alphaListPanel.getValidRowCount());
     	}
+    }
+    
+    /**
+     * Notify alpha listeners as we exit the screen
+     */
+    @Override
+    public void onExit()
+    {
+    	List<String> values = alphaListPanel.getValues();
+    	for(AlphaListener listener: listeners) listener.onAlphaList(values);
     }
 }

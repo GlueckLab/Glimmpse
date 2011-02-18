@@ -1,5 +1,6 @@
 package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.FlexTable;
@@ -18,6 +19,8 @@ import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
+import edu.cudenver.bios.glimmpse.client.listener.PerGroupSampleSizeListener;
+import edu.cudenver.bios.glimmpse.client.listener.RelativeGroupSizeListener;
 import edu.cudenver.bios.glimmpse.client.listener.VariabilityListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
@@ -35,6 +38,8 @@ implements MatrixResizeListener, CovariateListener, VariabilityListener
    	boolean hasCovariate = false;
    	double mean = 0;
    	double variance = Double.NaN;
+   	
+   	protected ArrayList<RelativeGroupSizeListener> listeners = new ArrayList<RelativeGroupSizeListener>();
    	
 	public DesignPanel()
 	{
@@ -302,5 +307,31 @@ implements MatrixResizeListener, CovariateListener, VariabilityListener
 	{
 		this.variance = varianceOfCovariate;
 	}
+	
+    /**
+     * Add a listener for relative group size values
+     * @param listener relative group size listener object
+     */
+    public void addRelativeGroupSizeListener(RelativeGroupSizeListener listener)
+    {
+    	listeners.add(listener);
+    }
 
+    /**
+     * Notify relative group size listeners as we exit the screen
+     */
+    @Override
+    public void onExit()
+    {
+		ArrayList<Integer> relativeSizes = new ArrayList<Integer>();
+		for(int i = 0; i < rowMDTable.getRowCount(); i++)
+		{
+			ListBox lb = (ListBox) rowMDTable.getWidget(i, 0);
+			relativeSizes.add(lb.getSelectedIndex()+1);
+		}
+		for(RelativeGroupSizeListener listener: listeners)
+		{
+			listener.onRelativeGroupSize(relativeSizes);
+		}
+    }
 }

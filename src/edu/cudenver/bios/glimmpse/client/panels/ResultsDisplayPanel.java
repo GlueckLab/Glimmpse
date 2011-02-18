@@ -42,11 +42,11 @@ import edu.cudenver.bios.glimmpse.client.ChartRequestBuilder;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
-import edu.cudenver.bios.glimmpse.client.listener.OptionsListener;
+import edu.cudenver.bios.glimmpse.client.listener.ChartOptionsListener;
 import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
 
 public class ResultsDisplayPanel extends WizardStepPanel
-implements OptionsListener, SolvingForListener
+implements ChartOptionsListener, SolvingForListener
 {	
 	// columns associated with each quantity in the data table
 	private static final int COLUMN_ID_TEST = 0;
@@ -449,9 +449,13 @@ implements OptionsListener, SolvingForListener
 				}
 			}            	
 
-			if (showCurve)
+			if (chartRequestBuilder != null)
 			{
 				showCurveResults();
+			}
+			else
+			{
+				hideWorkingDialog();
 			}
 			resultsTable.draw(resultsData);
 			resultsTablePanel.setVisible(true);

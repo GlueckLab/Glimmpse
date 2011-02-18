@@ -95,6 +95,7 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 			{
 				CheckBox cb = (CheckBox) event.getSource();
 				enableConfidenceIntervalOptions(!cb.getValue());
+				checkComplete();
 			}
 		});
 		
