@@ -26,8 +26,6 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.http.client.URL;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -35,7 +33,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.ChartRequestBuilder;
@@ -139,9 +136,7 @@ CovariateListener
 		panel.add(description);
 		panel.add(createDisablePanel());
 		panel.add(createCurveParameterPanel());
-//		panel.add(createCurveTypePanel());
-//		panel.add(createFixedValuesPanel());
-		
+
 		// set defaults
 		reset();
 
@@ -177,6 +172,11 @@ CovariateListener
 		return panel;
 	}
     
+	private void enableOptions(boolean enabled)
+	{
+		
+	}
+	
 	private VerticalPanel createCurveParameterPanel()
 	{
 		VerticalPanel panel = new VerticalPanel();
@@ -186,7 +186,7 @@ CovariateListener
 	    xaxisTotalNRadioButton = new RadioButton(group);
 	    xaxisSigmaScaleRadioButton = new RadioButton(group);
 	    xaxisBetaScaleRadioButton = new RadioButton(group);
-		xaxisTotalNRadioButton.setValue(true);
+
 		// create the radio buttons for the curve types
 		group = CURVE_TYPE_RADIO_GROUP + radioGroupSuffix;
 	    curveTotalNRadioButton = new RadioButton(group);
@@ -197,6 +197,13 @@ CovariateListener
 	    curvePowerMethodRadioButton = new RadioButton(group);
 	    curveQuantileRadioButton = new RadioButton(group);
 		
+		// set defaults
+		xaxisTotalNRadioButton.setValue(true);
+		curveTotalNRadioButton.setEnabled(false);
+		totalNListBox.setEnabled(false);
+		xaxisBetaScaleRadioButton.setEnabled(false);
+		curveBetaScaleRadioButton.setValue(true);
+		betaScaleListBox.setEnabled(false);
 	    // hide the power method and quantile related boxes
 	    // only visible when controlling for a baseline covariate
 		powerMethodLabel.setVisible(false);
@@ -206,7 +213,81 @@ CovariateListener
 		curveQuantileRadioButton.setVisible(false);
 		quantileListBox.setVisible(false);
 	    
-	    
+	    // add callbacks so you can't have the same variable as the axis type
+		// and the curve type
+		xaxisTotalNRadioButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				enableByAxisType();
+			}
+		});
+		xaxisSigmaScaleRadioButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				enableByAxisType();
+			}
+		});
+		xaxisBetaScaleRadioButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				enableByAxisType();
+			}
+		});
+		
+		
+		curveTotalNRadioButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				enableByCurveType();
+			}
+		});
+	    curveBetaScaleRadioButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				enableByCurveType();
+			}
+		});
+	    curveSigmaScaleRadioButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				enableByCurveType();
+			}
+		});
+	    curveTestRadioButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				enableByCurveType();
+			}
+		});
+	    curveAlphaRadioButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				enableByCurveType();
+			}
+		});
+	    curvePowerMethodRadioButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				enableByCurveType();
+			}
+		});
+	    curveQuantileRadioButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				enableByCurveType();
+			}
+		});
+		
 		Grid grid = new Grid(8,4);
 		
 		grid.setWidget(0, 1, new HTML("Horizonal Axis"));
@@ -242,6 +323,7 @@ CovariateListener
 		grid.setWidget(6, 0, powerMethodLabel);
 		grid.setWidget(7, 0, quantileLabel);
 		
+		// layout the panel
 		panel.add(grid);
 		
 		// set style
@@ -250,52 +332,34 @@ CovariateListener
 		return panel;
 	}
 	
-	private void enableOptions(boolean enable)
+	private void enableByAxisType()
 	{
+		curveBetaScaleRadioButton.setEnabled(!xaxisBetaScaleRadioButton.getValue());
+		curveSigmaScaleRadioButton.setEnabled(!xaxisSigmaScaleRadioButton.getValue());
+		curveTotalNRadioButton.setEnabled(!xaxisTotalNRadioButton.getValue());
 		
-	}
+		betaScaleListBox.setEnabled(!xaxisBetaScaleRadioButton.getValue());
+		sigmaScaleListBox.setEnabled(!xaxisSigmaScaleRadioButton.getValue());
+		totalNListBox.setEnabled(!xaxisTotalNRadioButton.getValue());
+	}    
 	
-    private VerticalPanel createXAxisPanel()
-    {
-    	VerticalPanel panel = new VerticalPanel();
-    	
-		String group = XAXIS_RADIO_GROUP + radioGroupSuffix;
-	    xaxisTotalNRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsXAxisSampleSizeLabel());
-	    xaxisSigmaScaleRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsXAxisSigmaScaleLabel());
-	    xaxisBetaScaleRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsXAxisBetaScaleLabel());
-		xaxisTotalNRadioButton.setValue(true);
+	private void enableByCurveType()
+	{
+		// set the axis type buttons
+		xaxisTotalNRadioButton.setEnabled(!curveTotalNRadioButton.getValue());
+	    xaxisSigmaScaleRadioButton.setEnabled(!curveSigmaScaleRadioButton.getValue());
+	    xaxisBetaScaleRadioButton.setEnabled(!curveBetaScaleRadioButton.getValue());
 
-		// build panel
-	    panel.add(new HTML(Glimmpse.constants.curveOptionsXAxisLabel()));
-		panel.add(xaxisTotalNRadioButton);
-		panel.add(xaxisBetaScaleRadioButton);
-		panel.add(xaxisSigmaScaleRadioButton);
-		
-		// add style
-		xaxisTotalNRadioButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
-		xaxisBetaScaleRadioButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
-		xaxisSigmaScaleRadioButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
-		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
-		
-		return panel;
-    }
+	    // enable the drop downs
+	    totalNListBox.setEnabled(!curveTotalNRadioButton.getValue());
+	    betaScaleListBox.setEnabled(!curveBetaScaleRadioButton.getValue());
+	    sigmaScaleListBox.setEnabled(!curveSigmaScaleRadioButton.getValue());
+	    testListBox.setEnabled(!curveTestRadioButton.getValue());
+	    alphaListBox.setEnabled(!curveAlphaRadioButton.getValue());
+	    powerMethodListBox.setEnabled(!curvePowerMethodRadioButton.getValue());
+	    quantileListBox.setEnabled(!curveQuantileRadioButton.getValue());
 
-    private VerticalPanel createCurveTypePanel()
-    {
-    	VerticalPanel panel = new VerticalPanel();
-    	
-    	
-    	
-    	return panel;
-    }
-    
-    private VerticalPanel createFixedValuesPanel()
-    {
-    	VerticalPanel panel = new VerticalPanel();
-    	
-    	return panel;
-    }
-    
+	}  
     
 	/**
 	 * Clear the options panel
@@ -407,17 +471,17 @@ CovariateListener
 		if (xaxisBetaScaleRadioButton.getValue())
 		{
 			builder.setXAxisType(AxisType.BETA_SCALE);
-			builder.addAxisLabel(URL.encode("Regression Coefficient Scale Factor"));
+			builder.addAxisLabel("Regression Coefficient Scale Factor");
 		}
 		else if (xaxisSigmaScaleRadioButton.getValue())
 		{
 			builder.setXAxisType(AxisType.SIGMA_SCALE);
-			builder.addAxisLabel(URL.encode("Variance Scale Factor"));
+			builder.addAxisLabel("Variance Scale Factor");
 		}
 		else if (xaxisTotalNRadioButton.getValue())
 		{
 			builder.setXAxisType(AxisType.SAMPLE_SIZE);
-			builder.addAxisLabel(URL.encode("Total Sample Size"));
+			builder.addAxisLabel("Total Sample Size");
 		}
 		
 		builder.addAxisLabel("Power");
