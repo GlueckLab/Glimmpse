@@ -48,4 +48,22 @@
 		<ant antfile="${glimmpse_build.dir}/build.xml" inheritAll="false">
 		</ant>
 	</target>
+	
+	<target name="deployAll" description="This target will just deploy
+		the archives of the application to the apache and tomcat servers.
+		It copies the glimmpse zip to Apache's htdocs/, and the 3 wars
+		to Tomcat's webapps/.">
+		<ant antfile="${glimmpse_build.dir}/build.xml" target="deploy" 
+			inheritAll="false"/>
+		<ant antfile="${filesvc_build.dir}/build.xml" target="deploy" 
+			inheritAll="false"/>
+		<ant antfile="${chartsvc_build.dir}/build.xml" target="deploy" 
+			inheritAll="false"/>
+		<ant antfile="${powersvc_build.dir}/build.xml" target="deploy" 
+			inheritAll="false"/>
+	</target>
+	
+	<target name="buildAllDeploy" description="This target will first call build
+	All, and then call deployAll." depends="buildAll,deployAll"/>	
+	
 </project>	
