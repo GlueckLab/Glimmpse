@@ -21,7 +21,7 @@
  * 
  -->
 <project name="glimmpse" default="buildAll" basedir=".">
-	<property name="glimmpse.dir" value="../.." />
+	<property name="glimmpse.dir" value=".." />
 	<property name="glimmpse_build.dir" value="${basedir}" />
 	<property name="javastatistics.dir" value="${basedir}/../../JavaStatistics" />
 	<property name="javastatistics_build.dir" value="${javastatistics.dir}/build" />
@@ -33,8 +33,12 @@
 	<property name="powersvc_build.dir" value="${powersvc.dir}/build" />
 	<property name="matrixsvc.dir" value="${basedir}/../../MatrixSvc" />
 	<property name="matrixsvc_build.dir" value="${matrixsvc.dir}/build" />
-	<property name="thirdparty.dir" value="${glimmpse.dir}/thirdparty" />
+	<property name="thirdparty.dir" value="../../thirdparty" />
 	<property name="checkstyle.dir" value="${thirdparty.dir}/checkstyle/5.3" />
+	
+	<!--For checkstyle -->
+	<taskdef resource="checkstyletask.properties"
+	         classpath="${checkstyle.dir}/checkstyle-5.3-all.jar"/>
 	
 	<target name="buildAll" description="This target will call all build scripts." >				
 		<echo message="Calling ${javastatistics_build.dir}/build.xml" />
@@ -85,9 +89,9 @@
 	
 	<target name="checkstyle"
 	        description="Generates a report of code convention violations.">
-		<checkstyle config="${checkstyle_dir}/glimmpse_sun_checks.xml">
-		  <fileset dir="${glimmpse.dir}" includes="${glimmpse.dir}/src/**/*.java,${javastatistics.dir}/src/**/*.java,
-		  	${filesvc.dir}/src/**/*.java,${chartsvc.dir}/src/**/*.java"/>
+		<checkstyle config="${checkstyle.dir}/glimmpse_sun_checks.xml">
+		  <fileset dir="../.." includes="Glimmpse/src/**/*.java,JavaStatistics/src/**/*.java,
+		  	FileSvc/src/**/*.java,ChartSvc/src/**/*.java"/>
 		  <formatter type="plain"/>
 		  <!--Save output to file:
 		   <formatter type="xml" toFile="${basedir}/checkstyle_errors.xml"/>-->
