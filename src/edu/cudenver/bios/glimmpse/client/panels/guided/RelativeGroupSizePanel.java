@@ -2,7 +2,6 @@ package edu.cudenver.bios.glimmpse.client.panels.guided;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -10,30 +9,25 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.XMLUtilities;
-import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.listener.RelativeGroupSizeListener;
 import edu.cudenver.bios.glimmpse.client.listener.VariabilityListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class RelativeGroupSizePanel extends WizardStepPanel
-implements PredictorsListener, VariabilityListener, CovariateListener
+implements PredictorsListener
 {
 	protected static final int MAX_RELATIVE_SIZE = 10;
     // data table to display possible groups
     protected FlexTable groupSizesTable = new FlexTable();
     // listeners for relative size events
     protected ArrayList<RelativeGroupSizeListener> listeners = new ArrayList<RelativeGroupSizeListener>();
-    protected boolean hasCovariate = false;
-    protected double mean = 0;
-    protected double variance = 1;
     
 	public RelativeGroupSizePanel()
 	{
@@ -139,68 +133,36 @@ implements PredictorsListener, VariabilityListener, CovariateListener
 	public String toRequestXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		
-		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_ESSENCE_MATRIX);
 
 		// build the "fixed" cell means matrix.  Essentially, this is an identity matrix
 		// with rows & columns equal to the number of study sub groups
 		int size = groupSizesTable.getRowCount() -1;  // skip header
 
-		XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_FIXED, size, size);
+		XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_DESIGN, size, size);
 
-		// identity matrix
+		// identity matrix with repeats for unequal group sizes as needed
 		for(int row = 0; row < size; row++)
 		{
-			buffer.append("<r>");
-			for(int col = 0; col < size; col++)
+			ListBox lb = (ListBox) groupSizesTable.getWidget(row+1, 0); // skip header
+			int groupReps = lb.getSelectedIndex() + 1;
+			for(int rep = 0; rep < groupReps; rep++)
 			{
-				buffer.append("<c>");
-				if (row == col)
-					buffer.append(1);
-				else
-					buffer.append(0);
-				buffer.append("</c>");
+				buffer.append("<r>");
+				for(int col = 0; col < size; col++)
+				{
+					buffer.append("<c>");
+					if (row == col)
+						buffer.append(1);
+					else
+						buffer.append(0);
+					buffer.append("</c>");
+				}
+				buffer.append("</r>");
 			}
-			buffer.append("</r>");
 		}
 		
 		// close tag
-		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
-		
-		// build row meta data list
-		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_ROW_META_DATA);
-
-		for(int row = 1; row <= size; row++)
-		{
-			ListBox lb = (ListBox) groupSizesTable.getWidget(row, 0);
-			if (lb != null) buffer.append("<r ratio='" + lb.getItemText(lb.getSelectedIndex()) + "'></r>");
-		}
-
-		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ROW_META_DATA);
-		
-		// check if there is a random matrix
-		if (hasCovariate)
-		{
-			// list random column meta data
-			buffer.append("<randomColumnMetaData>");
-			buffer.append("<c mean='");
-			buffer.append(mean);
-			buffer.append("' variance='");
-			buffer.append(variance);
-			buffer.append("'></c></randomColumnMetaData>");
-
-			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_RANDOM, size, 1);
-			for(int row = 0; row < size; row++)
-			{
-				buffer.append("<r><c>1</c></r>");
-			}
-			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
-			
-		}
-		
-		// close tag for essence matrix
-		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ESSENCE_MATRIX);
-		
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);		
 		return buffer.toString();
 	}
 	
@@ -243,21 +205,4 @@ implements PredictorsListener, VariabilityListener, CovariateListener
 		}
 	}
 
-	@Override
-	public void onOutcomeVariance(List<Double> variancesOfOutcomes)
-	{
-		// no action needed
-	}
-
-	@Override
-	public void onCovariateVariance(double varianceOfCovariate)
-	{
-		this.variance = varianceOfCovariate;
-	}
-
-	@Override
-	public void onHasCovariate(boolean hasCovariate)
-	{
-		this.hasCovariate = hasCovariate;
-	}
 }

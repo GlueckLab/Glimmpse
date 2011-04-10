@@ -192,7 +192,6 @@ implements StudyDesignManager, SaveListener
 		relativeGroupSizePanel.addRelativeGroupSizeListener(hypothesisIndependentPanel);
 		relativeGroupSizePanel.addRelativeGroupSizeListener(hypothesisRepeatedPanel);
 		// listeners for baseline covariates
-		covariatePanel.addCovariateListener(relativeGroupSizePanel);
 		covariatePanel.addCovariateListener(meanDifferencesIndependentPanel);
 		covariatePanel.addCovariateListener(meanDifferencesPanel);
 		// TODO: covariatePanel.addCovariateListener(meanDifferencesRepeatedPanel);
@@ -215,7 +214,6 @@ implements StudyDesignManager, SaveListener
 		// variability listeners
 		variabilityIndependentPanel.addVariabilityListener(variabilityCovariateOutcomePanel);
 		variabilityCovariatePanel.addVariabilityListener(variabilityCovariateOutcomePanel);
-		variabilityCovariatePanel.addVariabilityListener(relativeGroupSizePanel);
 		optionsDisplayPanel.addChartOptionsListener(resultsPanel);
 		
 		// initialize
