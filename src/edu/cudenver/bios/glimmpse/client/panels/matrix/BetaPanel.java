@@ -91,7 +91,7 @@ implements MatrixResizeListener, CovariateListener
 	@Override
 	public void onColumns(String name, int newCols)
 	{
-		if (GlimmpseConstants.MATRIX_DESIGN_FIXED.equals(name))
+		if (GlimmpseConstants.MATRIX_DESIGN.equals(name))
 		{
 			betaFixed.setRowDimension(newCols);
 		}

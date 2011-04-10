@@ -145,7 +145,6 @@ implements StudyDesignManager, SaveListener
 		solvingForPanel.addSolvingForListener(perGroupSampleSizePanel);
 		designPanel.addMatrixResizeListener(betaPanel);
 		designPanel.addMatrixResizeListener(betweenContrastPanel);
-		designPanel.addRelativeGroupSizeListener(optionsDisplayPanel);
 		covariatePanel.addCovariateListener(designPanel);
 		covariatePanel.addCovariateListener(betaPanel);
 		covariatePanel.addCovariateListener(betweenContrastPanel);
@@ -156,7 +155,6 @@ implements StudyDesignManager, SaveListener
 		covariatePanel.addCovariateListener(optionsTestsPanel);
 		covariatePanel.addCovariateListener(optionsPowerMethodsPanel);
 		covariatePanel.addCovariateListener(optionsDisplayPanel);
-		sigmaCovariatePanel.addVariabilityListener(designPanel);
 		betweenContrastPanel.addMatrixResizeListener(thetaPanel);
 		withinContrastPanel.addMatrixResizeListener(thetaPanel);
 		optionsDisplayPanel.addChartOptionsListener(resultsPanel);

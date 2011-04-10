@@ -103,7 +103,7 @@ public interface GlimmpseConstants extends Constants
     // matrix names
     public static final String MATRIX_FIXED = "fixed";
     public static final String MATRIX_RANDOM = "random";
-    public static final String MATRIX_DESIGN_FIXED = "design";
+    public static final String MATRIX_DESIGN = "design";
     public static final String MATRIX_DESIGN_RANDOM = "designRandom";
     public static final String MATRIX_BETA = "beta";
     public static final String MATRIX_BETA_RANDOM = "betaRandom";

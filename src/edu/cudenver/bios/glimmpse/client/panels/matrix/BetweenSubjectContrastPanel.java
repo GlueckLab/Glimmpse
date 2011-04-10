@@ -83,7 +83,7 @@ implements MatrixResizeListener, CovariateListener
 	@Override
 	public void onColumns(String name, int newCols)
 	{
-		if (GlimmpseConstants.MATRIX_DESIGN_FIXED.equals(name))
+		if (GlimmpseConstants.MATRIX_DESIGN.equals(name))
 		{
 			betweenSubjectFixed.setColumnDimension(newCols);
 			betweenSubjectFixed.notifyOnColumns(newCols);
@@ -93,7 +93,7 @@ implements MatrixResizeListener, CovariateListener
 	@Override
 	public void onRows(String name, int newRows)
 	{
-		if (GlimmpseConstants.MATRIX_DESIGN_FIXED.equals(name))
+		if (GlimmpseConstants.MATRIX_DESIGN.equals(name))
 		{
 			betweenSubjectFixed.setMaxRows(newRows - 1);
 			if (betweenSubjectFixed.getRowDimension() > newRows - 1)
