@@ -25,7 +25,6 @@ package edu.cudenver.bios.glimmpse.client.panels;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -38,7 +37,6 @@ import com.google.gwt.xml.client.NodeList;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
-import edu.cudenver.bios.glimmpse.client.listener.AlphaListener;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.PowerMethodListener;
 import edu.cudenver.bios.glimmpse.client.listener.QuantileListener;
@@ -56,7 +54,6 @@ public class OptionsPowerMethodsPanel extends WizardStepPanel
 implements CovariateListener, ClickHandler
 {
 	// check boxes for power methods (only used when a baseline covariate is specified)
-	protected CheckBox conditionalPowerCheckBox = new CheckBox();
 	protected CheckBox unconditionalPowerCheckBox = new CheckBox();
 	protected CheckBox quantilePowerCheckBox = new CheckBox();
 	protected int numQuantiles = 0;
@@ -106,14 +103,12 @@ implements CovariateListener, ClickHandler
 		HTML description = new HTML(Glimmpse.constants.powerMethodDescription());        
 
 		// list of power methods
-		Grid grid = new Grid(4,2);
-		grid.setWidget(0, 0, conditionalPowerCheckBox);
-		grid.setWidget(0, 1, new HTML(Glimmpse.constants.powerMethodConditionalLabel()));
-		grid.setWidget(1, 0, unconditionalPowerCheckBox);
-		grid.setWidget(1, 1, new HTML(Glimmpse.constants.powerMethodUnconditionalLabel()));
-		grid.setWidget(2, 0, quantilePowerCheckBox);
-		grid.setWidget(2, 1, new HTML(Glimmpse.constants.powerMethodQuantileLabel()));
-		grid.setWidget(3, 1, quantileListPanel);
+		Grid grid = new Grid(3,2);
+		grid.setWidget(0, 0, unconditionalPowerCheckBox);
+		grid.setWidget(0, 1, new HTML(Glimmpse.constants.powerMethodUnconditionalLabel()));
+		grid.setWidget(1, 0, quantilePowerCheckBox);
+		grid.setWidget(1, 1, new HTML(Glimmpse.constants.powerMethodQuantileLabel()));
+		grid.setWidget(2, 1, quantileListPanel);
 		
 		// only show quantile list when quantile power is selected
 		quantilePowerCheckBox.addClickHandler(new ClickHandler() {
@@ -126,12 +121,8 @@ implements CovariateListener, ClickHandler
 		quantileListPanel.setVisible(false);
 		
 		// add callback to check if screen is complete
-		conditionalPowerCheckBox.addClickHandler(this);
 		unconditionalPowerCheckBox.addClickHandler(this);
 		quantilePowerCheckBox.addClickHandler(this);
-		
-		// set conditional power on by default
-		conditionalPowerCheckBox.setValue(true);
 
 		// layout the overall panel
 		panel.add(header);
@@ -156,9 +147,9 @@ implements CovariateListener, ClickHandler
 	public void reset()
 	{
 		// set the power method to conditional
-		conditionalPowerCheckBox.setValue(true);
 		unconditionalPowerCheckBox.setValue(false);
 		quantilePowerCheckBox.setValue(false);
+		quantileListPanel.setVisible(false);
 		numQuantiles = 0;
 		quantileListPanel.reset();
 		
@@ -175,15 +166,6 @@ implements CovariateListener, ClickHandler
 	public void onHasCovariate(boolean hasCovariate)
 	{
 		skip = !hasCovariate;
-		if (!hasCovariate)
-		{
-			// we always set conditional power for fixed designs
-			conditionalPowerCheckBox.setValue(true);
-			unconditionalPowerCheckBox.setValue(false);
-			quantilePowerCheckBox.setValue(false);
-			quantileListPanel.reset();
-			quantileListPanel.setVisible(false);
-		}
 	}
 
 	/**
@@ -198,23 +180,26 @@ implements CovariateListener, ClickHandler
 		buffer.append("<");
 		buffer.append(GlimmpseConstants.TAG_POWER_METHOD_LIST);
 		buffer.append(">");
-		if (conditionalPowerCheckBox.getValue())
+		if (skip)
 		{
 			buffer.append("<v>");
 			buffer.append(GlimmpseConstants.POWER_METHOD_CONDITIONAL);
 			buffer.append("</v>");
 		}
-		if (unconditionalPowerCheckBox.getValue())
+		else
 		{
-			buffer.append("<v>");
-			buffer.append(GlimmpseConstants.POWER_METHOD_UNCONDITIONAL);
-			buffer.append("</v>");
-		}
-		if (quantilePowerCheckBox.getValue())
-		{
-			buffer.append("<v>");
-			buffer.append(GlimmpseConstants.POWER_METHOD_QUANTILE);
-			buffer.append("</v>");
+			if (unconditionalPowerCheckBox.getValue())
+			{
+				buffer.append("<v>");
+				buffer.append(GlimmpseConstants.POWER_METHOD_UNCONDITIONAL);
+				buffer.append("</v>");
+			}
+			if (quantilePowerCheckBox.getValue())
+			{
+				buffer.append("<v>");
+				buffer.append(GlimmpseConstants.POWER_METHOD_QUANTILE);
+				buffer.append("</v>");
+			}
 		}
 		buffer.append("</");
 		buffer.append(GlimmpseConstants.TAG_POWER_METHOD_LIST);
@@ -267,8 +252,8 @@ implements CovariateListener, ClickHandler
 	{
 		// check if continue is allowed
 		// must have at least one test checked, at least one power method
-		if (conditionalPowerCheckBox.getValue() || unconditionalPowerCheckBox.getValue() || 
-						quantilePowerCheckBox.getValue())
+		if (unconditionalPowerCheckBox.getValue() || 
+				quantilePowerCheckBox.getValue())
 		{
 			if (!quantilePowerCheckBox.getValue() || numQuantiles > 0)
 			{
@@ -293,7 +278,6 @@ implements CovariateListener, ClickHandler
 	{
 		if (GlimmpseConstants.TAG_POWER_METHOD_LIST.equalsIgnoreCase(node.getNodeName()))
 		{
-			conditionalPowerCheckBox.setValue(false);
 			unconditionalPowerCheckBox.setValue(false);
 			quantilePowerCheckBox.setValue(false);
 			
@@ -304,9 +288,7 @@ implements CovariateListener, ClickHandler
 				Node pmNode = pmChild.getFirstChild();
 				if (pmNode != null)
 				{
-					if (GlimmpseConstants.POWER_METHOD_CONDITIONAL.equals(pmNode.getNodeValue()))
-						conditionalPowerCheckBox.setValue(true);
-					else if (GlimmpseConstants.POWER_METHOD_UNCONDITIONAL.equals(pmNode.getNodeValue()))
+					if (GlimmpseConstants.POWER_METHOD_UNCONDITIONAL.equals(pmNode.getNodeValue()))
 						unconditionalPowerCheckBox.setValue(true);
 					else if (GlimmpseConstants.POWER_METHOD_QUANTILE.equals(pmNode.getNodeValue()))
 					{
@@ -353,8 +335,6 @@ implements CovariateListener, ClickHandler
     {
     	ArrayList<String> powerMethods = new ArrayList<String>();
     	
-    	if (conditionalPowerCheckBox.getValue()) 
-    		powerMethods.add(GlimmpseConstants.POWER_METHOD_CONDITIONAL);
     	if (unconditionalPowerCheckBox.getValue())
     		powerMethods.add(GlimmpseConstants.POWER_METHOD_UNCONDITIONAL);
     	if (quantilePowerCheckBox.getValue())

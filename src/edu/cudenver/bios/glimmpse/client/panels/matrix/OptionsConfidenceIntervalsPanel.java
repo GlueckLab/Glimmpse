@@ -38,9 +38,11 @@ import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.XMLUtilities;
+import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
+implements CovariateListener
 {
 	protected String ciTypeRadioGroup= "confidenceIntervalTypeGroup";
 	
@@ -80,7 +82,7 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		
+		reset();
 		initWidget(panel);
 	}
 	
@@ -312,13 +314,15 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 	@Override
 	public void reset()
 	{
-		noCICheckbox.setValue(false);
+		noCICheckbox.setValue(true);
+		enableConfidenceIntervalOptions(false);
 		alphaLowerTextBox.setText("");
 		alphaUpperTextBox.setText("");
 		sampleSizeTextBox.setText("");
 		rankTextBox.setText("");
 		TextValidation.displayOkay(alphaErrorHTML, "");
 		TextValidation.displayOkay(estimatesErrorHTML, "");
+		checkComplete();
 	}
 
 	@Override
@@ -397,6 +401,14 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 		{
 			notifyInProgress();
 		}
+	}
+
+	@Override
+	public void onHasCovariate(boolean hasCovariate)
+	{
+		skip = hasCovariate;
+		noCICheckbox.setValue(hasCovariate);
+		enableConfidenceIntervalOptions(!hasCovariate);
 	}
 
 }

@@ -155,6 +155,7 @@ implements StudyDesignManager, SaveListener
 		covariatePanel.addCovariateListener(optionsTestsPanel);
 		covariatePanel.addCovariateListener(optionsPowerMethodsPanel);
 		covariatePanel.addCovariateListener(optionsDisplayPanel);
+		covariatePanel.addCovariateListener(optionsCIPanel);
 		betweenContrastPanel.addMatrixResizeListener(thetaPanel);
 		withinContrastPanel.addMatrixResizeListener(thetaPanel);
 		optionsDisplayPanel.addChartOptionsListener(resultsPanel);

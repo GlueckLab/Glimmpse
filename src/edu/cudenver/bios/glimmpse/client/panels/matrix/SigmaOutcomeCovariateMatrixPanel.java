@@ -75,8 +75,11 @@ implements CovariateListener, MatrixResizeListener
 	@Override
 	public void onColumns(String name, int newCols)
 	{
-		// TODO Auto-generated method stub
-		
+		// resize when beta columns change
+		if (GlimmpseConstants.MATRIX_BETA.equals(name))
+		{
+			sigmaYG.setRowDimension(newCols);
+		}
 	}
 
 	@Override

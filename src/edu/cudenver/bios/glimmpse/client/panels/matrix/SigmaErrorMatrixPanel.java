@@ -35,6 +35,7 @@ implements CovariateListener, MatrixResizeListener
 		// disable resize
 		sigmaError.setEnabledColumnDimension(false);
 		sigmaError.setEnabledRowDimension(false);
+		sigmaError.setIsSquare(true, true);
 		
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -68,15 +69,18 @@ implements CovariateListener, MatrixResizeListener
 	@Override
 	public void onRows(String name, int newRows)
 	{
-		// TODO Auto-generated method stub
+		// nothin' to do here, folks.
 		
 	}
 
 	@Override
 	public void onColumns(String name, int newCols)
 	{
-		// TODO Auto-generated method stub
-		
+		// resize when beta columns change
+		if (GlimmpseConstants.MATRIX_BETA.equals(name))
+		{
+			sigmaError.setRowDimension(newCols);
+		}
 	}
 
 	@Override
