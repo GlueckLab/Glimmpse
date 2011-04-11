@@ -135,7 +135,9 @@ CovariateListener
 		panel.add(header);
 		panel.add(description);
 		panel.add(createDisablePanel());
-		panel.add(createCurveParameterPanel());
+		panel.add(createXAxisPanel());
+		panel.add(createCurvePanel());
+		panel.add(createFixValuesPanel());
 
 		// set defaults
 		reset();
@@ -149,6 +151,11 @@ CovariateListener
 		initWidget(panel);
 	}
     
+	private void enableOptions(boolean enabled)
+	{
+		
+	}
+	
 	private HorizontalPanel createDisablePanel()
 	{
 		HorizontalPanel panel = new HorizontalPanel();
@@ -171,48 +178,19 @@ CovariateListener
 		
 		return panel;
 	}
-    
-	private void enableOptions(boolean enabled)
-	{
-		
-	}
 	
-	private VerticalPanel createCurveParameterPanel()
+	private VerticalPanel createXAxisPanel()
 	{
 		VerticalPanel panel = new VerticalPanel();
-		
 		// create the radio buttons for the x-axis values
 		String group = XAXIS_RADIO_GROUP + radioGroupSuffix;
-	    xaxisTotalNRadioButton = new RadioButton(group);
-	    xaxisSigmaScaleRadioButton = new RadioButton(group);
-	    xaxisBetaScaleRadioButton = new RadioButton(group);
-
-		// create the radio buttons for the curve types
-		group = CURVE_TYPE_RADIO_GROUP + radioGroupSuffix;
-	    curveTotalNRadioButton = new RadioButton(group);
-	    curveBetaScaleRadioButton = new RadioButton(group);
-	    curveSigmaScaleRadioButton = new RadioButton(group);
-	    curveTestRadioButton = new RadioButton(group);
-	    curveAlphaRadioButton = new RadioButton(group);
-	    curvePowerMethodRadioButton = new RadioButton(group);
-	    curveQuantileRadioButton = new RadioButton(group);
+	    xaxisTotalNRadioButton = new RadioButton(group, 
+	    		Glimmpse.constants.curveOptionsXAxisSampleSizeLabel(), true);
+	    xaxisSigmaScaleRadioButton = new RadioButton(group, 
+	    		Glimmpse.constants.curveOptionsXAxisBetaScaleLabel(), true);
+	    xaxisBetaScaleRadioButton = new RadioButton(group, 
+	    		Glimmpse.constants.curveOptionsXAxisSigmaScaleLabel(), true);
 		
-		// set defaults
-		xaxisTotalNRadioButton.setValue(true);
-		curveTotalNRadioButton.setEnabled(false);
-		totalNListBox.setEnabled(false);
-		xaxisBetaScaleRadioButton.setEnabled(false);
-		curveBetaScaleRadioButton.setValue(true);
-		betaScaleListBox.setEnabled(false);
-	    // hide the power method and quantile related boxes
-	    // only visible when controlling for a baseline covariate
-		powerMethodLabel.setVisible(false);
-		curvePowerMethodRadioButton.setVisible(false);
-		powerMethodListBox.setVisible(false);
-		quantileLabel.setVisible(false);
-		curveQuantileRadioButton.setVisible(false);
-		quantileListBox.setVisible(false);
-	    
 	    // add callbacks so you can't have the same variable as the axis type
 		// and the curve type
 		xaxisTotalNRadioButton.addClickHandler(new ClickHandler() {
@@ -236,8 +214,38 @@ CovariateListener
 				enableByAxisType();
 			}
 		});
+	    
+		// layout the panel
+		Grid grid = new Grid(3,1);
+		grid.setWidget(0,0,xaxisTotalNRadioButton);
+		grid.setWidget(1,0,xaxisBetaScaleRadioButton);
+		grid.setWidget(2,0,xaxisSigmaScaleRadioButton);
 		
+		panel.add(new HTML(Glimmpse.constants.curveOptionsXAxisLabel()));
+		panel.add(grid);
 		
+		// set style
+		grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
+		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+		
+		return panel;
+	}
+	
+	private VerticalPanel createCurvePanel()
+	{
+		VerticalPanel panel = new VerticalPanel();
+		
+		// create the radio buttons for the curve types
+		String group = CURVE_TYPE_RADIO_GROUP + radioGroupSuffix;
+	    curveTotalNRadioButton = new RadioButton(group, "N", true);
+	    curveBetaScaleRadioButton = new RadioButton(group, "B-scale", true);
+	    curveSigmaScaleRadioButton = new RadioButton(group, "V-scale", true);
+	    curveTestRadioButton = new RadioButton(group, "Test", true);
+	    curveAlphaRadioButton = new RadioButton(group, "alpha", true);
+	    curvePowerMethodRadioButton = new RadioButton(group, "method", true);
+	    curveQuantileRadioButton = new RadioButton(group, "quantile", true);
+
+	    // set callbacks
 		curveTotalNRadioButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event)
@@ -288,45 +296,54 @@ CovariateListener
 			}
 		});
 		
-		Grid grid = new Grid(8,4);
-		
-		grid.setWidget(0, 1, new HTML("Horizonal Axis"));
-		grid.setWidget(0, 2, new HTML("Curve(s)"));
-		grid.setWidget(0, 3, new HTML("Remaining Values"));
-		
-		// set the radio buttons for possible x axis values
-		grid.setWidget(1, 1, xaxisTotalNRadioButton);
-		grid.setWidget(2, 1, xaxisBetaScaleRadioButton);
-		grid.setWidget(3, 1, xaxisSigmaScaleRadioButton);
-		// possible curve values
-		grid.setWidget(1, 2, curveTotalNRadioButton);
-		grid.setWidget(2, 2, curveBetaScaleRadioButton);
-		grid.setWidget(3, 2, curveSigmaScaleRadioButton);
-		grid.setWidget(4, 2, curveTestRadioButton);
-		grid.setWidget(5, 2, curveAlphaRadioButton);
-		grid.setWidget(6, 2, curvePowerMethodRadioButton);
-		grid.setWidget(7, 2, curveQuantileRadioButton);
-		// add drop down lists for remaining values that need to be fixed
-		grid.setWidget(1, 3, totalNListBox);
-		grid.setWidget(2, 3, betaScaleListBox);
-		grid.setWidget(3, 3, sigmaScaleListBox);
-		grid.setWidget(4, 3, testListBox);
-		grid.setWidget(5, 3, alphaListBox);
-		grid.setWidget(6, 3, powerMethodListBox);
-		grid.setWidget(7, 3, quantileListBox);
-		
-		grid.setWidget(1, 0, new HTML("Total Sample Size"));
-		grid.setWidget(2, 0, new HTML("Regression Coefficients Scale Factor"));
-		grid.setWidget(3, 0, new HTML("Variance Scale Factor"));
-		grid.setWidget(4, 0, new HTML("Test"));
-		grid.setWidget(5, 0, new HTML("Alpha"));
-		grid.setWidget(6, 0, powerMethodLabel);
-		grid.setWidget(7, 0, quantileLabel);
+	    // layout the grid
+		Grid grid = new Grid(7,1);
+		grid.setWidget(0, 0, curveTotalNRadioButton);
+		grid.setWidget(1, 0, curveBetaScaleRadioButton);
+		grid.setWidget(2, 0, curveSigmaScaleRadioButton);
+		grid.setWidget(3, 0, curveTestRadioButton);
+		grid.setWidget(4, 0, curveAlphaRadioButton);
+		grid.setWidget(5, 0, curvePowerMethodRadioButton);
+		grid.setWidget(6, 0, curveQuantileRadioButton);
 		
 		// layout the panel
+		panel.add(new HTML("Which curves?"));
 		panel.add(grid);
 		
 		// set style
+		grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
+		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+		
+		return panel;
+	}
+	
+	private VerticalPanel createFixValuesPanel()
+	{
+		VerticalPanel panel = new VerticalPanel();
+		
+		Grid grid = new Grid(7,2);
+		// add drop down lists for remaining values that need to be fixed
+		grid.setWidget(0, 0, totalNListBox);
+		grid.setWidget(1, 0, betaScaleListBox);
+		grid.setWidget(2, 0, sigmaScaleListBox);
+		grid.setWidget(3, 0, testListBox);
+		grid.setWidget(4, 0, alphaListBox);
+		grid.setWidget(5, 0, powerMethodListBox);
+		grid.setWidget(6, 0, quantileListBox);
+		grid.setWidget(0, 1, new HTML("Total Sample Size"));
+		grid.setWidget(1, 1, new HTML("Regression Coefficients Scale Factor"));
+		grid.setWidget(2, 1, new HTML("Variance Scale Factor"));
+		grid.setWidget(3, 1, new HTML("Test"));
+		grid.setWidget(4, 1, new HTML("Alpha"));
+		grid.setWidget(5, 1, powerMethodLabel);
+		grid.setWidget(6, 1, quantileLabel);
+		
+		// layout the panel
+		panel.add(new HTML("Fix remaining values:"));
+		panel.add(grid);
+		
+		// set style
+		grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
 		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
 		
 		return panel;
@@ -367,7 +384,23 @@ CovariateListener
 	public void reset()
 	{		
 		// set the display options to table only
-		// TODO
+		disableCheckbox.setValue(true);
+		enableOptions(false);
+		// set defaults
+		xaxisTotalNRadioButton.setValue(true);
+		curveTotalNRadioButton.setEnabled(false);
+		totalNListBox.setEnabled(false);
+		xaxisBetaScaleRadioButton.setEnabled(false);
+		curveBetaScaleRadioButton.setValue(true);
+		betaScaleListBox.setEnabled(false);
+	    // hide the power method and quantile related boxes
+	    // only visible when controlling for a baseline covariate
+		powerMethodLabel.setVisible(false);
+		curvePowerMethodRadioButton.setVisible(false);
+		powerMethodListBox.setVisible(false);
+		quantileLabel.setVisible(false);
+		curveQuantileRadioButton.setVisible(false);
+		quantileListBox.setVisible(false);
 		
 		notifyComplete();
 	}
