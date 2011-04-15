@@ -35,7 +35,7 @@ implements CovariateListener, MatrixResizeListener
 		// disable resize
 		sigmaY.setEnabledColumnDimension(false);
 		sigmaY.setEnabledRowDimension(false);
-		
+		sigmaY.setIsSquare(true, true);
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
@@ -75,8 +75,11 @@ implements CovariateListener, MatrixResizeListener
 	@Override
 	public void onColumns(String name, int newCols)
 	{
-		// TODO Auto-generated method stub
-		
+		// resize when beta columns change
+		if (GlimmpseConstants.MATRIX_BETA.equals(name))
+		{
+			sigmaY.setRowDimension(newCols);
+		}
 	}
 
 	@Override
