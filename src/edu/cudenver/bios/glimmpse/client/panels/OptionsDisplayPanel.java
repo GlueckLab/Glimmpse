@@ -105,8 +105,8 @@ CovariateListener
     // need to hang onto the power method and quantile labels
     // so we can actively hide / show depending on whether we are controlling
     // for a baseline covariate
-    protected HTML powerMethodLabel = new HTML("Power Method");
-    protected HTML quantileLabel = new HTML("Quantiles");
+    protected HTML powerMethodLabel = new HTML(Glimmpse.constants.curveOptionsPowerMethodLabel());
+    protected HTML quantileLabel = new HTML(Glimmpse.constants.curveOptionsQuantileLabel());
     
     // select boxes for items that must be fixed for the curve
     protected ListBox totalNListBox = new ListBox();
@@ -185,11 +185,11 @@ CovariateListener
 		// create the radio buttons for the x-axis values
 		String group = XAXIS_RADIO_GROUP + radioGroupSuffix;
 	    xaxisTotalNRadioButton = new RadioButton(group, 
-	    		Glimmpse.constants.curveOptionsXAxisSampleSizeLabel(), true);
+	    		Glimmpse.constants.curveOptionsSampleSizeLabel(), true);
 	    xaxisSigmaScaleRadioButton = new RadioButton(group, 
-	    		Glimmpse.constants.curveOptionsXAxisBetaScaleLabel(), true);
+	    		Glimmpse.constants.curveOptionsSigmaScaleLabel(), true);
 	    xaxisBetaScaleRadioButton = new RadioButton(group, 
-	    		Glimmpse.constants.curveOptionsXAxisSigmaScaleLabel(), true);
+	    		Glimmpse.constants.curveOptionsBetaScaleLabel(), true);
 		
 	    // add callbacks so you can't have the same variable as the axis type
 		// and the curve type
@@ -237,13 +237,13 @@ CovariateListener
 		
 		// create the radio buttons for the curve types
 		String group = CURVE_TYPE_RADIO_GROUP + radioGroupSuffix;
-	    curveTotalNRadioButton = new RadioButton(group, "N", true);
-	    curveBetaScaleRadioButton = new RadioButton(group, "B-scale", true);
-	    curveSigmaScaleRadioButton = new RadioButton(group, "V-scale", true);
-	    curveTestRadioButton = new RadioButton(group, "Test", true);
-	    curveAlphaRadioButton = new RadioButton(group, "alpha", true);
-	    curvePowerMethodRadioButton = new RadioButton(group, "method", true);
-	    curveQuantileRadioButton = new RadioButton(group, "quantile", true);
+	    curveTotalNRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsSampleSizeLabel(), true);
+	    curveBetaScaleRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsBetaScaleLabel(), true);
+	    curveSigmaScaleRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsSigmaScaleLabel(), true);
+	    curveTestRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsTestLabel(), true);
+	    curveAlphaRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsAlphaLabel(), true);
+	    curvePowerMethodRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsPowerMethodLabel(), true);
+	    curveQuantileRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsQuantileLabel(), true);
 
 	    // set callbacks
 		curveTotalNRadioButton.addClickHandler(new ClickHandler() {
@@ -307,7 +307,7 @@ CovariateListener
 		grid.setWidget(6, 0, curveQuantileRadioButton);
 		
 		// layout the panel
-		panel.add(new HTML("Which curves?"));
+		panel.add(new HTML(Glimmpse.constants.curveOptionsStratifyLabel()));
 		panel.add(grid);
 		
 		// set style
@@ -323,23 +323,23 @@ CovariateListener
 		
 		Grid grid = new Grid(7,2);
 		// add drop down lists for remaining values that need to be fixed
-		grid.setWidget(0, 0, totalNListBox);
-		grid.setWidget(1, 0, betaScaleListBox);
-		grid.setWidget(2, 0, sigmaScaleListBox);
-		grid.setWidget(3, 0, testListBox);
-		grid.setWidget(4, 0, alphaListBox);
-		grid.setWidget(5, 0, powerMethodListBox);
-		grid.setWidget(6, 0, quantileListBox);
-		grid.setWidget(0, 1, new HTML("Total Sample Size"));
-		grid.setWidget(1, 1, new HTML("Regression Coefficients Scale Factor"));
-		grid.setWidget(2, 1, new HTML("Variance Scale Factor"));
-		grid.setWidget(3, 1, new HTML("Test"));
-		grid.setWidget(4, 1, new HTML("Alpha"));
-		grid.setWidget(5, 1, powerMethodLabel);
-		grid.setWidget(6, 1, quantileLabel);
+		grid.setWidget(0, 1, totalNListBox);
+		grid.setWidget(1, 1, betaScaleListBox);
+		grid.setWidget(2, 1, sigmaScaleListBox);
+		grid.setWidget(3, 1, testListBox);
+		grid.setWidget(4, 1, alphaListBox);
+		grid.setWidget(5, 1, powerMethodListBox);
+		grid.setWidget(6, 1, quantileListBox);
+		grid.setWidget(0, 0, new HTML(Glimmpse.constants.curveOptionsSampleSizeLabel()));
+		grid.setWidget(1, 0, new HTML(Glimmpse.constants.curveOptionsBetaScaleLabel()));
+		grid.setWidget(2, 0, new HTML(Glimmpse.constants.curveOptionsSigmaScaleLabel()));
+		grid.setWidget(3, 0, new HTML(Glimmpse.constants.curveOptionsTestLabel()));
+		grid.setWidget(4, 0, new HTML(Glimmpse.constants.curveOptionsAlphaLabel()));
+		grid.setWidget(5, 0, powerMethodLabel);
+		grid.setWidget(6, 0, quantileLabel);
 		
 		// layout the panel
-		panel.add(new HTML("Fix remaining values:"));
+		panel.add(new HTML(Glimmpse.constants.curveOptionsFixValuesLabel()));
 		panel.add(grid);
 		
 		// set style

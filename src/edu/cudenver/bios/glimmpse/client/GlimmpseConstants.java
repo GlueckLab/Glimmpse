@@ -340,13 +340,15 @@ public interface GlimmpseConstants extends Constants
     public String curveOptionsDescription();
     public String curveOptionsNone();
     public String curveOptionsXAxisLabel();
-    public String curveOptionsXAxisSampleSizeLabel();
-    public String curveOptionsXAxisBetaScaleLabel();
-    public String curveOptionsXAxisSigmaScaleLabel();
-//    public String curveOptionsFixedItemsLabel();
-//    public String curveOptionsFixedItemAlpha();
-//    public String curveOptionsFixedItemTest();    
-//    public String curveOptionsFixedItemPowerMethod();
+    public String curveOptionsStratifyLabel();
+    public String curveOptionsFixValuesLabel();
+    public String curveOptionsSampleSizeLabel();
+    public String curveOptionsBetaScaleLabel();
+    public String curveOptionsSigmaScaleLabel();
+    public String curveOptionsTestLabel();
+    public String curveOptionsAlphaLabel();
+    public String curveOptionsPowerMethodLabel();
+    public String curveOptionsQuantileLabel();
     
     // confidence interval constants
     public String confidenceIntervalOptionsTitle();
