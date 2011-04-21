@@ -56,11 +56,11 @@
 		<echo message="Calling ${powersvc_build.dir}/build.xml" />
 		<ant antfile="${powersvc_build.dir}/build.xml" inheritAll="false">
 		</ant>
-		<!--
+	
 		<echo message="Calling ${matrixsvc_build.dir}/build.xml" />
 		<ant antfile="${matrixsvc_build.dir}/build.xml" inheritAll="false">
 		</ant>
-		-->			
+				
 		<echo message="Calling ${glimmpse_build.dir}/build.xml" />
 		<ant antfile="${glimmpse_build.dir}/build.xml" inheritAll="false">
 		</ant>
