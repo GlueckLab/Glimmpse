@@ -347,8 +347,11 @@ public interface GlimmpseConstants extends Constants
     public String curveOptionsSigmaScaleLabel();
     public String curveOptionsTestLabel();
     public String curveOptionsAlphaLabel();
+    public String curveOptionsPowerLabel();
     public String curveOptionsPowerMethodLabel();
-    public String curveOptionsQuantileLabel();
+    public String curveOptionsQuantileLabel();   
+    public String curveOptionsNoneLabel();   
+
     
     // confidence interval constants
     public String confidenceIntervalOptionsTitle();

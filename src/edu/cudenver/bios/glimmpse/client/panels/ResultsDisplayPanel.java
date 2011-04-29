@@ -1,9 +1,5 @@
 package edu.cudenver.bios.glimmpse.client.panels;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ErrorEvent;
@@ -15,18 +11,14 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FormPanel;
-import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
-import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.NamedFrame;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.DataTable;
@@ -66,8 +58,6 @@ implements ChartOptionsListener, SolvingForListener
 	private static final String POWER_URL = "/webapps/power/power";
 	private static final String SAMPLE_SIZE_URL = "/webapps/power/samplesize";
 
-
-	private static final String STYLE_POWER_CURVE_FRAME = "powerCurveFrame";
 	private static final String CHART_INPUT_NAME = "chart";
 	private static final String SAVE_INPUT_NAME = "save";
 	private static final String FILENAME_INPUT_NAME = "filename";
@@ -362,15 +352,12 @@ implements ChartOptionsListener, SolvingForListener
 
 				// add a blank row to the data table
 				int row = resultsData.addRow();
-				StringBuffer curveColumnId = new StringBuffer();
 
 				Node testNode = attrs.getNamedItem("test");
 				if (testNode != null) 
 				{
 					resultsData.setCell(row, COLUMN_ID_TEST, testNode.getNodeValue(), 
 							formatTestName(testNode.getNodeValue()), null);
-					curveColumnId.append("Test=");
-					curveColumnId.append(formatTestName(testNode.getNodeValue()));
 				}
 
 				Node actualPowerNode = attrs.getNamedItem("actualPower");
@@ -411,8 +398,6 @@ implements ChartOptionsListener, SolvingForListener
 					resultsData.setCell(row, COLUMN_ID_ALPHA, 
 							Double.parseDouble(alphaNode.getNodeValue()), 
 							alphaNode.getNodeValue(), null);
-					curveColumnId.append(",Alpha=");
-					curveColumnId.append(alphaNode.getNodeValue());
 				}
 
 				Node nominalPowerNode = attrs.getNamedItem("nominalPower");
@@ -421,11 +406,6 @@ implements ChartOptionsListener, SolvingForListener
 					resultsData.setCell(row, COLUMN_ID_NOMINAL_POWER, 
 							Double.parseDouble(nominalPowerNode.getNodeValue()), 
 							formatDouble(nominalPowerNode.getNodeValue()), null);
-					if (solutionType != SolutionType.POWER)
-					{
-						curveColumnId.append(",Nominal Power=");
-						curveColumnId.append(nominalPowerNode.getNodeValue());
-					}
 				} 
 
 				Node powerMethodNode = attrs.getNamedItem("powerMethod");
@@ -434,8 +414,6 @@ implements ChartOptionsListener, SolvingForListener
 					resultsData.setCell(row, COLUMN_ID_POWER_METHOD, 
 							powerMethodNode.getNodeValue(), 
 							formatPowerMethodName(powerMethodNode.getNodeValue()), null);
-					curveColumnId.append(",Power Method=");
-					curveColumnId.append(formatPowerMethodName(powerMethodNode.getNodeValue()));
 				}
 
 				Node quantileNode = attrs.getNamedItem("quantile");
@@ -444,8 +422,6 @@ implements ChartOptionsListener, SolvingForListener
 					resultsData.setCell(row, COLUMN_ID_QUANTILE, 
 							Double.parseDouble(quantileNode.getNodeValue()), 
 							quantileNode.getNodeValue(), null);
-					curveColumnId.append(",Quantile=");
-					curveColumnId.append(quantileNode.getNodeValue());
 				}
 			}            	
 

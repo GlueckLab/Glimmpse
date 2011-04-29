@@ -22,7 +22,7 @@ public class ChartRequestBuilder
 		SIGMA_SCALE
 	};
 	
-	public enum CurveType {
+	public enum StratificationType {
 		TEST,
 		TOTAL_N,
 		BETA_SCALE,
@@ -44,7 +44,7 @@ public class ChartRequestBuilder
 	protected AxisType YAxisType = AxisType.NONE; // for 3D plots only - coming soon! TODO
 	
 	// indicates what the curves represent
-	protected CurveType curveType = CurveType.BETA_SCALE;
+	protected StratificationType stratificationType = StratificationType.BETA_SCALE;
 	
 	// curve group description
 	protected String test = null;
@@ -99,9 +99,9 @@ public class ChartRequestBuilder
 		YAxisType = yAxisType;
 	}
 
-	public void setCurveType(CurveType curveType)
+	public void setStratificationType(StratificationType stratificationType)
 	{
-		this.curveType = curveType;
+		this.stratificationType = stratificationType;
 	}
 
 	public void setTest(String test)
@@ -153,68 +153,68 @@ public class ChartRequestBuilder
 		{
 			StringBuffer groupKey = new StringBuffer();
 
-			if (curveType == CurveType.TEST || test != null)
+			if (stratificationType == stratificationType.TEST || test != null)
 			{
 				int col = powerResults.getColumnIndex(GlimmpseConstants.COLUMN_NAME_TEST);
 				String currentTest = powerResults.getValueString(row, col);
-				if (curveType != CurveType.TEST && !currentTest.equals(test)) continue;
+				if (stratificationType != stratificationType.TEST && !currentTest.equals(test)) continue;
 				groupKey.append("test=" +  currentTest + "&");
 			}
 			
-			if (curveType == CurveType.TOTAL_N || sampleSize > 0)
+			if (stratificationType == stratificationType.TOTAL_N || sampleSize > 0)
 			{
 				int col = powerResults.getColumnIndex(GlimmpseConstants.COLUMN_NAME_SAMPLE_SIZE);
 				int currentSampleSize = powerResults.getValueInt(row, col);
 				if (XAxisType != AxisType.SAMPLE_SIZE)
 				{
-					if (curveType != CurveType.TOTAL_N && sampleSize != currentSampleSize) continue;
+					if (stratificationType != stratificationType.TOTAL_N && sampleSize != currentSampleSize) continue;
 					groupKey.append("n=" +  sampleSize + "&");
 				}
 			}
 			
-			if (curveType == CurveType.BETA_SCALE || !Double.isNaN(betaScale))
+			if (stratificationType == stratificationType.BETA_SCALE || !Double.isNaN(betaScale))
 			{
 				int col = powerResults.getColumnIndex(GlimmpseConstants.COLUMN_NAME_BETA_SCALE);
 				double currentBetaScale = powerResults.getValueDouble(row, col);
 				if (XAxisType != AxisType.BETA_SCALE)
 				{
-					if (curveType != CurveType.BETA_SCALE && betaScale != currentBetaScale) continue;
+					if (stratificationType != stratificationType.BETA_SCALE && betaScale != currentBetaScale) continue;
 					groupKey.append("betaScale=" +  betaScale + "&");
 				}
 			}
 			
-			if (curveType == CurveType.SIGMA_SCALE || !Double.isNaN(sigmaScale))
+			if (stratificationType == stratificationType.SIGMA_SCALE || !Double.isNaN(sigmaScale))
 			{
 				int col = powerResults.getColumnIndex(GlimmpseConstants.COLUMN_NAME_SIGMA_SCALE);
 				double currentSigmaScale = powerResults.getValueDouble(row, col);
 				if (XAxisType != AxisType.SIGMA_SCALE)
 				{
-					if (curveType != CurveType.SIGMA_SCALE && sigmaScale != currentSigmaScale) continue;
+					if (stratificationType != stratificationType.SIGMA_SCALE && sigmaScale != currentSigmaScale) continue;
 					groupKey.append("sigmaScale=" +  currentSigmaScale + "&");
 				}
 			}
 
-			if (curveType == CurveType.ALPHA || !Double.isNaN(alpha))
+			if (stratificationType == stratificationType.ALPHA || !Double.isNaN(alpha))
 			{
 				int col = powerResults.getColumnIndex(GlimmpseConstants.COLUMN_NAME_ALPHA);
 				double currentAlpha = powerResults.getValueDouble(row, col);
-				if (curveType != CurveType.ALPHA && alpha != currentAlpha) continue;
+				if (stratificationType != stratificationType.ALPHA && alpha != currentAlpha) continue;
 				groupKey.append("alpha=" +  currentAlpha + "&");
 			}
 			
-			if (curveType == CurveType.POWER_METHOD || powerMethod != null && !powerMethod.isEmpty())
+			if (stratificationType == stratificationType.POWER_METHOD || powerMethod != null && !powerMethod.isEmpty())
 			{
 				int col = powerResults.getColumnIndex(GlimmpseConstants.COLUMN_NAME_POWER_METHOD);
 				String currentPowerMethod =  powerResults.getValueString(row, col);
-				if (curveType != CurveType.POWER_METHOD && !powerMethod.equals(currentPowerMethod)) continue;
+				if (stratificationType != stratificationType.POWER_METHOD && !powerMethod.equals(currentPowerMethod)) continue;
 				groupKey.append("method=" +  currentPowerMethod + "&");
 			}
 
-			if (curveType == CurveType.QUANTILE || !Double.isNaN(quantile))
+			if (stratificationType == stratificationType.QUANTILE || !Double.isNaN(quantile))
 			{
 				int col = powerResults.getColumnIndex(GlimmpseConstants.COLUMN_NAME_QUANTILE);
 				double currentQuantile = powerResults.getValueDouble(row, col);
-				if (curveType != CurveType.QUANTILE && quantile != currentQuantile) continue;
+				if (stratificationType != stratificationType.QUANTILE && quantile != currentQuantile) continue;
 				groupKey.append("quantile=" +  currentQuantile + "&");
 			}			
 
@@ -225,7 +225,6 @@ public class ChartRequestBuilder
 				groups.put(groupKey.toString(), groupRows);
 			}
 			groupRows.add(row);
-			Window.alert(row + "=" + groupKey.toString());
 		}
 	}
 	
@@ -276,8 +275,8 @@ public class ChartRequestBuilder
 		}
 
 		appendPipeDelimitedList(buffer, "chxl=", axisLabels);
-		appendPipeDelimitedList(buffer, "chdl=", legendLabels);
-		appendPipeDelimitedList(buffer, "chls=", lineStyles);
+		appendPipeDelimitedList(buffer, "&chdl=", legendLabels);
+		appendPipeDelimitedList(buffer, "&chls=", lineStyles);
 
 		// build the data series x..x|y...y|z...z
 		buffer.append("&chd=t:");

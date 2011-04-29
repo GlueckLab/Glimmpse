@@ -24,6 +24,8 @@ package edu.cudenver.bios.glimmpse.client.panels;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -37,7 +39,7 @@ import com.google.gwt.xml.client.Node;
 
 import edu.cudenver.bios.glimmpse.client.ChartRequestBuilder;
 import edu.cudenver.bios.glimmpse.client.ChartRequestBuilder.AxisType;
-import edu.cudenver.bios.glimmpse.client.ChartRequestBuilder.CurveType;
+import edu.cudenver.bios.glimmpse.client.ChartRequestBuilder.StratificationType;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.AlphaListener;
@@ -71,10 +73,15 @@ CovariateListener
 	private static final String ATTR_TABLE = "table";
 	private static final String ATTR_CURVE = "curve";
 	private static final String ATTR_XAXIS = "xaxis";
-	private static final String ATTR_VALUE_XAXIS_TOTAL_N = "totalN";
-	private static final String ATTR_VALUE_XAXIS_EFFECT_SIZE = "effectSize";
-	private static final String ATTR_VALUE_XAXIS_VARIANCE = "variance";
-
+	private static final String ATTR_VALUE_TOTAL_N = "totalN";
+	private static final String ATTR_VALUE_BETA_SCALE = "betaScale";
+	private static final String ATTR_VALUE_SIGMA_SCALE = "sigmaScale";
+	private static final String ATTR_VALUE_ALPHA = "alpha";
+	private static final String ATTR_VALUE_TEST = "test";
+	private static final String ATTR_VALUE_POWER_METHOD = "powerMethod";
+	private static final String ATTR_VALUE_QUANTILE = "quantile";
+	private static final String ATTR_VALUE_POWER = "power";
+	
 	protected String radioGroupSuffix  = "";
 	
 	protected static final String XAXIS_RADIO_GROUP = "xAxis";
@@ -89,18 +96,10 @@ CovariateListener
 	protected CheckBox disableCheckbox = new CheckBox();
 	
     // options for x-axis
-    protected RadioButton xaxisTotalNRadioButton;
-    protected RadioButton xaxisSigmaScaleRadioButton;
-    protected RadioButton xaxisBetaScaleRadioButton;
+	protected ListBox xaxisListBox = new ListBox();
 
-    // options for the variable which the curves represent
-    protected RadioButton curveTotalNRadioButton;
-    protected RadioButton curveBetaScaleRadioButton;
-    protected RadioButton curveSigmaScaleRadioButton;
-    protected RadioButton curveTestRadioButton;
-    protected RadioButton curveAlphaRadioButton;
-    protected RadioButton curvePowerMethodRadioButton;
-    protected RadioButton curveQuantileRadioButton;
+    // options for the stratification variable
+	protected ListBox stratifyListBox = new ListBox();
     
     // need to hang onto the power method and quantile labels
     // so we can actively hide / show depending on whether we are controlling
@@ -136,7 +135,7 @@ CovariateListener
 		panel.add(description);
 		panel.add(createDisablePanel());
 		panel.add(createXAxisPanel());
-		panel.add(createCurvePanel());
+		panel.add(createStratificationPanel());
 		panel.add(createFixValuesPanel());
 
 		// set defaults
@@ -182,136 +181,63 @@ CovariateListener
 	private VerticalPanel createXAxisPanel()
 	{
 		VerticalPanel panel = new VerticalPanel();
-		// create the radio buttons for the x-axis values
-		String group = XAXIS_RADIO_GROUP + radioGroupSuffix;
-	    xaxisTotalNRadioButton = new RadioButton(group, 
-	    		Glimmpse.constants.curveOptionsSampleSizeLabel(), true);
-	    xaxisSigmaScaleRadioButton = new RadioButton(group, 
-	    		Glimmpse.constants.curveOptionsSigmaScaleLabel(), true);
-	    xaxisBetaScaleRadioButton = new RadioButton(group, 
-	    		Glimmpse.constants.curveOptionsBetaScaleLabel(), true);
+
+		// create the listbox for the x-axis values
+		xaxisListBox.addItem(Glimmpse.constants.curveOptionsSampleSizeLabel(), 
+				ATTR_VALUE_TOTAL_N);
+		xaxisListBox.addItem(Glimmpse.constants.curveOptionsBetaScaleLabel(), 
+				ATTR_VALUE_BETA_SCALE);
+		xaxisListBox.addItem(Glimmpse.constants.curveOptionsSigmaScaleLabel(), 
+				ATTR_VALUE_SIGMA_SCALE);
 		
-	    // add callbacks so you can't have the same variable as the axis type
-		// and the curve type
-		xaxisTotalNRadioButton.addClickHandler(new ClickHandler() {
+		// add callback
+		xaxisListBox.addChangeHandler(new ChangeHandler() {
 			@Override
-			public void onClick(ClickEvent event)
+			public void onChange(ChangeEvent event)
 			{
-				enableByAxisType();
+				// TODO Auto-generated method stub
+				
 			}
 		});
-		xaxisSigmaScaleRadioButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				enableByAxisType();
-			}
-		});
-		xaxisBetaScaleRadioButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				enableByAxisType();
-			}
-		});
-	    
+		
 		// layout the panel
-		Grid grid = new Grid(3,1);
-		grid.setWidget(0,0,xaxisTotalNRadioButton);
-		grid.setWidget(1,0,xaxisBetaScaleRadioButton);
-		grid.setWidget(2,0,xaxisSigmaScaleRadioButton);
-		
 		panel.add(new HTML(Glimmpse.constants.curveOptionsXAxisLabel()));
-		panel.add(grid);
+		panel.add(xaxisListBox);
 		
 		// set style
-		grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
+		xaxisListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
 		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
 		
 		return panel;
 	}
 	
-	private VerticalPanel createCurvePanel()
+	private VerticalPanel createStratificationPanel()
 	{
 		VerticalPanel panel = new VerticalPanel();
 		
 		// create the radio buttons for the curve types
-		String group = CURVE_TYPE_RADIO_GROUP + radioGroupSuffix;
-	    curveTotalNRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsSampleSizeLabel(), true);
-	    curveBetaScaleRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsBetaScaleLabel(), true);
-	    curveSigmaScaleRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsSigmaScaleLabel(), true);
-	    curveTestRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsTestLabel(), true);
-	    curveAlphaRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsAlphaLabel(), true);
-	    curvePowerMethodRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsPowerMethodLabel(), true);
-	    curveQuantileRadioButton = new RadioButton(group, Glimmpse.constants.curveOptionsQuantileLabel(), true);
-
-	    // set callbacks
-		curveTotalNRadioButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				enableByCurveType();
-			}
-		});
-	    curveBetaScaleRadioButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				enableByCurveType();
-			}
-		});
-	    curveSigmaScaleRadioButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				enableByCurveType();
-			}
-		});
-	    curveTestRadioButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				enableByCurveType();
-			}
-		});
-	    curveAlphaRadioButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				enableByCurveType();
-			}
-		});
-	    curvePowerMethodRadioButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				enableByCurveType();
-			}
-		});
-	    curveQuantileRadioButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				enableByCurveType();
-			}
-		});
+		stratifyListBox.addItem(Glimmpse.constants.curveOptionsSampleSizeLabel(), 
+				ATTR_VALUE_TOTAL_N);
+		stratifyListBox.addItem(Glimmpse.constants.curveOptionsBetaScaleLabel(), 
+				ATTR_VALUE_BETA_SCALE);
+		stratifyListBox.addItem(Glimmpse.constants.curveOptionsSigmaScaleLabel(), 
+				ATTR_VALUE_SIGMA_SCALE);
 		
-	    // layout the grid
-		Grid grid = new Grid(7,1);
-		grid.setWidget(0, 0, curveTotalNRadioButton);
-		grid.setWidget(1, 0, curveBetaScaleRadioButton);
-		grid.setWidget(2, 0, curveSigmaScaleRadioButton);
-		grid.setWidget(3, 0, curveTestRadioButton);
-		grid.setWidget(4, 0, curveAlphaRadioButton);
-		grid.setWidget(5, 0, curvePowerMethodRadioButton);
-		grid.setWidget(6, 0, curveQuantileRadioButton);
+		stratifyListBox.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent event)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
 		// layout the panel
 		panel.add(new HTML(Glimmpse.constants.curveOptionsStratifyLabel()));
-		panel.add(grid);
+		panel.add(stratifyListBox);
 		
 		// set style
-		grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
+		stratifyListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
 		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
 		
 		return panel;
@@ -349,34 +275,6 @@ CovariateListener
 		return panel;
 	}
 	
-	private void enableByAxisType()
-	{
-		curveBetaScaleRadioButton.setEnabled(!xaxisBetaScaleRadioButton.getValue());
-		curveSigmaScaleRadioButton.setEnabled(!xaxisSigmaScaleRadioButton.getValue());
-		curveTotalNRadioButton.setEnabled(!xaxisTotalNRadioButton.getValue());
-		
-		betaScaleListBox.setEnabled(!xaxisBetaScaleRadioButton.getValue());
-		sigmaScaleListBox.setEnabled(!xaxisSigmaScaleRadioButton.getValue());
-		totalNListBox.setEnabled(!xaxisTotalNRadioButton.getValue());
-	}    
-	
-	private void enableByCurveType()
-	{
-		// set the axis type buttons
-		xaxisTotalNRadioButton.setEnabled(!curveTotalNRadioButton.getValue());
-	    xaxisSigmaScaleRadioButton.setEnabled(!curveSigmaScaleRadioButton.getValue());
-	    xaxisBetaScaleRadioButton.setEnabled(!curveBetaScaleRadioButton.getValue());
-
-	    // enable the drop downs
-	    totalNListBox.setEnabled(!curveTotalNRadioButton.getValue());
-	    betaScaleListBox.setEnabled(!curveBetaScaleRadioButton.getValue());
-	    sigmaScaleListBox.setEnabled(!curveSigmaScaleRadioButton.getValue());
-	    testListBox.setEnabled(!curveTestRadioButton.getValue());
-	    alphaListBox.setEnabled(!curveAlphaRadioButton.getValue());
-	    powerMethodListBox.setEnabled(!curvePowerMethodRadioButton.getValue());
-	    quantileListBox.setEnabled(!curveQuantileRadioButton.getValue());
-
-	}  
     
 	/**
 	 * Clear the options panel
@@ -387,20 +285,20 @@ CovariateListener
 		disableCheckbox.setValue(true);
 		enableOptions(false);
 		// set defaults
-		xaxisTotalNRadioButton.setValue(true);
-		curveTotalNRadioButton.setEnabled(false);
-		totalNListBox.setEnabled(false);
-		xaxisBetaScaleRadioButton.setEnabled(false);
-		curveBetaScaleRadioButton.setValue(true);
-		betaScaleListBox.setEnabled(false);
-	    // hide the power method and quantile related boxes
-	    // only visible when controlling for a baseline covariate
-		powerMethodLabel.setVisible(false);
-		curvePowerMethodRadioButton.setVisible(false);
-		powerMethodListBox.setVisible(false);
-		quantileLabel.setVisible(false);
-		curveQuantileRadioButton.setVisible(false);
-		quantileListBox.setVisible(false);
+//		xaxisTotalNRadioButton.setValue(true);
+//		curveTotalNRadioButton.setEnabled(false);
+//		totalNListBox.setEnabled(false);
+//		xaxisBetaScaleRadioButton.setEnabled(false);
+//		curveBetaScaleRadioButton.setValue(true);
+//		betaScaleListBox.setEnabled(false);
+//	    // hide the power method and quantile related boxes
+//	    // only visible when controlling for a baseline covariate
+//		powerMethodLabel.setVisible(false);
+//		curvePowerMethodRadioButton.setVisible(false);
+//		powerMethodListBox.setVisible(false);
+//		quantileLabel.setVisible(false);
+//		curveQuantileRadioButton.setVisible(false);
+//		quantileListBox.setVisible(false);
 		
 		notifyComplete();
 	}
@@ -501,17 +399,18 @@ CovariateListener
 	
 	private void setBuilderAxisType(ChartRequestBuilder builder)
 	{
-		if (xaxisBetaScaleRadioButton.getValue())
+		String value = xaxisListBox.getItemText(xaxisListBox.getSelectedIndex());
+		if (ATTR_VALUE_BETA_SCALE.equals(value))
 		{
 			builder.setXAxisType(AxisType.BETA_SCALE);
 			builder.addAxisLabel("Regression Coefficient Scale Factor");
 		}
-		else if (xaxisSigmaScaleRadioButton.getValue())
+		else if (ATTR_VALUE_SIGMA_SCALE.equals(value))
 		{
 			builder.setXAxisType(AxisType.SIGMA_SCALE);
 			builder.addAxisLabel("Variance Scale Factor");
 		}
-		else if (xaxisTotalNRadioButton.getValue())
+		else if (ATTR_VALUE_TOTAL_N.equals(value))
 		{
 			builder.setXAxisType(AxisType.SAMPLE_SIZE);
 			builder.addAxisLabel("Total Sample Size");
@@ -522,33 +421,62 @@ CovariateListener
 	
 	private void setBuilderCurveType(ChartRequestBuilder builder)
 	{
-	    if (curveTotalNRadioButton.getValue())
+		String value = stratifyListBox.getItemText(stratifyListBox.getSelectedIndex());
+	    if (ATTR_VALUE_TOTAL_N.equals(value))
 	    {
-	    	builder.setCurveType(CurveType.TOTAL_N);
+	    	builder.setStratificationType(StratificationType.TOTAL_N);
+	    	for(int i = 0; i < totalNListBox.getItemCount(); i++)
+	    	{
+		    	builder.addLegendLabel("Total N = " + totalNListBox.getItemText(i));
+	    	}
 	    }
-	    else if (curveBetaScaleRadioButton.getValue())
+	    else if (ATTR_VALUE_BETA_SCALE.equals(value))
 	    {
-	    	builder.setCurveType(CurveType.BETA_SCALE);
+	    	builder.setStratificationType(StratificationType.BETA_SCALE);
+	    	for(int i = 0; i < betaScaleListBox.getItemCount(); i++)
+	    	{
+		    	builder.addLegendLabel("Beta Scale = " + betaScaleListBox.getItemText(i));
+	    	}
 	    }
-	    else if (curveSigmaScaleRadioButton.getValue())
+	    else if (ATTR_VALUE_SIGMA_SCALE.equals(value))
 	    {
-	    	builder.setCurveType(CurveType.SIGMA_SCALE);
+	    	builder.setStratificationType(StratificationType.SIGMA_SCALE);
+	    	for(int i = 0; i < sigmaScaleListBox.getItemCount(); i++)
+	    	{
+		    	builder.addLegendLabel("Sigma Scale = " + sigmaScaleListBox.getItemText(i));
+	    	}
 	    }
-	    else if (curveTestRadioButton.getValue())
+	    else if (ATTR_VALUE_TEST.equals(value))
 	    {
-	    	builder.setCurveType(CurveType.TEST);
+	    	builder.setStratificationType(StratificationType.TEST);
+	    	for(int i = 0; i < testListBox.getItemCount(); i++)
+	    	{
+		    	builder.addLegendLabel("Test = " + testListBox.getItemText(i));
+	    	}
 	    }
-	    else if (curveAlphaRadioButton.getValue())
+	    else if (ATTR_VALUE_ALPHA.equals(value))
 	    {
-	    	builder.setCurveType(CurveType.ALPHA);
+	    	builder.setStratificationType(StratificationType.ALPHA);
+	    	for(int i = 0; i < alphaListBox.getItemCount(); i++)
+	    	{
+		    	builder.addLegendLabel("Alpha = " + alphaListBox.getItemText(i));
+	    	}
 	    }
-	    else if (curvePowerMethodRadioButton.getValue())
+	    else if (ATTR_VALUE_POWER_METHOD.equals(value))
 	    {
-	    	builder.setCurveType(CurveType.POWER_METHOD);
+	    	builder.setStratificationType(StratificationType.POWER_METHOD);
+	    	for(int i = 0; i < powerMethodListBox.getItemCount(); i++)
+	    	{
+		    	builder.addLegendLabel("Method = " + powerMethodListBox.getItemText(i));
+	    	}
 	    }
-	    else if (curveQuantileRadioButton.getValue())
+	    else if (ATTR_VALUE_QUANTILE.equals(value))
 	    {
-	    	builder.setCurveType(CurveType.QUANTILE);
+	    	builder.setStratificationType(StratificationType.QUANTILE);
+	    	for(int i = 0; i < quantileListBox.getItemCount(); i++)
+	    	{
+		    	builder.addLegendLabel("Quantile = " + quantileListBox.getItemText(i));
+	    	}
 	    }
 	}
 	
@@ -661,13 +589,13 @@ CovariateListener
 	@Override
 	public void onHasCovariate(boolean hasCovariate)
 	{
-		powerMethodLabel.setVisible(hasCovariate);
-		curvePowerMethodRadioButton.setVisible(hasCovariate);
-		powerMethodListBox.setVisible(hasCovariate);
-		
-		quantileLabel.setVisible(hasCovariate);
-		curveQuantileRadioButton.setVisible(hasCovariate);
-		quantileListBox.setVisible(hasCovariate);
+//		powerMethodLabel.setVisible(hasCovariate);
+//		curvePowerMethodRadioButton.setVisible(hasCovariate);
+//		powerMethodListBox.setVisible(hasCovariate);
+//		
+//		quantileLabel.setVisible(hasCovariate);
+//		curveQuantileRadioButton.setVisible(hasCovariate);
+//		quantileListBox.setVisible(hasCovariate);
 	}
 
 	@Override
