@@ -78,10 +78,8 @@
 			inheritAll="false"/>
 		<ant antfile="${powersvc_build.dir}/build.xml" target="deploy" 
 			inheritAll="false"/>
-		<!--
 		<ant antfile="${matrixsvc_build.dir}/build.xml" target="deploy" 
 			inheritAll="false"/>
-		-->
 	</target>
 	
 	<target name="buildAllDeploy" description="This target will first call build
