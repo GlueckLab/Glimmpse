@@ -31,7 +31,6 @@ import com.google.gwt.xml.client.Node;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
-import edu.cudenver.bios.glimmpse.client.listener.AlphaListener;
 import edu.cudenver.bios.glimmpse.client.listener.BetaScaleListener;
 import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
 import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
