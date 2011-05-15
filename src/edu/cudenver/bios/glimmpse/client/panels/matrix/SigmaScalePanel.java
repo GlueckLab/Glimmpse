@@ -73,6 +73,7 @@ implements ListValidator
 	public void reset()
 	{
 		sigmaScaleListPanel.reset();
+		onValidRowCount(sigmaScaleListPanel.getValidRowCount());
 	}
 
 	@Override
