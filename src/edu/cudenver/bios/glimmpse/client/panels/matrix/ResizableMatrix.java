@@ -370,6 +370,7 @@ public class ResizableMatrix extends Composite
         matrixData.resize(newRows, newColumns);
         rowTextBox.setText(Integer.toString(newRows));
         columnTextBox.setText(Integer.toString(newColumns));
+        TextValidation.displayOkay(errorHTML, "");
         for(int r = 0; r < matrixData.getRowCount(); r++)
         {
             fillRow(r, defaultValue, true);

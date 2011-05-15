@@ -72,6 +72,7 @@ implements ListValidator, SolvingForListener
 	public void reset()
 	{
 		betaScaleListPanel.reset();
+		onValidRowCount(betaScaleListPanel.getValidRowCount());
 	}
 
 	@Override

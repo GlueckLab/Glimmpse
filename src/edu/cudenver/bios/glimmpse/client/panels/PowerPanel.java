@@ -85,6 +85,7 @@ implements ListValidator, SolvingForListener
 	public void reset()
 	{
 		nominalPowerListPanel.reset();
+    	onValidRowCount(nominalPowerListPanel.getValidRowCount());
 	}
 
 	@Override

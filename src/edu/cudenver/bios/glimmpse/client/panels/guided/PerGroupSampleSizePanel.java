@@ -81,6 +81,7 @@ implements ListValidator, SolvingForListener
 	{
 		// TODO Auto-generated method stub
 		perGroupNListPanel.reset();
+		onValidRowCount(perGroupNListPanel.getValidRowCount());
 	}
 
 	@Override
