@@ -186,6 +186,8 @@ implements StudyDesignManager, SaveListener
 				String childName = child.getNodeName();
 				if (GlimmpseConstants.TAG_SOLVING_FOR.equalsIgnoreCase(childName))
 					solvingForPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_CONFIDENCE_INTERVAL.equalsIgnoreCase(childName))
+					optionsCIPanel.loadFromNode(child);
 				else if (GlimmpseConstants.TAG_ALPHA_LIST.equalsIgnoreCase(childName))
 					alphaPanel.loadFromNode(child);
 				else if (GlimmpseConstants.TAG_TEST_LIST.equalsIgnoreCase(childName))
@@ -202,8 +204,6 @@ implements StudyDesignManager, SaveListener
 					betaScalePanel.loadFromNode(child);
 				else if (GlimmpseConstants.TAG_SIGMA_SCALE_LIST.equalsIgnoreCase(childName))
 					sigmaScalePanel.loadFromNode(child);
-				else if (GlimmpseConstants.TAG_ESSENCE_MATRIX.equalsIgnoreCase(childName))
-					designPanel.loadFromNode(child);
 				else if (GlimmpseConstants.TAG_COVARIATE.equalsIgnoreCase(childName))
 					covariatePanel.loadFromNode(child);
 				else if (GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX.equalsIgnoreCase(childName))
@@ -226,7 +226,9 @@ implements StudyDesignManager, SaveListener
 					if (nameNode != null)
 					{
 						String name = nameNode.getNodeValue();
-						if (GlimmpseConstants.MATRIX_WITHIN_CONTRAST.equalsIgnoreCase(name))
+						if (GlimmpseConstants.MATRIX_DESIGN.equalsIgnoreCase(name))
+							designPanel.loadFromNode(child);
+						else if (GlimmpseConstants.MATRIX_WITHIN_CONTRAST.equalsIgnoreCase(name))
 							withinContrastPanel.loadFromNode(child);
 						else if (GlimmpseConstants.MATRIX_SIGMA_ERROR.equalsIgnoreCase(name))
 							sigmaErrorPanel.loadFromNode(child);
