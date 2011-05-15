@@ -21,7 +21,6 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
@@ -46,7 +45,6 @@ import edu.cudenver.bios.glimmpse.client.panels.guided.OutcomesPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.PerGroupSampleSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.RelativeGroupSizePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.RepeatedMeasuresPanel;
-import edu.cudenver.bios.glimmpse.client.panels.guided.SimpleAlphaPanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityCovariateOutcomePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityCovariatePanel;
 import edu.cudenver.bios.glimmpse.client.panels.guided.VariabilityIndependentMeasuresPanel;
@@ -372,7 +370,6 @@ implements StudyDesignManager, SaveListener
 	@Override
 	public void onSave()
 	{
-		Window.alert(getStudyDesignXML());
 		wizardPanel.sendSaveRequest(getStudyDesignXML(), DEFAULT_STUDY_FILENAME);
 	}
 
