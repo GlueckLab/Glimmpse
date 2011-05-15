@@ -21,6 +21,8 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels.matrix;
 
+import java.util.ArrayList;
+
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -32,15 +34,23 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.XMLUtilities;
+import edu.cudenver.bios.glimmpse.client.listener.ChartOptionsListener;
+import edu.cudenver.bios.glimmpse.client.listener.ConfidenceIntervalListener;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
+/**
+ * Matrix Mode panel which allows the user to set options for confidence
+ * intervals on power results
+ */
 public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 implements CovariateListener
 {
@@ -58,6 +68,8 @@ implements CovariateListener
 	
 	protected HTML alphaErrorHTML = new HTML();
 	protected HTML estimatesErrorHTML = new HTML();
+	// listeners for confidence interval changes
+	protected ArrayList<ConfidenceIntervalListener> listeners = new ArrayList<ConfidenceIntervalListener>();
 	
 	public OptionsConfidenceIntervalsPanel(String mode)
 	{
@@ -98,6 +110,8 @@ implements CovariateListener
 				CheckBox cb = (CheckBox) event.getSource();
 				enableConfidenceIntervalOptions(!cb.getValue());
 				checkComplete();
+				// notify listeners
+				for(ConfidenceIntervalListener listener: listeners) listener.onHasConfidenceInterval(!cb.getValue());
 			}
 		});
 		
@@ -327,8 +341,31 @@ implements CovariateListener
 
 	@Override
 	public void loadFromNode(Node node)
-	{
-		
+	{	
+		if (GlimmpseConstants.TAG_CONFIDENCE_INTERVAL.equalsIgnoreCase(node.getNodeName()))
+		{
+			NamedNodeMap attrs = node.getAttributes();
+			// set type of CI
+			Node typeNode = attrs.getNamedItem(GlimmpseConstants.ATTR_TYPE);
+			if (typeNode != null) 
+			{
+				if (GlimmpseConstants.CONFIDENCE_INTERVAL_BETA_KNOWN_EST_SIGMA.equals(typeNode.getNodeValue()))
+					sigmaCIRadioButton.setValue(true);
+				else if (GlimmpseConstants.CONFIDENCE_INTERVAL_EST_BETA_SIGMA.equals(typeNode.getNodeValue()))
+					betaSigmaCIRadioButton.setValue(true);
+			}
+			// set upper/lower tails
+			Node upperTailNode = attrs.getNamedItem(GlimmpseConstants.ATTR_CI_ALPHA_UPPER);
+			if (upperTailNode != null) alphaUpperTextBox.setValue(upperTailNode.getNodeValue());
+			Node lowerTailNode = attrs.getNamedItem(GlimmpseConstants.ATTR_CI_ALPHA_LOWER);
+			if (lowerTailNode != null) alphaLowerTextBox.setValue(lowerTailNode.getNodeValue());
+			
+			// set estimation data set info
+			Node sampleSizeNode = attrs.getNamedItem(GlimmpseConstants.ATTR_CI_ESTIMATES_SAMPLE_SIZE);
+			if (sampleSizeNode != null) sampleSizeTextBox.setValue(sampleSizeNode.getNodeValue());
+			Node rankNode = attrs.getNamedItem(GlimmpseConstants.ATTR_CI_ESTIMATES_RANK);
+			if (rankNode != null) rankTextBox.setText(rankNode.getNodeValue());
+		}
 	}
 	
 	public String toRequestXML()
@@ -372,13 +409,7 @@ implements CovariateListener
 	{
 		if (noCICheckbox.getValue())
 		{
-			StringBuffer buffer = new StringBuffer();
-						
-			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_CONFIDENCE_INTERVAL,
-					"type='none'");
-			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_CONFIDENCE_INTERVAL);
-			
-			return buffer.toString();
+			return "";
 		}
 		else
 		{
@@ -411,4 +442,12 @@ implements CovariateListener
 		enableConfidenceIntervalOptions(!hasCovariate);
 	}
 
+	/**
+	 * Add a listener for confidence interval panel events
+	 * @param listener class implementing the ConfidenceIntervalListener interface
+	 */
+	public void addConfidenceIntervalListener(ConfidenceIntervalListener listener)
+	{
+		listeners.add(listener);
+	}
 }
