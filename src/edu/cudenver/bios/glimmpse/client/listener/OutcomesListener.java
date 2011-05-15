@@ -21,8 +21,9 @@ package edu.cudenver.bios.glimmpse.client.listener;
 
 import java.util.List;
 
-import edu.cudenver.bios.glimmpse.client.panels.guided.RepeatedMeasure;
-
+/**
+ * Interface for changes to the number of outcomes
+ */
 public interface OutcomesListener
 {
 	public void onOutcomes(List<String> outcomes);
