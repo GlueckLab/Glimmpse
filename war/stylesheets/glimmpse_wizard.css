@@ -28,6 +28,7 @@
 	overflow:auto;
 	background-image:url('/images/gradient.gif');
 	background-repeat:repeat-x;
+	font-size: 12pt;
 }
 
 /* style for initial mode selection screen */
@@ -45,7 +46,7 @@
 	margin-top: 10px;
 	font-weight: bold;
 	font-size: large;
-	width: 80%;
+	width: 90%;
 }
 
 .modeSelectionPanelDescription {
@@ -100,14 +101,15 @@
 /* Style for "steps left" banner above the input wizard. */
 
 .stepsLeftPanel {
-	width: 120px;
+	width: 150px;
 }
 
 .stepsLeftLabel {
 	text-align: left;
 	padding: 5px 5px;
-    width: 120px;
+    width: 150px;
     border: 1px solid #d6e0eb;
+    font-size: 12pt;
 }
 
 .stepsLeftLabel-complete {
@@ -131,7 +133,7 @@
 
 /* style for main wizard input panel (GWT class) */
 .wizardContentPanel {
-	width: 680px;
+	width: 810px;
 }
 
 /* styles applied to steps in the input wizard */
@@ -147,12 +149,13 @@
 .wizardStepHeader {
 	margin: 5px 5px;
 	font-weight: bold;
-	font-size: 12pt;
+	font-size: 14pt;
 	width: 80%;
 }
 
 .wizardStepDescription {
 	margin: 5px 5px;
+	font-size: 12pt;
 	width: 80%;
 }
 
@@ -207,8 +210,9 @@
 .wizardNavigationPanelButton {
 	background: #005C84;
 	color: #F9FCFF;
-	width: 75px;
-	height: 24px;
+	width: 100px;
+	font-size: 12pt;
+	height: 30px;
 	margin: 5px 5px;
 	border: 2px outset #ccc;
 	-moz-border-radius: 5px;
