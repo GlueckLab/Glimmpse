@@ -27,7 +27,6 @@ import java.util.List;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -132,7 +131,7 @@ implements ListValidator
     public void reset()
     {
     	alphaListPanel.reset();
-    	notifyInProgress();
+    	onValidRowCount(alphaListPanel.getValidRowCount());
     }
 
     /**
