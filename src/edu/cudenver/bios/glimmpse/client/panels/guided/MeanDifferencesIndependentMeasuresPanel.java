@@ -115,7 +115,7 @@ OutcomesListener, PredictorsListener
 	@Override
 	public void reset()
 	{
-		outcomesTable.clear();
+		outcomesTable.removeAllRows();
 		// TODO
 	}
 
@@ -252,7 +252,7 @@ OutcomesListener, PredictorsListener
 	public void onOutcomes(List<String> outcomes)
 	{
 		numOutcomes = outcomes.size();
-		outcomesTable.clear();
+		outcomesTable.removeAllRows();
 		int i = 0;
 		for(String outcome: outcomes)
 		{
