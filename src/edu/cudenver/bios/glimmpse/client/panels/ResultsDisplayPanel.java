@@ -77,6 +77,8 @@ implements ChartOptionsListener, SolvingForListener, ConfidenceIntervalListener
 	private static final int COLUMN_ID_NOMINAL_POWER = 6;
 	private static final int COLUMN_ID_POWER_METHOD = 7;
 	private static final int COLUMN_ID_QUANTILE = 8;
+	private static final int COLUMN_ID_CI_LOWER = 9;
+	private static final int COLUMN_ID_CI_UPPER = 10;
 	
 	private static final String STYLE_RESULT_BUTTON = "resultsPanelButton";
 	private static final String STYLE_SEPARATOR = "separator";
@@ -137,6 +139,8 @@ implements ChartOptionsListener, SolvingForListener, ConfidenceIntervalListener
 	// pointer to the overall wizard panel which can generate the entity body from the other panels
 	protected StudyDesignManager manager;
 
+	protected boolean showCI = false;
+	
 	public ResultsDisplayPanel(StudyDesignManager manager)
 	{
 		super();
@@ -322,6 +326,10 @@ implements ChartOptionsListener, SolvingForListener, ConfidenceIntervalListener
 				GlimmpseConstants.COLUMN_NAME_POWER_METHOD);
 		resultsData.addColumn(ColumnType.NUMBER, "Quantile", 
 				GlimmpseConstants.COLUMN_NAME_QUANTILE);
+		resultsData.addColumn(ColumnType.NUMBER, "Power Lower", 
+				GlimmpseConstants.COLUMN_NAME_CI_LOWER);
+		resultsData.addColumn(ColumnType.NUMBER, "Power Upper", 
+				GlimmpseConstants.COLUMN_NAME_CI_UPPER);
 	}
 
 	private void buildWaitDialog()
@@ -449,6 +457,22 @@ implements ChartOptionsListener, SolvingForListener, ConfidenceIntervalListener
 					resultsData.setCell(row, COLUMN_ID_QUANTILE, 
 							Double.parseDouble(quantileNode.getNodeValue()), 
 							quantileNode.getNodeValue(), null);
+				}
+				
+				Node ciLowerNode = attrs.getNamedItem("ciLower");
+				if (ciLowerNode != null) 
+				{
+					resultsData.setCell(row, COLUMN_ID_CI_LOWER, 
+							Double.parseDouble(ciLowerNode.getNodeValue()), 
+							formatDouble(ciLowerNode.getNodeValue()), null);
+				}
+				
+				Node ciUpperNode = attrs.getNamedItem("ciUpper");
+				if (ciUpperNode != null) 
+				{
+					resultsData.setCell(row, COLUMN_ID_CI_UPPER, 
+							Double.parseDouble(ciUpperNode.getNodeValue()), 
+							formatDouble(ciUpperNode.getNodeValue()), null);
 				}
 			}            	
 
