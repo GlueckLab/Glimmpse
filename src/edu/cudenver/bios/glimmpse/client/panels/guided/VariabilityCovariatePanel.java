@@ -1,10 +1,31 @@
+/*
+ * User Interface for the GLIMMPSE Software System.  Allows
+ * users to perform power, sample size, and detectable difference
+ * calculations. 
+ * 
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package edu.cudenver.bios.glimmpse.client.panels.guided;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -16,10 +37,14 @@ import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.XMLUtilities;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
-import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.listener.VariabilityListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
+/**
+ * Guided mode panel for entering the s.d. of the covariate
+ * @author Sarah
+ *
+ */
 public class VariabilityCovariatePanel extends WizardStepPanel
 implements CovariateListener, ChangeHandler
 {
@@ -70,8 +95,12 @@ implements CovariateListener, ChangeHandler
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
-		
+		if (GlimmpseConstants.TAG_VARIABILITY_G.equalsIgnoreCase(node.getNodeName()))
+		{
+			Node textNode = node.getFirstChild();
+			if (textNode != null) this.standardDeviationTextBox.setText(textNode.getNodeValue());
+			Window.alert(standardDeviationTextBox.getText());
+		}
 	}
 
 	@Override
@@ -97,6 +126,15 @@ implements CovariateListener, ChangeHandler
 		return buffer.toString();
 	}
 
+	public String toStudyXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_VARIABILITY_G);
+		buffer.append(standardDeviationTextBox.getValue());
+		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_VARIABILITY_G);	
+		return buffer.toString();
+	}
+	
 	@Override
 	public void onChange(ChangeEvent event)
 	{
