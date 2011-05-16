@@ -21,6 +21,9 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels.guided;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -32,6 +35,7 @@ import com.google.gwt.xml.client.NodeList;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.XMLUtilities;
+import edu.cudenver.bios.glimmpse.client.listener.BetaScaleListener;
 import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
 import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
@@ -44,6 +48,8 @@ import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 public class MeanDifferencesScalePanel extends WizardStepPanel
 {
     protected CheckBox scaleCheckBox = new CheckBox();
+    
+    protected ArrayList<BetaScaleListener> listeners = new ArrayList<BetaScaleListener>();
     
 	public MeanDifferencesScalePanel()
 	{
@@ -108,4 +114,26 @@ public class MeanDifferencesScalePanel extends WizardStepPanel
 	{
 		return toRequestXML();
 	}
+	
+    /**
+     * Add a listener for the list of beta scale values
+     * @param listener beta scale listener object
+     */
+    public void addBetaScaleListener(BetaScaleListener listener)
+    {
+    	listeners.add(listener);
+    }
+    
+    @Override
+    public void onExit()
+    {
+    	ArrayList<String> values = new ArrayList<String>();
+    	values.add("1");
+		if (scaleCheckBox.getValue())
+		{
+			values.add("0.5");
+			values.add("2");
+		}
+    	for(BetaScaleListener listener: listeners) listener.onBetaScaleList(values);
+    }
 }

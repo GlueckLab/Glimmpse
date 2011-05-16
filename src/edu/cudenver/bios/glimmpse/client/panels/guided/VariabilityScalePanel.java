@@ -21,6 +21,9 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels.guided;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -31,6 +34,8 @@ import com.google.gwt.xml.client.NodeList;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.XMLUtilities;
+import edu.cudenver.bios.glimmpse.client.listener.BetaScaleListener;
+import edu.cudenver.bios.glimmpse.client.listener.SigmaScaleListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 /**
@@ -41,6 +46,7 @@ import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 public class VariabilityScalePanel extends WizardStepPanel
 {
     protected CheckBox scaleCheckBox = new CheckBox();
+    protected ArrayList<SigmaScaleListener> listeners = new ArrayList<SigmaScaleListener>();
     
 	public VariabilityScalePanel()
 	{
@@ -105,5 +111,27 @@ public class VariabilityScalePanel extends WizardStepPanel
 	{
 		return toRequestXML();
 	}
+	
+	@Override
+	public void onExit()
+	{
+    	ArrayList<String> values = new ArrayList<String>();
+    	values.add("1");
+		if (scaleCheckBox.getValue())
+		{
+			values.add("0.5");
+			values.add("2");
+		}
+    	for(SigmaScaleListener listener: listeners) listener.onSigmaScaleList(values);
+	}
+	
+    /**
+     * Add a listener for the list of sigma scale values
+     * @param listener sigma scale listener object
+     */
+    public void addSigmaScaleListener(SigmaScaleListener listener)
+    {
+    	listeners.add(listener);
+    }
 
 }

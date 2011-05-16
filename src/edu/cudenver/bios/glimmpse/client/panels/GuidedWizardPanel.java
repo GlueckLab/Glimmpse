@@ -21,7 +21,6 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
@@ -215,7 +214,15 @@ implements StudyDesignManager, SaveListener
 		variabilityIndependentPanel.addVariabilityListener(variabilityCovariateOutcomePanel);
 		variabilityCovariatePanel.addVariabilityListener(variabilityCovariateOutcomePanel);
 		optionsDisplayPanel.addChartOptionsListener(resultsPanel);
-		
+		// callbacks to fill in the power curve options screen
+		alphaPanel.addAlphaListener(optionsDisplayPanel);
+		optionsTestsPanel.addTestListener(optionsDisplayPanel);
+		optionsPowerMethodsPanel.addPowerMethodListener(optionsDisplayPanel);
+		optionsPowerMethodsPanel.addQuantileListener(optionsDisplayPanel);
+		meanDifferencesScalePanel.addBetaScaleListener(optionsDisplayPanel);
+		perGroupSampleSizePanel.addPerGroupSampleSizeListener(optionsDisplayPanel);
+		relativeGroupSizePanel.addRelativeGroupSizeListener(optionsDisplayPanel);
+		variabilityScalePanel.addSigmaScaleListener(optionsDisplayPanel);
 		// initialize
 		initWidget(panel);
 	}
