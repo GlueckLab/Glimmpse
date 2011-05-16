@@ -129,9 +129,12 @@ implements CovariateListener, ChangeHandler
 	public String toStudyXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_VARIABILITY_G);
-		buffer.append(standardDeviationTextBox.getValue());
-		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_VARIABILITY_G);	
+		if (!skip)
+		{
+			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_VARIABILITY_G);
+			buffer.append(standardDeviationTextBox.getValue());
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_VARIABILITY_G);	
+		}
 		return buffer.toString();
 	}
 	
