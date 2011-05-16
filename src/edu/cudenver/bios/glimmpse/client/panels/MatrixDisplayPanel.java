@@ -34,6 +34,7 @@ import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
 import com.google.gwt.xml.client.impl.DOMParseException;
 
+import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 
 /**
@@ -73,17 +74,12 @@ public class MatrixDisplayPanel extends Composite
 				for(int i = 0; i < children.getLength(); i++)
 				{
 					Node child = children.item(i);
-					if (GlimmpseConstants.TAG_ESSENCE_MATRIX.equals(child.getNodeName()))
-					{
-						tableOfMatrices.setWidget(row, 0, new HTML("X \"Essence\""));
-						tableOfMatrices.setWidget(row++, 1, buildFixedRandomMatrixGrid(child, "*"));
-					}
-					else if (GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX.equals(child.getNodeName()))
+					if (GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX.equals(child.getNodeName()))
 					{
 						// TODO: matrix names
 						NamedNodeMap attrs = child.getAttributes();
 						Node nameNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
-						tableOfMatrices.setWidget(row, 0, new HTML(nameNode.getNodeValue()));
+						tableOfMatrices.setWidget(row, 0, new HTML(prettyMatrixName(nameNode.getNodeValue())));
 						tableOfMatrices.setWidget(row++, 1, buildFixedRandomMatrixGrid(child, "1"));
 					}
 					else if (GlimmpseConstants.TAG_MATRIX.equals(child.getNodeName()))
@@ -92,7 +88,7 @@ public class MatrixDisplayPanel extends Composite
 						Node nameNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
 						if (nameNode != null)
 						{
-							tableOfMatrices.setWidget(row, 0, new HTML(nameNode.getNodeValue()));
+							tableOfMatrices.setWidget(row, 0, new HTML(prettyMatrixName(nameNode.getNodeValue())));
 						}
 
 						FlexTable table = new FlexTable();
@@ -107,6 +103,30 @@ public class MatrixDisplayPanel extends Composite
 		{
 			Window.alert(e.getMessage());
 		}
+	}
+	
+	private String prettyMatrixName(String name)
+	{
+		if (GlimmpseConstants.MATRIX_DESIGN.equalsIgnoreCase(name))
+			return Glimmpse.constants.matrixCategoricalEffectsLabel();
+		else if (GlimmpseConstants.MATRIX_WITHIN_CONTRAST.equalsIgnoreCase(name))
+			return Glimmpse.constants.withinSubjectContrastMatrixName();
+		else if (GlimmpseConstants.MATRIX_SIGMA_ERROR.equalsIgnoreCase(name))
+			return Glimmpse.constants.sigmaErrorMatrixName();
+		else if (GlimmpseConstants.MATRIX_SIGMA_OUTCOME.equalsIgnoreCase(name))
+			return Glimmpse.constants.sigmaOutcomeMatrixName();
+		else if (GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE.equalsIgnoreCase(name))
+			return Glimmpse.constants.sigmaOutcomeCovariateMatrixName();
+		else if (GlimmpseConstants.MATRIX_SIGMA_COVARIATE.equalsIgnoreCase(name))
+			return Glimmpse.constants.sigmaCovariateMatrixName();
+		else if (GlimmpseConstants.MATRIX_THETA.equalsIgnoreCase(name))
+			return Glimmpse.constants.thetaNullMatrixName();
+		else if (GlimmpseConstants.MATRIX_BETA.equalsIgnoreCase(name))
+			return Glimmpse.constants.betaFixedMatrixName();
+		else if (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST.equalsIgnoreCase(name))
+			return Glimmpse.constants.betweenSubjectContrastMatrixName();
+		else
+			return "";
 	}
 	
 	public void reset()
