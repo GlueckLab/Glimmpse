@@ -90,6 +90,7 @@ CovariateListener
 	public void reset()
 	{
 		meansTable.removeAllRows();
+		uploadedValues.clear();
 	}
 
 	@Override
