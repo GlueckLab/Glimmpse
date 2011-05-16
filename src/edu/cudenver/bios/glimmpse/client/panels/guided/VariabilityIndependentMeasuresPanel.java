@@ -168,7 +168,6 @@ implements OutcomesListener, CovariateListener
 		boolean noEmpty = true;
 		for(int i = 0; i < standardDeviationTable.getRowCount(); i++)
 		{
-			Window.alert(standardDeviationTable.getRowCount() + " " + i );
 			String value = ((TextBox) standardDeviationTable.getWidget(i, COLUMN_TEXTBOX)).getText();
 			if (value == null || value.isEmpty())
 			{
