@@ -35,9 +35,13 @@ import com.google.gwt.xml.client.NodeList;
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
-import edu.cudenver.bios.glimmpse.client.listener.SigmaScaleListener;
 import edu.cudenver.bios.glimmpse.client.listener.TestListener;
 
+/**
+ * Panel for selecting statistical tests
+ * @author Sarah Kreidler
+ *
+ */
 public class OptionsTestsPanel extends WizardStepPanel
 implements ClickHandler, CovariateListener
 {

@@ -38,7 +38,6 @@ implements CovariateListener, ChangeHandler
         HTML description = new HTML(Glimmpse.constants.variabilityCovariateDescription());
 		
         HorizontalPanel standardDeviationContainer = new HorizontalPanel();
-        standardDeviationContainer.add(new HTML("What is the estimated standard deviation for your covariate?"));
         standardDeviationContainer.add(standardDeviationTextBox);
         
         // callback for text box
@@ -54,7 +53,7 @@ implements CovariateListener, ChangeHandler
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        standardDeviationContainer.setStyleName(GlimmpseConstants.STYLE_WIZARD_CONTENT);
+        standardDeviationContainer.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
         errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
         errorHTML.addStyleDependentName(GlimmpseConstants.STYLE_MESSAGE_OKAY);
         
