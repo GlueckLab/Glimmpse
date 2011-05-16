@@ -114,13 +114,6 @@ CovariateListener
 	    	}
 		}
 	}
-
-	// TODO: remove
-	@Override
-	public void onExit()
-	{
-		Window.alert(toXML());
-	}
 	
 	@Override
 	public void onPredictors(HashMap<String, ArrayList<String>> predictorMap,

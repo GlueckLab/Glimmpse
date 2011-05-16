@@ -47,7 +47,7 @@ implements OutcomesListener, CovariateListener
         standardDeviationContainer.add(standardDeviationTable);
         standardDeviationContainer.add(standardDeviationErrorHTML);
         // create the correlation entry form
-        correlationContainer.add(new HTML("What are the estimated correlations between your outcomes?"));
+        correlationContainer.add(new HTML(Glimmpse.constants.correlationOutcomeQuestion()));
         correlationContainer.add(correlationTable);
         correlationContainer.add(correlationErrorHTML);
         // layout the overall panel
