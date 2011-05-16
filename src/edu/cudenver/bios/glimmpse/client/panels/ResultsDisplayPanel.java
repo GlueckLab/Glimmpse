@@ -56,6 +56,7 @@ import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.StudyDesignManager;
 import edu.cudenver.bios.glimmpse.client.listener.ChartOptionsListener;
+import edu.cudenver.bios.glimmpse.client.listener.ConfidenceIntervalListener;
 import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
 
 /**
@@ -64,7 +65,7 @@ import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
  *
  */
 public class ResultsDisplayPanel extends WizardStepPanel
-implements ChartOptionsListener, SolvingForListener
+implements ChartOptionsListener, SolvingForListener, ConfidenceIntervalListener
 {	
 	// columns associated with each quantity in the data table
 	private static final int COLUMN_ID_TEST = 0;
@@ -603,5 +604,12 @@ implements ChartOptionsListener, SolvingForListener
 	public void loadFromNode(Node node)
 	{
 		// nothing to do here. regenerated each time.
+	}
+
+	@Override
+	public void onHasConfidenceInterval(boolean hasConfidenceInterval)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -28,12 +28,12 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
 
@@ -44,13 +44,14 @@ import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.listener.AlphaListener;
 import edu.cudenver.bios.glimmpse.client.listener.BetaScaleListener;
-import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.ChartOptionsListener;
+import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
+import edu.cudenver.bios.glimmpse.client.listener.PerGroupSampleSizeListener;
 import edu.cudenver.bios.glimmpse.client.listener.PowerMethodListener;
 import edu.cudenver.bios.glimmpse.client.listener.QuantileListener;
 import edu.cudenver.bios.glimmpse.client.listener.RelativeGroupSizeListener;
-import edu.cudenver.bios.glimmpse.client.listener.PerGroupSampleSizeListener;
 import edu.cudenver.bios.glimmpse.client.listener.SigmaScaleListener;
+import edu.cudenver.bios.glimmpse.client.listener.SolvingForListener;
 import edu.cudenver.bios.glimmpse.client.listener.TestListener;
 
 /**
@@ -66,7 +67,7 @@ public class OptionsDisplayPanel extends WizardStepPanel
 implements ClickHandler, AlphaListener, BetaScaleListener,
 SigmaScaleListener, TestListener, PowerMethodListener,
 QuantileListener, PerGroupSampleSizeListener, RelativeGroupSizeListener,
-CovariateListener
+CovariateListener, SolvingForListener
 {
 	// constants for xml parsing
 	private static final String TAG_DISPLAY = "display";
@@ -81,6 +82,9 @@ CovariateListener
 	private static final String ATTR_VALUE_POWER_METHOD = "powerMethod";
 	private static final String ATTR_VALUE_QUANTILE = "quantile";
 	private static final String ATTR_VALUE_POWER = "power";
+	
+	protected boolean hasCovariate = false;
+	protected boolean solvingForPower = true;
 	
 	protected String radioGroupSuffix  = "";
 	
@@ -106,7 +110,7 @@ CovariateListener
     // for a baseline covariate
     protected HTML powerMethodLabel = new HTML(Glimmpse.constants.curveOptionsPowerMethodLabel());
     protected HTML quantileLabel = new HTML(Glimmpse.constants.curveOptionsQuantileLabel());
-    
+    protected HTML totalNLabel = new HTML(Glimmpse.constants.curveOptionsSampleSizeLabel());
     // select boxes for items that must be fixed for the curve
     protected ListBox totalNListBox = new ListBox();
     protected ListBox betaScaleListBox = new ListBox();
@@ -195,8 +199,15 @@ CovariateListener
 			@Override
 			public void onChange(ChangeEvent event)
 			{
-				// TODO Auto-generated method stub
-				
+				ListBox lb = (ListBox) event.getSource();
+				int stratSelect = stratifyListBox.getSelectedIndex();
+				if (lb.getSelectedIndex() == stratSelect)
+				{
+					if (stratSelect == 0) 
+						lb.setSelectedIndex(1);
+					else
+						lb.setSelectedIndex(0);
+				}
 			}
 		});
 		
@@ -215,20 +226,23 @@ CovariateListener
 	{
 		VerticalPanel panel = new VerticalPanel();
 		
-		// create the radio buttons for the curve types
-		stratifyListBox.addItem(Glimmpse.constants.curveOptionsSampleSizeLabel(), 
-				ATTR_VALUE_TOTAL_N);
-		stratifyListBox.addItem(Glimmpse.constants.curveOptionsBetaScaleLabel(), 
-				ATTR_VALUE_BETA_SCALE);
-		stratifyListBox.addItem(Glimmpse.constants.curveOptionsSigmaScaleLabel(), 
-				ATTR_VALUE_SIGMA_SCALE);
+		fillStratificationListBox(false);
 		
+		stratifyListBox.setSelectedIndex(1);
 		stratifyListBox.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event)
 			{
-				// TODO Auto-generated method stub
-				
+				ListBox lb = (ListBox) event.getSource();
+				int xaxisSelect = xaxisListBox.getSelectedIndex();
+				if (lb.getSelectedIndex() == xaxisSelect)
+				{
+					if (xaxisSelect == 0) 
+						lb.setSelectedIndex(1);
+					else
+						lb.setSelectedIndex(0);
+				}
+					
 			}
 		});
 		
@@ -256,7 +270,7 @@ CovariateListener
 		grid.setWidget(4, 1, alphaListBox);
 		grid.setWidget(5, 1, powerMethodListBox);
 		grid.setWidget(6, 1, quantileListBox);
-		grid.setWidget(0, 0, new HTML(Glimmpse.constants.curveOptionsSampleSizeLabel()));
+		grid.setWidget(0, 0, totalNLabel);
 		grid.setWidget(1, 0, new HTML(Glimmpse.constants.curveOptionsBetaScaleLabel()));
 		grid.setWidget(2, 0, new HTML(Glimmpse.constants.curveOptionsSigmaScaleLabel()));
 		grid.setWidget(3, 0, new HTML(Glimmpse.constants.curveOptionsTestLabel()));
@@ -272,9 +286,47 @@ CovariateListener
 		grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
 		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
 		
+		showFixedItems(hasCovariate, solvingForPower);
+		
 		return panel;
 	}
-	
+
+	private void fillStratificationListBox(boolean hasCovariate)
+    {
+    	stratifyListBox.clear();
+		// create the list entries for the curve types
+		stratifyListBox.addItem(Glimmpse.constants.curveOptionsSampleSizeLabel(), 
+				ATTR_VALUE_TOTAL_N);
+		stratifyListBox.addItem(Glimmpse.constants.curveOptionsBetaScaleLabel(), 
+				ATTR_VALUE_BETA_SCALE);
+		stratifyListBox.addItem(Glimmpse.constants.curveOptionsSigmaScaleLabel(), 
+				ATTR_VALUE_SIGMA_SCALE);
+		stratifyListBox.addItem(Glimmpse.constants.curveOptionsAlphaLabel(), 
+				ATTR_VALUE_ALPHA);
+		stratifyListBox.addItem(Glimmpse.constants.curveOptionsTestLabel(), 
+				ATTR_VALUE_TEST);
+		if (hasCovariate)
+		{
+			stratifyListBox.addItem(Glimmpse.constants.curveOptionsPowerMethodLabel(), 
+					ATTR_VALUE_POWER_METHOD);
+			stratifyListBox.addItem(Glimmpse.constants.curveOptionsQuantileLabel(), 
+					ATTR_VALUE_QUANTILE);
+		}
+    }
+    
+    private void showFixedItems(boolean hasCovariate, boolean solvingForPower)
+    {
+		// set the list boxes for power method, quantile visible as needed
+		powerMethodLabel.setVisible(hasCovariate);
+		powerMethodListBox.setVisible(hasCovariate);
+		
+		quantileLabel.setVisible(hasCovariate);
+		quantileListBox.setVisible(hasCovariate);
+		
+		totalNLabel.setVisible(solvingForPower);
+		totalNListBox.setVisible(solvingForPower);
+		
+    }
     
 	/**
 	 * Clear the options panel
@@ -334,8 +386,8 @@ CovariateListener
 //			buffer.append(ATTR_VALUE_XAXIS_EFFECT_SIZE);
 //		else
 //			buffer.append(ATTR_VALUE_XAXIS_VARIANCE);
-		buffer.append("' ");
-		buffer.append("/>");
+//		buffer.append("' ");
+//		buffer.append("/>");
 
 		return buffer.toString();
 	}
@@ -399,7 +451,7 @@ CovariateListener
 	
 	private void setBuilderAxisType(ChartRequestBuilder builder)
 	{
-		String value = xaxisListBox.getItemText(xaxisListBox.getSelectedIndex());
+		String value = xaxisListBox.getValue(xaxisListBox.getSelectedIndex());
 		if (ATTR_VALUE_BETA_SCALE.equals(value))
 		{
 			builder.setXAxisType(AxisType.BETA_SCALE);
@@ -421,7 +473,7 @@ CovariateListener
 	
 	private void setBuilderCurveType(ChartRequestBuilder builder)
 	{
-		String value = stratifyListBox.getItemText(stratifyListBox.getSelectedIndex());
+		String value = stratifyListBox.getValue(stratifyListBox.getSelectedIndex());
 	    if (ATTR_VALUE_TOTAL_N.equals(value))
 	    {
 	    	builder.setStratificationType(StratificationType.TOTAL_N);
@@ -495,6 +547,7 @@ CovariateListener
 	@Override
 	public void loadFromNode(Node node)
 	{
+		// TODO
 //		if (TAG_DISPLAY.equals(node.getNodeName()))
 //		{
 //			NamedNodeMap attrs = node.getAttributes();
@@ -589,13 +642,10 @@ CovariateListener
 	@Override
 	public void onHasCovariate(boolean hasCovariate)
 	{
-//		powerMethodLabel.setVisible(hasCovariate);
-//		curvePowerMethodRadioButton.setVisible(hasCovariate);
-//		powerMethodListBox.setVisible(hasCovariate);
-//		
-//		quantileLabel.setVisible(hasCovariate);
-//		curveQuantileRadioButton.setVisible(hasCovariate);
-//		quantileListBox.setVisible(hasCovariate);
+		this.hasCovariate = hasCovariate;
+		fillStratificationListBox(hasCovariate);
+		
+		showFixedItems(hasCovariate, solvingForPower);
 	}
 
 	@Override
@@ -626,5 +676,13 @@ CovariateListener
 			int totalN = perGroupSize * totalSampleSizeMultiplier;
 			totalNListBox.addItem(Integer.toString(totalN));
 		}
+	}
+
+	@Override
+	public void onSolvingFor(SolutionType solutionType)
+	{
+		this.solvingForPower = (solutionType == SolutionType.POWER);
+		skip = !solvingForPower;
+//		showFixedItems(hasCovariate, solvingForPower);
 	}
 }
