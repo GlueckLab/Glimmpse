@@ -237,7 +237,7 @@ CovariateListener
 
 			if (hasCovariate)
 			{
-				XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_RANDOM, 1, columns);
+				XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_RANDOM, 1, outcomes.size());
 				XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_ROW);
 				for(int col = 0; col < columns; col++)
 				{
