@@ -25,14 +25,12 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
-import com.google.gwt.visualization.client.visualizations.BarChart;
-import com.google.gwt.visualization.client.visualizations.ColumnChart;
 import com.google.gwt.visualization.client.visualizations.Table;
 
 import edu.cudenver.bios.glimmpse.client.panels.GlimmpsePanel;
 
 /**
- * Entry point class for the glimmpse user interface.
+ * Entry point class for the GLIMMPSE user interface.
  */
 public class Glimmpse implements EntryPoint
 {
@@ -63,8 +61,6 @@ public class Glimmpse implements EntryPoint
         // Load the visualization api, passing the onLoadCallback to be called
         // when loading is done.
        VisualizationUtils.loadVisualizationApi(onLoadCallback, 
-    		   ColumnChart.PACKAGE,
-    		   BarChart.PACKAGE, 
     		   Table.PACKAGE);
 	}
 }

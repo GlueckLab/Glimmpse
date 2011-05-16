@@ -1,3 +1,24 @@
+/*
+ * User Interface for the GLIMMPSE Software System.  Allows
+ * users to perform power, sample size, and detectable difference
+ * calculations. 
+ * 
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package edu.cudenver.bios.glimmpse.client;
 
 import java.util.ArrayList;
@@ -5,13 +26,12 @@ import java.util.HashMap;
 
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.visualization.client.DataTable;
 
 public class ChartRequestBuilder
 {
 	private static final String CURVE_URL = "/webapps/chart/scatter";
-	private static final String CURVE_3D_URL = "/webapps/chart/scatter3d";
+	//private static final String CURVE_3D_URL = "/webapps/chart/scatter3d";
 	private static final String LEGEND_URL = "/webapps/chart/legend";
 	private NumberFormat doubleFormatter = NumberFormat.getFormat("0.0000");
 	
