@@ -168,6 +168,8 @@ public interface GlimmpseConstants extends Constants
     public static final String COLUMN_NAME_NOMINAL_POWER = "nominalPower";
     public static final String COLUMN_NAME_POWER_METHOD = "powerMethod";
     public static final String COLUMN_NAME_QUANTILE = "quantile";
+    public static final String COLUMN_NAME_CI_LOWER = "ciLower";
+    public static final String COLUMN_NAME_CI_UPPER = "ciUpper";
     
 	// dimension names derived from linear model theory.
 	// ensures that default matrix dimensions conform properly
