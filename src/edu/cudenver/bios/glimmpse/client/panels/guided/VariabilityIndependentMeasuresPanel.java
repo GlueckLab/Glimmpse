@@ -5,11 +5,14 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -218,6 +221,49 @@ implements OutcomesListener, CovariateListener
 		return buffer.toString();
 	}
 	
+	public String toStudyXML()
+	{
+		StringBuffer buffer = new StringBuffer();
+		if (!skip)
+		{
+			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_VARIABILITY_Y);
+			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_SD_LIST);
+			for(int i = 0; i < standardDeviationTable.getRowCount(); i++)
+			{
+				StringBuffer attrBuffer = new StringBuffer();
+				attrBuffer.append(GlimmpseConstants.ATTR_NAME);
+				attrBuffer.append("='");
+				attrBuffer.append(((HTML) standardDeviationTable.getWidget(i, COLUMN_LABEL)).getText());
+				attrBuffer.append("' ");
+				attrBuffer.append(GlimmpseConstants.ATTR_VALUE);
+				attrBuffer.append("='");
+				attrBuffer.append(((TextBox) standardDeviationTable.getWidget(i, COLUMN_TEXTBOX)).getText());
+				attrBuffer.append("' ");
+				XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_SD, attrBuffer.toString());
+				XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_SD);
+			}
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_SD_LIST);
+			
+			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_CORRELATION_LIST);
+			for(int i = 0; i < correlationTable.getRowCount(); i++)
+			{
+				StringBuffer attrBuffer = new StringBuffer();
+				attrBuffer.append(GlimmpseConstants.ATTR_NAME);
+				attrBuffer.append("='");
+				attrBuffer.append(((HTML) correlationTable.getWidget(i, COLUMN_LABEL)).getText());
+				attrBuffer.append("' ");
+				attrBuffer.append(GlimmpseConstants.ATTR_VALUE);
+				attrBuffer.append("='");
+				attrBuffer.append(((TextBox) correlationTable.getWidget(i, COLUMN_TEXTBOX)).getText());
+				attrBuffer.append("' ");
+				XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_CORRELATION, attrBuffer.toString());
+				XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_CORRELATION);
+			}
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_CORRELATION_LIST);
+			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_VARIABILITY_Y);
+		}
+		return buffer.toString();
+	}
 	@Override
 	public void reset()
 	{
@@ -228,8 +274,97 @@ implements OutcomesListener, CovariateListener
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
+		if (GlimmpseConstants.TAG_VARIABILITY_Y.equalsIgnoreCase(node.getNodeName()))
+		{
+			NodeList childList = node.getChildNodes();
+			for(int i = 0; i < childList.getLength(); i++)
+			{
+				Node child = childList.item(i);
+				if (GlimmpseConstants.TAG_CORRELATION_LIST.equalsIgnoreCase(child.getNodeName()))
+				{
+					parseCorrelationList(child);
+				}
+				else if (GlimmpseConstants.TAG_SD_LIST.equalsIgnoreCase(child.getNodeName()))
+				{
+					parseStandardDeviationList(child);
+				}
 
+			}
+		}
+	}
+	
+	private void parseStandardDeviationList(Node node)
+	{
+		NodeList childList = node.getChildNodes();
+		for(int i = 0; i < childList.getLength(); i++)
+		{
+			Node child = childList.item(i);
+			NamedNodeMap attrs = child.getAttributes();
+			Node labelNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
+			Node valueNode = attrs.getNamedItem(GlimmpseConstants.ATTR_VALUE);
+			if (labelNode != null && valueNode != null)
+			{
+				standardDeviationTable.setWidget(i, COLUMN_LABEL, new HTML(labelNode.getNodeValue()));
+				TextBox tb = new TextBox();
+				tb.setText(valueNode.getNodeValue());
+				standardDeviationTable.setWidget(i, COLUMN_TEXTBOX, tb);
+				tb.addChangeHandler(new ChangeHandler() {
+					@Override
+					public void onChange(ChangeEvent event)
+					{
+						TextBox tb = (TextBox) event.getSource();
+						try
+						{
+							TextValidation.parseDouble(tb.getText(), 0, true);
+							TextValidation.displayOkay(standardDeviationErrorHTML, "");
+						}
+						catch (NumberFormatException e)
+						{
+							TextValidation.displayError(standardDeviationErrorHTML, Glimmpse.constants.errorInvalidPositiveNumber()); 
+							tb.setText("");
+						}
+						checkComplete();
+					}
+				});
+			}
+		}
+	}
+	
+	private void parseCorrelationList(Node node)
+	{
+		NodeList childList = node.getChildNodes();
+		for(int i = 0; i < childList.getLength(); i++)
+		{
+			Node child = childList.item(i);
+			NamedNodeMap attrs = child.getAttributes();
+			Node labelNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
+			Node valueNode = attrs.getNamedItem(GlimmpseConstants.ATTR_VALUE);
+			if (labelNode != null && valueNode != null)
+			{
+				correlationTable.setWidget(i, COLUMN_LABEL, new HTML(labelNode.getNodeValue()));
+				TextBox tb = new TextBox();
+				tb.setText(valueNode.getNodeValue());
+				correlationTable.setWidget(i, COLUMN_TEXTBOX, tb);
+				tb.addChangeHandler(new ChangeHandler() {
+					@Override
+					public void onChange(ChangeEvent event)
+					{
+						TextBox tb = (TextBox) event.getSource();
+						try
+						{
+							TextValidation.parseDouble(tb.getText(), 0, 1, false);
+							TextValidation.displayOkay(correlationErrorHTML, "");
+						}
+						catch (NumberFormatException e)
+						{
+							TextValidation.displayError(correlationErrorHTML, Glimmpse.constants.errorInvalidPositiveNumber()); 
+							tb.setText("");
+						}
+						checkComplete();
+					}
+				});
+			}
+		}
 	}
 
 	@Override
