@@ -1,3 +1,24 @@
+/*
+ * User Interface for the GLIMMPSE Software System.  Allows
+ * users to perform power, sample size, and detectable difference
+ * calculations. 
+ * 
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package edu.cudenver.bios.glimmpse.client.panels.guided;
 
 import java.util.ArrayList;
@@ -12,7 +33,9 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
@@ -23,6 +46,9 @@ import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.listener.PredictorsListener;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
+/**
+ * Entry screen for means by outcome and study subgroup
+ */
 public class MeanDifferencesPanel extends WizardStepPanel
 implements OutcomesListener, PredictorsListener, ChangeHandler,
 CovariateListener
@@ -35,6 +61,8 @@ CovariateListener
 	protected DataTable groups = null;
 
 	protected HTML errorHTML = new HTML();
+	
+	protected ArrayList<String> uploadedValues = new ArrayList<String>();
 	
 	public MeanDifferencesPanel()
 	{
@@ -68,8 +96,46 @@ CovariateListener
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO Auto-generated method stub
-
+		if (GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX.equalsIgnoreCase(node.getNodeName()))
+		{
+			NodeList children = node.getChildNodes();
+			for(int i = 0; i < children.getLength(); i++)
+			{
+				Node child = children.item(i);
+				String childName = child.getNodeName();
+				if (GlimmpseConstants.TAG_MATRIX.equals(childName))
+				{
+					NamedNodeMap childattrs = child.getAttributes();
+					Node nameNode = childattrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
+					if (nameNode != null)
+					{
+						if (GlimmpseConstants.MATRIX_FIXED.equals(nameNode.getNodeValue()))
+						{
+							NamedNodeMap attrs = child.getAttributes();
+							Node rowNode = attrs.getNamedItem("rows");
+							Node colNode = attrs.getNamedItem("columns");
+							if (rowNode != null && colNode != null)
+							{           
+								NodeList rowNodeList = child.getChildNodes();
+								for(int r = 0; r < rowNodeList.getLength(); r++)
+								{
+									NodeList colNodeList = rowNodeList.item(r).getChildNodes();
+									for(int c = 0; c < colNodeList.getLength(); c++)
+									{
+										Node colItem = colNodeList.item(c).getFirstChild();
+										if (colItem != null) 
+										{
+											Window.alert(colItem.getNodeValue());
+											uploadedValues.add(colItem.getNodeValue());
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public void onEnter()
@@ -95,6 +161,8 @@ CovariateListener
 				}
 				
 				// now fill in the group values, and add "0" text boxes for entering the means
+				int rowOrderCount = 0;
+				boolean uploadComplete = false;
 	    		for(int row = 0; row < groups.getNumberOfRows(); row++)
 	    		{
 	    			meansTable.getRowFormatter().setStyleName(row+1, GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_ROW);
@@ -105,12 +173,23 @@ CovariateListener
 					for(String outcome: outcomes)
 					{
 						TextBox tb = new TextBox();
-						tb.setText("0");
+						if (rowOrderCount < uploadedValues.size())
+						{
+							tb.setText(uploadedValues.get(rowOrderCount));
+							uploadComplete = true;
+						}
+						else
+						{
+							tb.setText("0");
+						}
 						tb.addChangeHandler(this);
 						meansTable.setWidget(row+1, col, tb);
 						col++;
+						rowOrderCount++;
 					}
 	    		}
+	    		
+	    		if (uploadComplete) uploadedValues.clear();
 	    	}
 		}
 	}
