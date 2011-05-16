@@ -21,9 +21,11 @@
  */
 package edu.cudenver.bios.glimmpse.client.panels;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 
@@ -259,13 +261,30 @@ implements StudyDesignManager, SaveListener
 					meanDifferencesScalePanel.loadFromNode(child);
 				else if (GlimmpseConstants.TAG_SIGMA_SCALE_LIST.equalsIgnoreCase(childName))
 					variabilityScalePanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_FIXED_RANDOM_MATRIX.equalsIgnoreCase(childName))
+				{
+					NamedNodeMap attrs = child.getAttributes();
+					Node nameNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
+					if (nameNode != null)
+					{
+						String name = nameNode.getNodeValue();
+						if (GlimmpseConstants.MATRIX_BETA.equalsIgnoreCase(name))
+							meanDifferencesPanel.loadFromNode(child);
+					}
+				}
+				else if (GlimmpseConstants.TAG_VARIABILITY_Y.equalsIgnoreCase(childName))
+					variabilityIndependentPanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_VARIABILITY_YG.equalsIgnoreCase(childName))
+					variabilityCovariateOutcomePanel.loadFromNode(child);
+				else if (GlimmpseConstants.TAG_VARIABILITY_G.equalsIgnoreCase(childName))
+					variabilityCovariatePanel.loadFromNode(child);
+				
 
 				/*
 				TODO: finish upload for these panels
 				{hypothesisRepeatedPanel, hypothesisDoublyRepeatedPanel},
 				{meanDifferencesIndependentPanel,	meanDifferencesRepeatedPanel, },
-				{variabilityIndependentPanel, variabilityRepeatedPanel,
-						variabilityCovariatePanel, variabilityCovariateOutcomePanel, },
+				{, variabilityRepeatedPanel,},
 				
 				*/
 			}
@@ -337,6 +356,11 @@ implements StudyDesignManager, SaveListener
 		buffer.append(meanDifferencesPanel.toXML());
 		buffer.append(meanDifferencesScalePanel.toStudyXML());
 		buffer.append(variabilityScalePanel.toStudyXML());
+		
+		buffer.append(variabilityIndependentPanel.toStudyXML());
+		buffer.append(variabilityCovariatePanel.toStudyXML());
+		buffer.append(variabilityCovariateOutcomePanel.toStudyXML());
+
 		// TODO	
 /*
 

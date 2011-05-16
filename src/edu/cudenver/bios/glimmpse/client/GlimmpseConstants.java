@@ -92,6 +92,7 @@ public interface GlimmpseConstants extends Constants
     public static final String ATTR_MODE = "mode";
     public static final String ATTR_TYPE = "type";
     public static final String ATTR_NAME = "name";
+    public static final String ATTR_VALUE = "value";
     public static final String ATTR_ROWS = "rows";
     public static final String ATTR_COLUMNS = "columns";
     public static final String ATTR_COMBINE_HORIZONTAL = "combineHorizontal";
@@ -114,6 +115,14 @@ public interface GlimmpseConstants extends Constants
     public static final String TAG_HYPOTHESIS_REPEATED = "hypothesisRepeated";
     public static final String TAG_REPEATED_MEASURES = "repeatedMeasures";
     public static final String TAG_DIMENSION = "dimension";
+    public static final String TAG_VARIABILITY_Y = "variabilityY";
+    public static final String TAG_VARIABILITY_YG = "variabilityYG";
+    public static final String TAG_VARIABILITY_G = "variabilityG";
+    public static final String TAG_SD_LIST = "sdList";
+    public static final String TAG_SD = "sd";
+    public static final String TAG_CORRELATION_LIST = "correlationList";
+    public static final String TAG_CORRELATION = "correlation";
+    
     public static final String ATTR_TIMES = "times";
     // mode names
     public static final String MODE_MATRIX = "matrix";
