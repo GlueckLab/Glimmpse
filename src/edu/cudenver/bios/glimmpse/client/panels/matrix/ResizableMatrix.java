@@ -39,10 +39,14 @@ import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.MatrixResizeListener;
+import edu.cudenver.bios.glimmpse.client.panels.GridTextBox;
 
 /**
  * Resizable matrix widget
  * @author Sarah Kreidler
+ * @author Jonathan Cohen added functionality to allow users to enter information
+ * in the lower triangle, and have it propagate to the upper triangle.  These
+ * changes also disable editing for the upper triangle of elements for the user. 
  *
  */
 public class ResizableMatrix extends Composite 
@@ -139,9 +143,10 @@ public class ResizableMatrix extends Composite
 		// set up styles
 		matrixPanel.setStyleName(GlimmpseConstants.STYLE_MATRIX_PANEL);
 		matrixDimensions.setStyleName(GlimmpseConstants.STYLE_MATRIX_DIMENSION);
-		matrixData.setStyleName(GlimmpseConstants.STYLE_MATRIX_DATA);
+		matrixData.setStyleName(GlimmpseConstants.STYLE_MATRIX_DATA_DISABLED);
         errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
-		// initialize the widget
+		
+        // initialize the widget
 		initWidget(matrixPanel);
 	}
     	
@@ -179,8 +184,8 @@ public class ResizableMatrix extends Composite
 				if (newRows > oldRows)
 				{
 				    if (isSquare) 
-				        for(int c = oldRows; c < newRows; c++) fillColumn(c, defaultValue, true);
-					for(int r = oldRows; r < newRows; r++) fillRow(r, defaultValue, true);
+				        for(int c = oldRows; c < newRows; c++) fillColumn(c, defaultValue);
+					for(int r = oldRows; r < newRows; r++) fillRow(r, defaultValue);
 				} 
 			}
 		}
@@ -205,8 +210,8 @@ public class ResizableMatrix extends Composite
 				if (newCols > oldCols)
 				{
                     if (isSquare) 
-                        for(int r = oldCols; r < oldCols; r++) fillRow(r, defaultValue, true);
-					for(int c = oldCols; c < newCols; c++) fillColumn(c, defaultValue, true);
+                        for(int r = oldCols; r < oldCols; r++) fillRow(r, defaultValue);
+					for(int c = oldCols; c < newCols; c++) fillColumn(c, defaultValue);
 				} 
 			}
 			
@@ -230,27 +235,58 @@ public class ResizableMatrix extends Composite
 	{
 		for(int r = 0; r < matrixData.getRowCount(); r++)
 		{
-			fillRow(r, defaultValue, true);
+			fillRow(r, defaultValue);
 		}
 	}
 		
 	private void setData(int row, int col, String value, boolean enabled)
 	{
-		TextBox textBox = new TextBox();
+		GridTextBox textBox = new GridTextBox(row, col);
 		textBox.setValue(value);
-		textBox.setStyleName(GlimmpseConstants.STYLE_MATRIX_CELL);
 		textBox.setEnabled(enabled);
-		textBox.addChangeHandler(new ChangeHandler() {
+		
+		if(!enabled)
+		{
+			textBox.setStyleName(GlimmpseConstants.STYLE_MATRIX_CELL_DISABLED);
+		}
+		else
+		{
+			textBox.setStyleName(GlimmpseConstants.STYLE_MATRIX_CELL);
+		}
+        textBox.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event)
 			{
-				TextBox source = (TextBox) event.getSource();
+				GridTextBox source = (GridTextBox) event.getSource();
+				int col = source.getColumn();
+				int row = source.getRow();
 				try
 				{
 					TextValidation.parseDouble(source.getText(), Double.NEGATIVE_INFINITY, 
 							Double.POSITIVE_INFINITY, false);
 					TextValidation.displayOkay(errorHTML, "");
-				}
+					
+					//now, copy the value to the upper triangle from the lower
+					//TODO do we need to check isSquare, isSymetric?
+//					if(isSquare && isSymmetric)
+//					{	
+						if (col >= 0 && col < matrixData.getRowCount() &&
+								row >= 0 && row < matrixData.getColumnCount())
+						{
+							TextBox tb = (TextBox) matrixData.getWidget(col, row);
+							if(tb != null){
+								tb.setText(source.getText());
+								//if the text box is on the diagonal, (r==c), or below (r>c), 
+								//we want it enabled. Only top
+								//triangle tb's should be disabled.
+								if( row < col){
+									tb.setEnabled(false);
+								}
+								matrixData.setWidget(col, row, tb);
+							}
+						}
+					}
+//				}
 				catch (NumberFormatException nfe)
 				{
 					TextValidation.displayError(errorHTML, Glimmpse.constants.errorInvalidNumber());
@@ -268,7 +304,7 @@ public class ResizableMatrix extends Composite
 	
 	public double getData(int row, int col)
 	{
-		double value = Double.NaN;
+		double value = Double.NaN;	
 		if (row >= 0 && row < matrixData.getRowCount() &&
 				col >= 0 && col < matrixData.getColumnCount())
 		{
@@ -277,26 +313,34 @@ public class ResizableMatrix extends Composite
 		}
 		return value;
 	}
-	
-	private void fillRow(int row, String diagonalValue, boolean enabled)
+
+    private void fillRow(int row, String diagonalValue)
 	{
 		for (int c = 0; c < matrixData.getColumnCount(); c++)
 		{
 			if (c == row)
-				setData(row, c, diagonalValue, enabled);
+				setData(row, c, diagonalValue, true);
+			else if(c > row){
+				//TODO do we need to check isSquare, isSymetric?
+				setData(row, c, "0", false);
+			}
 			else
-				setData(row, c, "0", enabled);
+				setData(row, c, "0", true);
 		}
 	}
-	
-	private void fillColumn(int col, String diagonalValue, boolean enabled)
+
+    private void fillColumn(int col, String diagonalValue)
 	{
 		for (int row= 0; row < matrixData.getRowCount(); row++) 
 		{
 			if (col == row)
-				setData(row, col, diagonalValue, enabled);
+				setData(row, col, diagonalValue, true);
+			else if(col > row){
+				//TODO do we need to check isSquare, isSymetric?
+				setData(row, col, "0", false);
+			}
 			else
-				setData(row, col, "0", enabled);
+				setData(row, col, "0", true);
 		}
 	}
 		
@@ -373,7 +417,7 @@ public class ResizableMatrix extends Composite
         TextValidation.displayOkay(errorHTML, "");
         for(int r = 0; r < matrixData.getRowCount(); r++)
         {
-            fillRow(r, defaultValue, true);
+            fillRow(r, defaultValue);
         }
     }
     
