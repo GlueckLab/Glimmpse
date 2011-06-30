@@ -40,7 +40,7 @@ import edu.cudenver.bios.glimmpse.client.listener.OutcomesListener;
 import edu.cudenver.bios.glimmpse.client.panels.ListEntryPanel;
 import edu.cudenver.bios.glimmpse.client.panels.ListValidator;
 import edu.cudenver.bios.glimmpse.client.panels.RowCheckBox;
-import edu.cudenver.bios.glimmpse.client.panels.RowTextBox;
+import edu.cudenver.bios.glimmpse.client.panels.GridTextBox;
 import edu.cudenver.bios.glimmpse.client.panels.WizardStepPanel;
 
 /**
