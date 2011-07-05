@@ -274,13 +274,13 @@
 	width: 50px;
 }
 
-.matrixDataDisabled {
+.matrixData-disabled {
     background: #ebf0f5;
     border: 1px solid #ccc;
     height: 24px;
 }
 
-.matrixCellDisabled {
+.matrixCell-disabled {
     background: #ebf0f5;
     border: 1px solid #ccc;
     width: 50px;
