@@ -60,10 +60,7 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_MATRIX_PANEL = "matrixPanel";
     public static final String STYLE_MATRIX_DIMENSION = "matrixDimensions";
     public static final String STYLE_MATRIX_DATA = "matrixData";
-    public static final String STYLE_MATRIX_CELL= "matrixCell";
-    public static final String STYLE_MATRIX_DATA_DISABLED = "matrixDataDisabled";
-    public static final String STYLE_MATRIX_CELL_DISABLED= "matrixCellDisabled";
-    
+    public static final String STYLE_MATRIX_CELL= "matrixCell";    
     
     public static final String STYLE_MESSAGE = "message";
     public static final String STYLE_MESSAGE_ERROR = "error";
