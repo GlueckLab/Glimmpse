@@ -45,8 +45,9 @@ import edu.cudenver.bios.glimmpse.client.panels.GridTextBox;
  * Resizable matrix widget
  * @author Sarah Kreidler
  * @author Jonathan Cohen added functionality to allow users to enter information
- * in the lower triangle, and have it propagate to the upper triangle.  These
- * changes also disable editing for the upper triangle of elements for the user. 
+ * in the lower triangle, and have it propagate to the upper triangle for a symmetric
+ * matrix.  These changes also disable editing for the upper triangle of elements 
+ * for the user. 
  *
  */
 public class ResizableMatrix extends Composite 
@@ -59,17 +60,26 @@ public class ResizableMatrix extends Composite
 	protected Grid matrixData;
 	protected TextBox rowTextBox;
 	protected TextBox columnTextBox;
-	protected boolean isSquare;
-	protected boolean isSymmetric;
+	protected boolean symmetric = false;
 	protected HTML title = new HTML("");
 	protected String defaultValue = "1";
 	protected HTML errorHTML = new HTML();
 	protected ArrayList<MatrixResizeListener> resizeListeners = new ArrayList<MatrixResizeListener>();
 	protected String name = null;
 	
-	public ResizableMatrix(String name, int rows, int cols, String defaultValue, String title) 
-	{	
-		
+	/**
+	 * This constructor should be used to construct a symmetric ResizableMatrix by setting symmetric
+	 * to "true".
+	 * 
+	 * @param name
+	 * @param rows
+	 * @param cols
+	 * @param defaultValue
+	 * @param title
+	 * @param symmetric
+	 */
+	public ResizableMatrix(String name, int rows, int cols, String defaultValue, String title, boolean symmetric) 
+	{
 		this.name = name;
 	    if (title != null && !title.isEmpty()) 
 	    	this.title = new HTML(title);
@@ -130,6 +140,9 @@ public class ResizableMatrix extends Composite
 		matrixDimensions.add(new HTML(Glimmpse.constants.matrixDimensionSeparator()));
 		matrixDimensions.add(columnTextBox);
 	    
+		// set symmetry BEFORE building matrix
+		this.symmetric = symmetric;
+		
 		// build matrix itself
 		matrixData = new Grid(rows, cols);
 		initMatrixData();
@@ -149,24 +162,23 @@ public class ResizableMatrix extends Composite
         // initialize the widget
 		initWidget(matrixPanel);
 	}
+	
+	/**
+	 * This constructor will create a ResizableMatrix with the attribute @see symmetric
+	 * set to false.
+	 * @param name
+	 * @param rows
+	 * @param cols
+	 * @param defaultValue
+	 * @param title
+	 */
+	public ResizableMatrix(String name, int rows, int cols, String defaultValue, String title) 
+	{	
+		this(name, rows, cols, defaultValue, title, false);
+	}
     	
-	public void setIsSquare(boolean isSquare, boolean isSymmetric)
-	{
-		this.isSymmetric = isSymmetric;
-		this.isSquare = isSquare;
-		if (isSquare)
-		{
-			int rows = Integer.parseInt(rowTextBox.getValue());
-			int cols = Integer.parseInt(columnTextBox.getValue());
-			if (rows != cols)
-			{
-				columnTextBox.setText(rowTextBox.getValue());
-				setColumnDimension(rows);
-			}
-		}
-		columnTextBox.setEnabled(!isSquare);
-		
-		//TODO: symmetry
+	public boolean isSymmetric(){
+		return symmetric;
 	}
 	
 	public void setRowDimension(int newRows)
@@ -177,13 +189,13 @@ public class ResizableMatrix extends Composite
 			if (oldRows != newRows)
 			{
 			    
-	             if (isSquare)
+	             if (symmetric)
 	                    matrixData.resize(newRows, newRows);
 	                else
 	                    matrixData.resizeRows(newRows);
 				if (newRows > oldRows)
 				{
-				    if (isSquare) 
+				    if (symmetric) 
 				        for(int c = oldRows; c < newRows; c++) fillColumn(c, defaultValue);
 					for(int r = oldRows; r < newRows; r++) fillRow(r, defaultValue);
 				} 
@@ -191,7 +203,7 @@ public class ResizableMatrix extends Composite
 		}
 		
 		rowTextBox.setText(Integer.toString(matrixData.getRowCount()));
-        if (isSquare) columnTextBox.setText(Integer.toString(matrixData.getColumnCount()));
+        if (symmetric) columnTextBox.setText(Integer.toString(matrixData.getColumnCount()));
 
 	}
 	
@@ -202,21 +214,21 @@ public class ResizableMatrix extends Composite
 			int oldCols = matrixData.getColumnCount();
 			if (oldCols != newCols)
 			{
-			    if (isSquare)
+			    if (symmetric)
 			        matrixData.resize(newCols, newCols);
 			    else
 			        matrixData.resizeColumns(newCols);
 			    
 				if (newCols > oldCols)
 				{
-                    if (isSquare) 
+                    if (symmetric) 
                         for(int r = oldCols; r < oldCols; r++) fillRow(r, defaultValue);
 					for(int c = oldCols; c < newCols; c++) fillColumn(c, defaultValue);
 				} 
 			}
 			
 			columnTextBox.setText(Integer.toString(matrixData.getColumnCount()));
-			if (isSquare) rowTextBox.setText(Integer.toString(matrixData.getRowCount()));
+			if (symmetric) rowTextBox.setText(Integer.toString(matrixData.getRowCount()));
 		}
 
 	}
@@ -263,8 +275,9 @@ public class ResizableMatrix extends Composite
 							Double.POSITIVE_INFINITY, false);
 					TextValidation.displayOkay(errorHTML, "");
 					
-					//copy the value to the upper triangle from the lower if isSquare isSymetric
-					if(isSquare && isSymmetric)
+					//copy the value to the upper triangle from the lower 
+					//if matrix is symmetric
+					if(symmetric)
 					{	
 						if (col >= 0 && col < matrixData.getRowCount() &&
 								row >= 0 && row < matrixData.getColumnCount())
@@ -323,12 +336,12 @@ public class ResizableMatrix extends Composite
 			{
 				setData(row, col, "0", true);
 			}
-			//disable upper triangle if square/symmetric
-			else if(col > row && isSquare && isSymmetric)
+			//disable upper triangle if symmetric
+			else if(col > row && symmetric)
 			{
 				setData(row, col, "0", false);
 			}
-			//upper triangle, but not square/symmetric
+			//upper triangle, but not symmetric
 			else
 			{
 				setData(row, col, "0", true);	
@@ -350,12 +363,12 @@ public class ResizableMatrix extends Composite
 			{
 				setData(row, col, "0", true);
 			}
-			//disable upper triangle if square/symmetric
-			else if(col > row && isSquare && isSymmetric)
+			//disable upper triangle if symmetric
+			else if(col > row && symmetric)
 			{
 				setData(row, col, "0", false);
 			}
-			//upper triangle, but not square/symmetric
+			//upper triangle, but not symmetric
 			else
 			{
 				setData(row, col, "0", true);	
