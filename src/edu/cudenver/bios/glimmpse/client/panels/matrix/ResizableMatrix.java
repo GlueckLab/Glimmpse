@@ -143,7 +143,7 @@ public class ResizableMatrix extends Composite
 		// set up styles
 		matrixPanel.setStyleName(GlimmpseConstants.STYLE_MATRIX_PANEL);
 		matrixDimensions.setStyleName(GlimmpseConstants.STYLE_MATRIX_DIMENSION);
-		matrixData.setStyleName(GlimmpseConstants.STYLE_MATRIX_DATA_DISABLED);
+		matrixData.setStyleName(GlimmpseConstants.STYLE_MATRIX_DATA);
         errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
 		
         // initialize the widget
@@ -244,15 +244,12 @@ public class ResizableMatrix extends Composite
 		GridTextBox textBox = new GridTextBox(row, col);
 		textBox.setValue(value);
 		textBox.setEnabled(enabled);
-		
-		if(!enabled)
-		{
-			textBox.setStyleName(GlimmpseConstants.STYLE_MATRIX_CELL_DISABLED);
-		}
-		else
-		{
-			textBox.setStyleName(GlimmpseConstants.STYLE_MATRIX_CELL);
-		}
+		textBox.setStyleName(GlimmpseConstants.STYLE_MATRIX_CELL);
+        if (!enabled)
+    	{
+        	textBox.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+    	}
+        
         textBox.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event)
@@ -266,10 +263,9 @@ public class ResizableMatrix extends Composite
 							Double.POSITIVE_INFINITY, false);
 					TextValidation.displayOkay(errorHTML, "");
 					
-					//now, copy the value to the upper triangle from the lower
-					//TODO do we need to check isSquare, isSymetric?
-//					if(isSquare && isSymmetric)
-//					{	
+					//copy the value to the upper triangle from the lower if isSquare isSymetric
+					if(isSquare && isSymmetric)
+					{	
 						if (col >= 0 && col < matrixData.getRowCount() &&
 								row >= 0 && row < matrixData.getColumnCount())
 						{
@@ -277,8 +273,7 @@ public class ResizableMatrix extends Composite
 							if(tb != null){
 								tb.setText(source.getText());
 								//if the text box is on the diagonal, (r==c), or below (r>c), 
-								//we want it enabled. Only top
-								//triangle tb's should be disabled.
+								//we want it enabled. Only top triangle tb's should be disabled.
 								if( row < col){
 									tb.setEnabled(false);
 								}
@@ -286,7 +281,7 @@ public class ResizableMatrix extends Composite
 							}
 						}
 					}
-//				}
+				}
 				catch (NumberFormatException nfe)
 				{
 					TextValidation.displayError(errorHTML, Glimmpse.constants.errorInvalidNumber());
@@ -316,16 +311,19 @@ public class ResizableMatrix extends Composite
 
     private void fillRow(int row, String diagonalValue)
 	{
-		for (int c = 0; c < matrixData.getColumnCount(); c++)
+		for (int col = 0; col < matrixData.getColumnCount(); col++)
 		{
-			if (c == row)
-				setData(row, c, diagonalValue, true);
-			else if(c > row){
-				//TODO do we need to check isSquare, isSymetric?
-				setData(row, c, "0", false);
+			if (col == row)
+			{
+				setData(row, col, diagonalValue, true);
+			}
+			//disable if square and in upper triangle
+			else if(col > row && isSquare && isSymmetric)
+			{
+				setData(row, col, "0", false);
 			}
 			else
-				setData(row, c, "0", true);
+				setData(row, col, "0", true);
 		}
 	}
 
@@ -335,8 +333,9 @@ public class ResizableMatrix extends Composite
 		{
 			if (col == row)
 				setData(row, col, diagonalValue, true);
-			else if(col > row){
-				//TODO do we need to check isSquare, isSymetric?
+			//disable if square and in upper triangle
+			else if(col > row && isSquare && isSymmetric)
+			{
 				setData(row, col, "0", false);
 			}
 			else
