@@ -45,7 +45,10 @@ implements CovariateListener, MatrixResizeListener
     protected ResizableMatrix sigmaY = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_SIGMA_OUTCOME,
     			GlimmpseConstants.DEFAULT_P, 
-    			GlimmpseConstants.DEFAULT_P, "0", Glimmpse.constants.sigmaOutcomeMatrixName()); 
+    			GlimmpseConstants.DEFAULT_P,
+    			"0",
+    			Glimmpse.constants.sigmaOutcomeMatrixName(),
+    			true); 
     
     public SigmaOutcomesMatrixPanel()
     {
@@ -56,15 +59,14 @@ implements CovariateListener, MatrixResizeListener
         HTML header = new HTML(Glimmpse.constants.sigmaOutcomeTitle());
         HTML description = new HTML(Glimmpse.constants.sigmaOutcomeDescription());
 		VerticalPanel panel = new VerticalPanel();
-		
-        panel.add(header);
+		panel.add(header);
         panel.add(description);
 		panel.add(sigmaY);        
         
 		// disable resize
 		sigmaY.setEnabledColumnDimension(false);
 		sigmaY.setEnabledRowDimension(false);
-		sigmaY.setIsSquare(true, true);
+		
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
