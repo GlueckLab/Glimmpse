@@ -313,33 +313,53 @@ public class ResizableMatrix extends Composite
 	{
 		for (int col = 0; col < matrixData.getColumnCount(); col++)
 		{
+			//diagnal elements
 			if (col == row)
 			{
 				setData(row, col, diagonalValue, true);
 			}
-			//disable if square and in upper triangle
+			//lower triangle elements
+			else if (col < row)
+			{
+				setData(row, col, "0", true);
+			}
+			//disable upper triangle if square/symmetric
 			else if(col > row && isSquare && isSymmetric)
 			{
 				setData(row, col, "0", false);
 			}
+			//upper triangle, but not square/symmetric
 			else
-				setData(row, col, "0", true);
+			{
+				setData(row, col, "0", true);	
+			}
 		}
 	}
 
     private void fillColumn(int col, String diagonalValue)
 	{
-		for (int row= 0; row < matrixData.getRowCount(); row++) 
+		for (int row = 0; row < matrixData.getRowCount(); row++) 
 		{
+			//diagnal elements
 			if (col == row)
+			{
 				setData(row, col, diagonalValue, true);
-			//disable if square and in upper triangle
+			}
+			//lower triangle elements
+			else if (col < row)
+			{
+				setData(row, col, "0", true);
+			}
+			//disable upper triangle if square/symmetric
 			else if(col > row && isSquare && isSymmetric)
 			{
 				setData(row, col, "0", false);
 			}
+			//upper triangle, but not square/symmetric
 			else
-				setData(row, col, "0", true);
+			{
+				setData(row, col, "0", true);	
+			}
 		}
 	}
 		
