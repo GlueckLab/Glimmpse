@@ -100,7 +100,7 @@ public class ResizableMatrix extends Composite
 				try
 				{
 					int newRows = 
-						edu.cudenver.bios.glimmpse.client.TextValidation.parseInteger(rowTextBox.getText(), MIN_ROW_COL, maxRows);
+						TextValidation.parseInteger(rowTextBox.getText(), MIN_ROW_COL, maxRows);
 					setRowDimension(newRows);
 					// notify listeners of row change
 					notifyOnRows(newRows);
