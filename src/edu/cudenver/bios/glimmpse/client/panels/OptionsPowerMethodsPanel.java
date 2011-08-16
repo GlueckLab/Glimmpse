@@ -152,7 +152,7 @@ implements CovariateListener, ClickHandler
 		quantileListPanel.setVisible(false);
 		numQuantiles = 0;
 		quantileListPanel.reset();
-		
+		skip = true;
 		checkComplete();
 	}
 
