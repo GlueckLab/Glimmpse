@@ -43,7 +43,7 @@ implements CovariateListener
 {    	
     protected ResizableMatrix essenceFixed = new ResizableMatrix(GlimmpseConstants.MATRIX_DESIGN,
 			GlimmpseConstants.DEFAULT_N, 
-			GlimmpseConstants.DEFAULT_Q, "0", Glimmpse.constants.matrixCategoricalEffectsLabel());
+			GlimmpseConstants.DEFAULT_Q, "0", Glimmpse.constants.matrixCategoricalEffectsLabel(),true);
     
    	boolean hasCovariate = false;
    	

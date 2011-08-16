@@ -83,6 +83,7 @@ implements PredictorsListener
 	public void reset()
 	{
 		groupSizesTable.removeAllRows();
+		complete = true;
 	}
 
 	@Override

@@ -91,6 +91,7 @@ CovariateListener
 	{
 		meansTable.removeAllRows();
 		uploadedValues.clear();
+		complete = true;
 	}
 
 	@Override

@@ -79,6 +79,7 @@ implements CovariateListener, MatrixResizeListener
 	{
 		sigmaError.reset(GlimmpseConstants.DEFAULT_P, 
     			GlimmpseConstants.DEFAULT_P);
+		complete = true;
 	}
 
 	@Override

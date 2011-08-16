@@ -125,6 +125,7 @@ RelativeGroupSizeListener, CovariateListener
 	{
     	interactionsTable.removeAllRows();
     	mainEffectsTable.removeAllRows();
+    	complete = true;
 	}
 
 	@Override

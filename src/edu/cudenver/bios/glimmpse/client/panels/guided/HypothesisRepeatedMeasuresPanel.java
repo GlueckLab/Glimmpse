@@ -182,7 +182,7 @@ RelativeGroupSizeListener, CovariateListener
     @Override
     public void reset() 
     {
-
+    	skip = true;
     }
 
 	@Override

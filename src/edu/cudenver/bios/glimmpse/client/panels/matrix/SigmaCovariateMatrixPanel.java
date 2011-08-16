@@ -79,6 +79,8 @@ implements CovariateListener, MatrixResizeListener
 	public void reset()
 	{
 		sigmaG.reset(1, 1);
+		complete = true;
+		skip = true;
 	}
 
 	@Override

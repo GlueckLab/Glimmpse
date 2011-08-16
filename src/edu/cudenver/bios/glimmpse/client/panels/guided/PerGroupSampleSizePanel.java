@@ -105,7 +105,6 @@ implements ListValidator, SolvingForListener
 	@Override
 	public void reset()
 	{
-		// TODO Auto-generated method stub
 		perGroupNListPanel.reset();
 		onValidRowCount(perGroupNListPanel.getValidRowCount());
 	}

@@ -80,6 +80,7 @@ implements CovariateListener, MatrixResizeListener
 	{
 		sigmaY.reset(GlimmpseConstants.DEFAULT_P, 
     			GlimmpseConstants.DEFAULT_P);
+		skip = true;
 	}
 
 	@Override

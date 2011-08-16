@@ -88,8 +88,7 @@ implements CovariateListener, ChangeHandler
 	@Override
 	public void reset()
 	{
-		// TODO Auto-generated method stub
-		
+		skip = true;
 	}
 
 	@Override
