@@ -105,6 +105,7 @@ public class BaselineCovariatePanel extends WizardStepPanel
 	public void reset()
 	{
 		covariateCheckBox.setValue(false);
+		for(CovariateListener listener : listeners) listener.onHasCovariate(false);
 	}
 
 	@Override
