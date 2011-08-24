@@ -139,6 +139,8 @@ implements StudyDesignManager, SaveListener
 		optionsTestsPanel.addTestListener(optionsDisplayPanel);
 		optionsPowerMethodsPanel.addPowerMethodListener(optionsDisplayPanel);
 		optionsPowerMethodsPanel.addQuantileListener(optionsDisplayPanel);
+		optionsPowerMethodsPanel.addQuantileCheckboxListener(optionsDisplayPanel);
+		optionsPowerMethodsPanel.addPowerCheckboxListener(optionsDisplayPanel);
 		solvingForPanel.addSolvingForListener(powerPanel);
 		solvingForPanel.addSolvingForListener(betaScalePanel);
 		solvingForPanel.addSolvingForListener(resultsPanel);

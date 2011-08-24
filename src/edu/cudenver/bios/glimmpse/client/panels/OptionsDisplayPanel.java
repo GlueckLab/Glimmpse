@@ -47,7 +47,9 @@ import edu.cudenver.bios.glimmpse.client.listener.BetaScaleListener;
 import edu.cudenver.bios.glimmpse.client.listener.ChartOptionsListener;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
 import edu.cudenver.bios.glimmpse.client.listener.PerGroupSampleSizeListener;
+import edu.cudenver.bios.glimmpse.client.listener.PowerCheckboxListener;
 import edu.cudenver.bios.glimmpse.client.listener.PowerMethodListener;
+import edu.cudenver.bios.glimmpse.client.listener.QuantileCheckboxListener;
 import edu.cudenver.bios.glimmpse.client.listener.QuantileListener;
 import edu.cudenver.bios.glimmpse.client.listener.RelativeGroupSizeListener;
 import edu.cudenver.bios.glimmpse.client.listener.SigmaScaleListener;
@@ -67,13 +69,9 @@ public class OptionsDisplayPanel extends WizardStepPanel
 implements ClickHandler, AlphaListener, BetaScaleListener,
 SigmaScaleListener, TestListener, PowerMethodListener,
 QuantileListener, PerGroupSampleSizeListener, RelativeGroupSizeListener,
-CovariateListener, SolvingForListener
+CovariateListener, SolvingForListener, QuantileCheckboxListener, PowerCheckboxListener
 {
 	// constants for xml parsing
-	private static final String TAG_DISPLAY = "display";
-	private static final String ATTR_TABLE = "table";
-	private static final String ATTR_CURVE = "curve";
-	private static final String ATTR_XAXIS = "xaxis";
 	private static final String ATTR_VALUE_TOTAL_N = "totalN";
 	private static final String ATTR_VALUE_BETA_SCALE = "betaScale";
 	private static final String ATTR_VALUE_SIGMA_SCALE = "sigmaScale";
@@ -81,7 +79,6 @@ CovariateListener, SolvingForListener
 	private static final String ATTR_VALUE_TEST = "test";
 	private static final String ATTR_VALUE_POWER_METHOD = "powerMethod";
 	private static final String ATTR_VALUE_QUANTILE = "quantile";
-	private static final String ATTR_VALUE_POWER = "power";
 	
 	protected boolean hasCovariate = false;
 	protected boolean solvingForPower = true;
@@ -100,7 +97,7 @@ CovariateListener, SolvingForListener
 	protected CheckBox disableCheckbox = new CheckBox();
 	
     // options for x-axis
-	protected ListBox xaxisListBox = new ListBox();
+	protected ListBox xAxisListBox = new ListBox();
 
     // options for the stratification variable
 	protected ListBox stratifyListBox = new ListBox();
@@ -119,6 +116,9 @@ CovariateListener, SolvingForListener
     protected ListBox alphaListBox = new ListBox();
     protected ListBox powerMethodListBox = new ListBox();
     protected ListBox quantileListBox = new ListBox();
+    private VerticalPanel xAxisPanel = null;
+    private VerticalPanel fixValuesPanel = null;
+    private VerticalPanel stratPanel = null;
     
     /**
      * Constructor
@@ -156,7 +156,10 @@ CovariateListener, SolvingForListener
     
 	private void enableOptions(boolean enabled)
 	{
-		
+//		Window.alert("in enableOptions(), enabled="+enabled);
+		xAxisPanel.setVisible(enabled);
+		stratPanel.setVisible(enabled);
+		fixValuesPanel.setVisible(enabled);
 	}
 	
 	private HorizontalPanel createDisablePanel()
@@ -172,7 +175,7 @@ CovariateListener, SolvingForListener
 				enableOptions(!cb.getValue());
 			}
 		});
-		
+		disableCheckbox.setValue(true);
 		panel.add(disableCheckbox);
 		panel.add(new HTML(Glimmpse.constants.curveOptionsNone()));
 		
@@ -184,18 +187,18 @@ CovariateListener, SolvingForListener
 	
 	private VerticalPanel createXAxisPanel()
 	{
-		VerticalPanel panel = new VerticalPanel();
+		xAxisPanel = new VerticalPanel();
 
 		// create the listbox for the x-axis values
-		xaxisListBox.addItem(Glimmpse.constants.curveOptionsSampleSizeLabel(), 
+		xAxisListBox.addItem(Glimmpse.constants.curveOptionsSampleSizeLabel(), 
 				ATTR_VALUE_TOTAL_N);
-		xaxisListBox.addItem(Glimmpse.constants.curveOptionsBetaScaleLabel(), 
+		xAxisListBox.addItem(Glimmpse.constants.curveOptionsBetaScaleLabel(), 
 				ATTR_VALUE_BETA_SCALE);
-		xaxisListBox.addItem(Glimmpse.constants.curveOptionsSigmaScaleLabel(), 
+		xAxisListBox.addItem(Glimmpse.constants.curveOptionsSigmaScaleLabel(), 
 				ATTR_VALUE_SIGMA_SCALE);
 		
 		// add callback
-		xaxisListBox.addChangeHandler(new ChangeHandler() {
+		xAxisListBox.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event)
 			{
@@ -212,19 +215,19 @@ CovariateListener, SolvingForListener
 		});
 		
 		// layout the panel
-		panel.add(new HTML(Glimmpse.constants.curveOptionsXAxisLabel()));
-		panel.add(xaxisListBox);
+		xAxisPanel.add(new HTML(Glimmpse.constants.curveOptionsXAxisLabel()));
+		xAxisPanel.add(xAxisListBox);
 		
 		// set style
-		xaxisListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
-		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+		xAxisListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
+		xAxisPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
 		
-		return panel;
+		return xAxisPanel;
 	}
 	
 	private VerticalPanel createStratificationPanel()
 	{
-		VerticalPanel panel = new VerticalPanel();
+		stratPanel = new VerticalPanel();
 		
 		fillStratificationListBox(false);
 		
@@ -234,7 +237,7 @@ CovariateListener, SolvingForListener
 			public void onChange(ChangeEvent event)
 			{
 				ListBox lb = (ListBox) event.getSource();
-				int xaxisSelect = xaxisListBox.getSelectedIndex();
+				int xaxisSelect = xAxisListBox.getSelectedIndex();
 				if (lb.getSelectedIndex() == xaxisSelect)
 				{
 					if (xaxisSelect == 0) 
@@ -242,24 +245,23 @@ CovariateListener, SolvingForListener
 					else
 						lb.setSelectedIndex(0);
 				}
-					
 			}
 		});
 		
 		// layout the panel
-		panel.add(new HTML(Glimmpse.constants.curveOptionsStratifyLabel()));
-		panel.add(stratifyListBox);
+		stratPanel.add(new HTML(Glimmpse.constants.curveOptionsStratifyLabel()));
+		stratPanel.add(stratifyListBox);
 		
 		// set style
 		stratifyListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
-		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+		stratPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
 		
-		return panel;
+		return stratPanel;
 	}
 	
 	private VerticalPanel createFixValuesPanel()
 	{
-		VerticalPanel panel = new VerticalPanel();
+		fixValuesPanel = new VerticalPanel();
 		
 		Grid grid = new Grid(7,2);
 		// add drop down lists for remaining values that need to be fixed
@@ -279,16 +281,16 @@ CovariateListener, SolvingForListener
 		grid.setWidget(6, 0, quantileLabel);
 		
 		// layout the panel
-		panel.add(new HTML(Glimmpse.constants.curveOptionsFixValuesLabel()));
-		panel.add(grid);
+		fixValuesPanel.add(new HTML(Glimmpse.constants.curveOptionsFixValuesLabel()));
+		fixValuesPanel.add(grid);
 		
 		// set style
 		grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
-		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+		fixValuesPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
 		
 		showFixedItems(hasCovariate, solvingForPower);
 		
-		return panel;
+		return fixValuesPanel;
 	}
 
 	private void fillStratificationListBox(boolean hasCovariate)
@@ -316,12 +318,14 @@ CovariateListener, SolvingForListener
     
     private void showFixedItems(boolean hasCovariate, boolean solvingForPower)
     {
-		// set the list boxes for power method, quantile visible as needed
-		powerMethodLabel.setVisible(hasCovariate);
-		powerMethodListBox.setVisible(hasCovariate);
+    	//TODO I think this is a bug.  hasCovariate will be true if the
+		//user has selected the checkbox for Gaussian covariant, but this should only
+		//display if they checked OptionsPowerMethodsPanel.quantilePowerCheckBox
 		
-		quantileLabel.setVisible(hasCovariate);
-		quantileListBox.setVisible(hasCovariate);
+//		powerMethodLabel.setVisible(hasCovariate);
+//		powerMethodListBox.setVisible(hasCovariate);
+//		quantileLabel.setVisible(hasCovariate);
+//		quantileListBox.setVisible(hasCovariate);
 		
 		totalNLabel.setVisible(solvingForPower);
 		totalNListBox.setVisible(solvingForPower);
@@ -333,24 +337,13 @@ CovariateListener, SolvingForListener
 	 */
 	public void reset()
 	{		
-		// set the display options to table only
+		// set the display to remove power options
 		disableCheckbox.setValue(true);
 		enableOptions(false);
+		
 		// set defaults
-//		xaxisTotalNRadioButton.setValue(true);
-//		curveTotalNRadioButton.setEnabled(false);
-//		totalNListBox.setEnabled(false);
-//		xaxisBetaScaleRadioButton.setEnabled(false);
-//		curveBetaScaleRadioButton.setValue(true);
-//		betaScaleListBox.setEnabled(false);
-//	    // hide the power method and quantile related boxes
-//	    // only visible when controlling for a baseline covariate
-//		powerMethodLabel.setVisible(false);
-//		curvePowerMethodRadioButton.setVisible(false);
-//		powerMethodListBox.setVisible(false);
-//		quantileLabel.setVisible(false);
-//		curveQuantileRadioButton.setVisible(false);
-//		quantileListBox.setVisible(false);
+		xAxisListBox.setSelectedIndex(0);
+		stratifyListBox.setSelectedIndex(1);
 		
 		notifyComplete();
 	}
@@ -451,7 +444,7 @@ CovariateListener, SolvingForListener
 	
 	private void setBuilderAxisType(ChartRequestBuilder builder)
 	{
-		String value = xaxisListBox.getValue(xaxisListBox.getSelectedIndex());
+		String value = xAxisListBox.getValue(xAxisListBox.getSelectedIndex());
 		if (ATTR_VALUE_BETA_SCALE.equals(value))
 		{
 			builder.setXAxisType(AxisType.BETA_SCALE);
@@ -547,7 +540,6 @@ CovariateListener, SolvingForListener
 	@Override
 	public void loadFromNode(Node node)
 	{
-		// TODO
 //		if (TAG_DISPLAY.equals(node.getNodeName()))
 //		{
 //			NamedNodeMap attrs = node.getAttributes();
@@ -632,6 +624,18 @@ CovariateListener, SolvingForListener
 		for(String quantile: quantileList) quantileListBox.addItem(quantile);
 	}
 
+	@Override
+	public void onQuantileCheckBox(boolean quantileCheckBoxSelected){
+		quantileLabel.setVisible(quantileCheckBoxSelected);
+		quantileListBox.setVisible(quantileCheckBoxSelected);
+	}
+	
+	@Override
+	public void onPowerCheckBox(boolean powerCheckBoxSelected){
+		powerMethodLabel.setVisible(powerCheckBoxSelected);
+		powerMethodListBox.setVisible(powerCheckBoxSelected);
+	}
+	
 	@Override
 	public void onPowerMethodList(List<String> powerMethodList)
 	{
