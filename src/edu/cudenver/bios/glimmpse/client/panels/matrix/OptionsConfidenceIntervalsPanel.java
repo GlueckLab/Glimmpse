@@ -69,6 +69,11 @@ implements CovariateListener
 	// listeners for confidence interval changes
 	protected ArrayList<ConfidenceIntervalListener> listeners = new ArrayList<ConfidenceIntervalListener>();
 	
+	private VerticalPanel estimatesPanel = null;
+	private VerticalPanel tailProbabilityPanel = null;
+	private VerticalPanel typePanel = null;
+	
+	
 	public OptionsConfidenceIntervalsPanel(String mode)
 	{
 		super();
@@ -124,7 +129,7 @@ implements CovariateListener
 	
 	private VerticalPanel createTypePanel()
 	{
-		VerticalPanel panel = new VerticalPanel();
+		typePanel = new VerticalPanel();
 		
 		// create the radio buttons
 		sigmaCIRadioButton = new RadioButton(ciTypeRadioGroup, 
@@ -146,21 +151,21 @@ implements CovariateListener
 			}	
 		});
 		// layout the panel
-		panel.add(new HTML(Glimmpse.constants.confidenceIntervalOptionsTypeQuestion()));
-		panel.add(sigmaCIRadioButton);
-		panel.add(betaSigmaCIRadioButton);
+		typePanel.add(new HTML(Glimmpse.constants.confidenceIntervalOptionsTypeQuestion()));
+		typePanel.add(sigmaCIRadioButton);
+		typePanel.add(betaSigmaCIRadioButton);
 		
 		// set style
 		sigmaCIRadioButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
 		betaSigmaCIRadioButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
-		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
-		return panel;
+		typePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+		return typePanel;
 	}
 	
 	
 	private VerticalPanel createTailProbabilityPanel()
 	{
-		VerticalPanel panel = new VerticalPanel();
+		tailProbabilityPanel = new VerticalPanel();
 		
 		Grid grid = new Grid(2,2);
 		grid.setWidget(0, 0, new HTML(Glimmpse.constants.confidenceIntervalOptionsAlphaLower()));
@@ -169,9 +174,9 @@ implements CovariateListener
 		grid.setWidget(1, 1, alphaUpperTextBox);
 		
 		// layout the panel
-		panel.add(new HTML(Glimmpse.constants.confidenceIntervalOptionsAlphaQuestion()));
-		panel.add(grid);
-		panel.add(alphaErrorHTML);
+		tailProbabilityPanel.add(new HTML(Glimmpse.constants.confidenceIntervalOptionsAlphaQuestion()));
+		tailProbabilityPanel.add(grid);
+		tailProbabilityPanel.add(alphaErrorHTML);
 		
 		// callbacks for error checking
 		alphaLowerTextBox.addChangeHandler(new ChangeHandler() {
@@ -212,14 +217,14 @@ implements CovariateListener
 		// add style
 		grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
 		alphaErrorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
-		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+		tailProbabilityPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
 		
-		return panel;
+		return tailProbabilityPanel;
 	}
 	
 	private VerticalPanel createEstimatesPanel()
 	{
-		VerticalPanel panel = new VerticalPanel();
+		estimatesPanel = new VerticalPanel();
 		
 		Grid grid = new Grid(2,2);
 		grid.setWidget(0, 0, new HTML(Glimmpse.constants.confidenceIntervalOptionsSampleSize()));
@@ -299,26 +304,29 @@ implements CovariateListener
 			}
 		});
 		// layout the panel
-		panel.add(new HTML(Glimmpse.constants.confidenceIntervalOptionsEstimatedDataQuestion()));
-		panel.add(grid);
-		panel.add(estimatesErrorHTML);
+		estimatesPanel.add(new HTML(Glimmpse.constants.confidenceIntervalOptionsEstimatedDataQuestion()));
+		estimatesPanel.add(grid);
+		estimatesPanel.add(estimatesErrorHTML);
 		
 		// add style
 		grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
 		estimatesErrorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
-		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+		estimatesPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
 		
-		return panel;
+		return estimatesPanel;
 	}
 	
 	private void enableConfidenceIntervalOptions(boolean enabled)
 	{
-		sigmaCIRadioButton.setEnabled(enabled);
-		betaSigmaCIRadioButton.setEnabled(enabled);
-		alphaLowerTextBox.setEnabled(enabled);
-		alphaUpperTextBox.setEnabled(enabled);
-		sampleSizeTextBox.setEnabled(enabled);
-		rankTextBox.setEnabled(enabled);
+		estimatesPanel.setVisible(enabled);
+		typePanel.setVisible(enabled);
+		tailProbabilityPanel.setVisible(enabled);
+//		sigmaCIRadioButton.setEnabled(enabled);
+//		betaSigmaCIRadioButton.setEnabled(enabled);
+//		alphaLowerTextBox.setEnabled(enabled);
+//		alphaUpperTextBox.setEnabled(enabled);
+//		sampleSizeTextBox.setEnabled(enabled);
+//		rankTextBox.setEnabled(enabled);
 		TextValidation.displayOkay(alphaErrorHTML, "");
 		TextValidation.displayOkay(estimatesErrorHTML, "");
 	}
