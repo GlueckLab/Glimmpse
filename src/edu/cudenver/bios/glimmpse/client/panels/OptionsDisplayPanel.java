@@ -318,7 +318,7 @@ CovariateListener, SolvingForListener, QuantileCheckboxListener, PowerCheckboxLi
     
     private void showFixedItems(boolean hasCovariate, boolean solvingForPower)
     {
-    	//we should never display these two list boxes if they aren't controlling
+    	//we should never display these two list boxes if the user isn't controlling
     	//for a Gaussian predictor.
     	if(!hasCovariate)
     	{
