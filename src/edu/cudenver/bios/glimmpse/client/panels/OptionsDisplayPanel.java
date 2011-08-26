@@ -318,15 +318,15 @@ CovariateListener, SolvingForListener, QuantileCheckboxListener, PowerCheckboxLi
     
     private void showFixedItems(boolean hasCovariate, boolean solvingForPower)
     {
-    	//TODO I think this is a bug.  hasCovariate will be true if the
-		//user has selected the checkbox for Gaussian covariant, but this should only
-		//display if they checked OptionsPowerMethodsPanel.quantilePowerCheckBox
-		
-//		powerMethodLabel.setVisible(hasCovariate);
-//		powerMethodListBox.setVisible(hasCovariate);
-//		quantileLabel.setVisible(hasCovariate);
-//		quantileListBox.setVisible(hasCovariate);
-		
+    	//we should never display these two list boxes if they aren't controlling
+    	//for a Gaussian predictor.
+    	if(!hasCovariate)
+    	{
+			powerMethodLabel.setVisible(hasCovariate);
+			powerMethodListBox.setVisible(hasCovariate);
+			quantileLabel.setVisible(hasCovariate);
+			quantileListBox.setVisible(hasCovariate);
+    	}
 		totalNLabel.setVisible(solvingForPower);
 		totalNListBox.setVisible(solvingForPower);
 		
