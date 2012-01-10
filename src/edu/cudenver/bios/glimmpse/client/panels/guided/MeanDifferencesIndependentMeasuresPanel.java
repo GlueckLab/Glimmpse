@@ -116,7 +116,6 @@ OutcomesListener, PredictorsListener
 	public void reset()
 	{
 		outcomesTable.removeAllRows();
-		// TODO
 	}
 
 	public void onEnter()

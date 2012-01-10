@@ -42,11 +42,11 @@ implements OutcomesListener
 		
 		initWidget(panel);
 	}
+	
 	@Override
 	public void reset()
 	{
-		// TODO Auto-generated method stub
-
+		skip = true;
 	}
 
 	@Override

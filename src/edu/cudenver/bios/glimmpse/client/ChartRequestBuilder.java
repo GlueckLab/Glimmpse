@@ -30,9 +30,9 @@ import com.google.gwt.visualization.client.DataTable;
 
 public class ChartRequestBuilder
 {
-	private static final String CURVE_URL = "/webapps/chart/scatter";
+	private static final String CURVE_URL = Glimmpse.constants.chartServiceURL() + "/scatter";
 	//private static final String CURVE_3D_URL = "/webapps/chart/scatter3d";
-	private static final String LEGEND_URL = "/webapps/chart/legend";
+	private static final String LEGEND_URL = Glimmpse.constants.chartServiceURL() + "/legend";
 	private NumberFormat doubleFormatter = NumberFormat.getFormat("0.0000");
 	
 	public enum AxisType {

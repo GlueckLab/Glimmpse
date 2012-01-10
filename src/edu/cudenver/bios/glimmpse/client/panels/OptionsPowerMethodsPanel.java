@@ -38,7 +38,9 @@ import edu.cudenver.bios.glimmpse.client.Glimmpse;
 import edu.cudenver.bios.glimmpse.client.GlimmpseConstants;
 import edu.cudenver.bios.glimmpse.client.TextValidation;
 import edu.cudenver.bios.glimmpse.client.listener.CovariateListener;
+import edu.cudenver.bios.glimmpse.client.listener.PowerCheckboxListener;
 import edu.cudenver.bios.glimmpse.client.listener.PowerMethodListener;
+import edu.cudenver.bios.glimmpse.client.listener.QuantileCheckboxListener;
 import edu.cudenver.bios.glimmpse.client.listener.QuantileListener;
 
 /**
@@ -55,14 +57,25 @@ implements CovariateListener, ClickHandler
 {
 	// check boxes for power methods (only used when a baseline covariate is specified)
 	protected CheckBox unconditionalPowerCheckBox = new CheckBox();
-	protected CheckBox quantilePowerCheckBox = new CheckBox();
+	protected CheckBox quantilePowerCheckBox = new CheckBox(){
+		public void onChange(){
+			
+		}
+	};
 	protected int numQuantiles = 0;
 	
 	// listeners for power methods
 	protected ArrayList<PowerMethodListener> powerMethodListeners = 
 		new ArrayList<PowerMethodListener>();
+	
 	// listeners for quantile list changes
 	protected ArrayList<QuantileListener> quantileListeners = new ArrayList<QuantileListener>();
+	
+	//listeners for the quantile checkbox being selected
+	protected ArrayList<QuantileCheckboxListener> quantileCheckboxListeners = new ArrayList<QuantileCheckboxListener>();
+	
+	//listeners for the power checkbox being selected
+	protected ArrayList<PowerCheckboxListener> powerCheckboxListeners = new ArrayList<PowerCheckboxListener>();
 	
 	// dynamic list of quantile values
     protected ListEntryPanel quantileListPanel = 
@@ -152,7 +165,7 @@ implements CovariateListener, ClickHandler
 		quantileListPanel.setVisible(false);
 		numQuantiles = 0;
 		quantileListPanel.reset();
-		
+		skip = true;
 		checkComplete();
 	}
 
@@ -318,6 +331,24 @@ implements CovariateListener, ClickHandler
     }
     
     /**
+     * Add a listener for the unconditionalPowerCheckbox 
+     * @param listener
+     */
+    public void addPowerCheckboxListener(PowerCheckboxListener listener)
+    {
+    	powerCheckboxListeners.add(listener);
+    }
+    
+    /**
+     * 
+     * @param listener
+     */
+    public void addQuantileCheckboxListener(QuantileCheckboxListener listener)
+    {
+    	quantileCheckboxListeners.add(listener);
+    }
+    
+    /**
      * Add a listener for the list of quantiles
      * @param listener quantile listener object
      */
@@ -345,5 +376,17 @@ implements CovariateListener, ClickHandler
     	}
     	
 		for(PowerMethodListener listener: powerMethodListeners) listener.onPowerMethodList(powerMethods);
+		
+		//notify OptionsDisplayPanel of the status of the quantilePowerCheckBox
+		for(QuantileCheckboxListener listener: quantileCheckboxListeners)
+		{
+			listener.onQuantileCheckBox(quantilePowerCheckBox.getValue());
+		}
+		
+		//notify OptionsDisplayPanel of the status of the unconditionalPowerCheckbox
+		for(PowerCheckboxListener listener: powerCheckboxListeners)
+		{
+			listener.onPowerCheckBox(unconditionalPowerCheckBox.getValue());
+		}
     }
 }

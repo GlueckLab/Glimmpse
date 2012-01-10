@@ -190,6 +190,7 @@ implements ClickHandler, ChangeHandler
 		repetitions2DInnerTextBox.setEnabled(false);
 		units2DInnerTextBox.setEnabled(false);
 		checkComplete();
+		skip = true;
 	}
 
 	@Override

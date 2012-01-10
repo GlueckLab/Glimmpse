@@ -19,21 +19,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package edu.cudenver.bios.glimmpse.client.panels;
-
-import com.google.gwt.user.client.ui.TextBox;
+package edu.cudenver.bios.glimmpse.client.listener;
 
 /**
- * Text box widget that remembers which table row it lives in
- *
+ * Interface to listen for changes to the list of Type I errors
  */
-public class RowTextBox extends TextBox
+public interface QuantileCheckboxListener
 {
-	public int row;
-	
-	public RowTextBox(int row)
-	{
-		super();
-		this.row = row;
-	}
+	public void onQuantileCheckBox(boolean quantileCheckBoxSelected);
 }

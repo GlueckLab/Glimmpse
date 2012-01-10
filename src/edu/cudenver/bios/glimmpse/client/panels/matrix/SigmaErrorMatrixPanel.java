@@ -43,7 +43,10 @@ implements CovariateListener, MatrixResizeListener
     protected ResizableMatrix sigmaError = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_SIGMA_ERROR,
     			GlimmpseConstants.DEFAULT_P, 
-    			GlimmpseConstants.DEFAULT_P, "0", Glimmpse.constants.sigmaErrorMatrixName()); 
+    			GlimmpseConstants.DEFAULT_P,
+    			"0",
+    			Glimmpse.constants.sigmaErrorMatrixName(),
+    			true); 
     
     public SigmaErrorMatrixPanel()
     {
@@ -62,7 +65,6 @@ implements CovariateListener, MatrixResizeListener
 		// disable resize
 		sigmaError.setEnabledColumnDimension(false);
 		sigmaError.setEnabledRowDimension(false);
-		sigmaError.setIsSquare(true, true);
 		
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -77,6 +79,7 @@ implements CovariateListener, MatrixResizeListener
 	{
 		sigmaError.reset(GlimmpseConstants.DEFAULT_P, 
     			GlimmpseConstants.DEFAULT_P);
+		complete = true;
 	}
 
 	@Override

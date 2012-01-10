@@ -89,6 +89,7 @@ implements CovariateListener, VariabilityListener, OutcomesListener, ChangeHandl
 	public void reset()
 	{
 		correlationTable.removeAllRows();
+		skip = true;
 	}
 
 	@Override

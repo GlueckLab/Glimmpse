@@ -60,7 +60,7 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_MATRIX_PANEL = "matrixPanel";
     public static final String STYLE_MATRIX_DIMENSION = "matrixDimensions";
     public static final String STYLE_MATRIX_DATA = "matrixData";
-    public static final String STYLE_MATRIX_CELL= "matrixCell";
+    public static final String STYLE_MATRIX_CELL= "matrixCell";    
     
     public static final String STYLE_MESSAGE = "message";
     public static final String STYLE_MESSAGE_ERROR = "error";
@@ -192,6 +192,11 @@ public interface GlimmpseConstants extends Constants
     
     // toolbar separator keyword
     public static final String TOOLBAR_SEPARATOR = "_SEPARATOR_";
+    
+    // web service URLs
+    public String powerServiceURL();
+    public String chartServiceURL();
+    public String fileServiceURL();
     // navigation buttons
     public String buttonNext();
     public String buttonPrevious();

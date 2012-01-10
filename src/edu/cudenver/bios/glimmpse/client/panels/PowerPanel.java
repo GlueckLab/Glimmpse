@@ -112,6 +112,7 @@ implements ListValidator, SolvingForListener
 	{
 		nominalPowerListPanel.reset();
     	onValidRowCount(nominalPowerListPanel.getValidRowCount());
+    	skip = true;
 	}
 
 	@Override

@@ -104,8 +104,8 @@ public class BaselineCovariatePanel extends WizardStepPanel
 	@Override
 	public void reset()
 	{
-		// TODO Auto-generated method stub
 		covariateCheckBox.setValue(false);
+		for(CovariateListener listener : listeners) listener.onHasCovariate(false);
 	}
 
 	@Override
