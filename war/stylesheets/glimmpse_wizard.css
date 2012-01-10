@@ -274,6 +274,18 @@
 	width: 50px;
 }
 
+.matrixData-disabled {
+    background: #ebf0f5;
+    border: 1px solid #ccc;
+    height: 24px;
+}
+
+.matrixCell-disabled {
+    background: #ebf0f5;
+    border: 1px solid #ccc;
+    width: 50px;
+}
+
 .matrixHeader {
 	border-bottom: 1px solid #000;
 	margin-bottom: 10px;
