@@ -318,8 +318,8 @@
 
 .message-error {
 	color: maroon;
-	/* font-weight: bold; */
-	/* background: #fcc; */
+	/* font-weight: bold;
+	background: #fcc; */
 }
 
 .message-okay {
@@ -435,8 +435,17 @@
 	cursor: pointer;
 	background: white;
 }
-
 .resultsPanelButton-separator {
 	border-right: 1px solid #ccc;
 }
 
+.responsesPanelHorizontalPanel {
+	max-width: 58%
+}
+
+.buttonStyle {
+	float: left;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	cursor: pointer;
+}
