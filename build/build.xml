@@ -23,7 +23,7 @@
     <property name="source.dir" value="${basedir}/../src" />
 	<property name="explodedzip.dir" value="${basedir}/glimmpse" />
 	<property name="target.dir"  value="${explodedzip.dir}"/>
-	<property name="javadoc.dir" value="${basedir}/javadoc" />
+	<property name="javadoc.dir" value="${basedir}/javadoc/Glimmpse-javadoc" />
 	<property name="thirdparty.dir" value="${basedir}/../../thirdparty" />
 	<property name="gwt.dir" value="${thirdparty.dir}/gwt/2.0.3/lib" />
 	<property name="gwt.visualization.dir" value="${thirdparty.dir}/gwt-visualization/1.1/lib" />
