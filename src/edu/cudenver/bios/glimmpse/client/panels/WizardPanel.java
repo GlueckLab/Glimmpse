@@ -61,7 +61,7 @@ implements NavigationListener, StepStatusListener
 	// uri for help manual
 	protected static final String HELP_URL = "/help/manual.pdf";
 	// url for file save web service
-	protected static final String SAVEAS_URL = "/webapps/file/saveas"; 
+	protected static final String SAVEAS_URL = Glimmpse.constants.fileServiceURL() + "/saveas"; 
     // form for saving the study design
 	protected FormPanel saveForm = new FormPanel("_blank");
 	protected Hidden dataHidden = new Hidden("data");

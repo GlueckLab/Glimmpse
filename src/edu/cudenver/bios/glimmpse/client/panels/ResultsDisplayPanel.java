@@ -84,8 +84,8 @@ implements ChartOptionsListener, SolvingForListener, ConfidenceIntervalListener
 	private static final String STYLE_SEPARATOR = "separator";
 	private static final int STATUS_CODE_OK = 200;
 	private static final int STATUS_CODE_CREATED = 201;
-	private static final String POWER_URL = "/webapps/power/power";
-	private static final String SAMPLE_SIZE_URL = "/webapps/power/samplesize";
+	private static final String POWER_URL = Glimmpse.constants.powerServiceURL() + "/power";
+	private static final String SAMPLE_SIZE_URL = Glimmpse.constants.powerServiceURL() + "/samplesize";
 
 	private static final String CHART_INPUT_NAME = "chart";
 	private static final String SAVE_INPUT_NAME = "save";

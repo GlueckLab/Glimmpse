@@ -192,6 +192,11 @@ public interface GlimmpseConstants extends Constants
     
     // toolbar separator keyword
     public static final String TOOLBAR_SEPARATOR = "_SEPARATOR_";
+    
+    // web service URLs
+    public String powerServiceURL();
+    public String chartServiceURL();
+    public String fileServiceURL();
     // navigation buttons
     public String buttonNext();
     public String buttonPrevious();

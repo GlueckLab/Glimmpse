@@ -61,7 +61,7 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
 	private static final String STYLE_CONTAINER_DESC = "modeSelectionPanelContainerDescription";
     public static final String STYLE_INPUT_CONTAINER = "modeSelectionInputContainer";
     // uri of file upload service
-    private static final String UPLOAD_URI = "/webapps/file/upload";
+    private static final String UPLOAD_URI = Glimmpse.constants.fileServiceURL() + "/upload";
     // form tag for file
     private static final String FORM_TAG_FILE = "file";
     
